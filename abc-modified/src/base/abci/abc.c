@@ -47,8 +47,7 @@
 #include "cec.h"
 #include "giaAbs.h"
 #include "pdr.h" 
-
-#include <stdio.h>
+#include "stdio.h"
 #include "tim.h"
 #include "llb.h"
 #include "ntlnwk.h"
@@ -163,24 +162,6 @@ static int Abc_CommandDch                    ( Abc_Frame_t * pAbc, int argc, cha
 static int Abc_CommandDrwsat                 ( Abc_Frame_t * pAbc, int argc, char ** argv );
 static int Abc_CommandIRewriteSeq            ( Abc_Frame_t * pAbc, int argc, char ** argv );
 static int Abc_CommandIResyn                 ( Abc_Frame_t * pAbc, int argc, char ** argv );
-static int Abc_CommandISat                   ( Abc_Frame_t * pAbc, int argc, char ** argv );
-static int Abc_CommandIFraig                 ( Abc_Frame_t * pAbc, int argc, char ** argv );
-static int Abc_CommandDFraig                 ( Abc_Frame_t * pAbc, int argc, char ** argv );
-static int Abc_CommandCSweep                 ( Abc_Frame_t * pAbc, int argc, char ** argv );
-static int Abc_CommandDProve                 ( Abc_Frame_t * pAbc, int argc, char ** argv );
-//static int Abc_CommandDProve2                ( Abc_Frame_t * pAbc, int argc, char ** argv );
-static int Abc_CommandAbSec                  ( Abc_Frame_t * pAbc, int argc, char ** argv );
-static int Abc_CommandSimSec                 ( Abc_Frame_t * pAbc, int argc, char ** argv );
-static int Abc_CommandMatch                  ( Abc_Frame_t * pAbc, int argc, char ** argv );
-//static int Abc_CommandHaig                   ( Abc_Frame_t * pAbc, int argc, char ** argv );
-//static int Abc_CommandMini                   ( Abc_Frame_t * pAbc, int argc, char ** argv );
-static int Abc_CommandQbf                    ( Abc_Frame_t * pAbc, int argc, char ** argv );
-
-static int Abc_CommandFraig                  ( Abc_Frame_t * pAbc, int argc, char ** argv );
-static int Abc_CommandFraigTrust             ( Abc_Frame_t * pAbc, int argc, char ** argv );
-static int Abc_CommandFraigStore             ( Abc_Frame_t * pAbc, int argc, char ** argv );
-static int Abc_CommandFraigRestore           ( Abc_Frame_t * pAbc, int argc, char ** argv );
-static int Abc_CommandFraigClean             ( Abc_Frame_t * pAbc, int argc, char ** argv );
 static int Abc_CommandFraigSweep             ( Abc_Frame_t * pAbc, int argc, char ** argv );
 static int Abc_CommandFraigDress             ( Abc_Frame_t * pAbc, int argc, char ** argv );
 
@@ -363,7 +344,8 @@ static int Abc_CommandAbc9Test               ( Abc_Frame_t * pAbc, int argc, cha
 
 static int Abc_CommandAbcTestNew             ( Abc_Frame_t * pAbc, int argc, char ** argv );
 
-static void Abc_CommandAbcMyTest		(Abc_Frame_t * pAbc, int arg      c, char ** argv );
+static int Abc_CommandAbcMyTest             ( Abc_Frame_t * pAbc, int argc, char ** argv );
+
 extern int Abc_CommandAbcLivenessToSafety    ( Abc_Frame_t * pAbc, int argc, char ** argv );
 extern int Abc_CommandAbcLivenessToSafetySim ( Abc_Frame_t * pAbc, int argc, char ** argv );
 extern int Abc_CommandAbcLivenessToSafetyWithLTL( Abc_Frame_t * pAbc, int argc, char ** argv );
@@ -782,7 +764,7 @@ void Abc_Init( Abc_Frame_t * pAbc )
 
     Cmd_CommandAdd( pAbc, "Various",      "testnew",       Abc_CommandAbcTestNew,       0 );
 
-Cmd_CommandAdd( pAbc, "Various",      "mytest",   Abc_CommandAbcTestNew,       0 );
+Cmd_CommandAdd( pAbc, "Various",      "mytest",   Abc_CommandAbcMyTest,       0 );
 
 //    Cmd_CommandAdd( pAbc, "Verification", "trace_start",   Abc_CommandTraceStart,       0 );
 //    Cmd_CommandAdd( pAbc, "Verification", "trace_check",   Abc_CommandTraceCheck,       0 );
@@ -23461,9 +23443,11 @@ usage:
   SeeAlso     []
 
 ***********************************************************************/
-void Abc_CommandAbcMyTest()
+int Abc_CommandAbcMyTest( Abc_Frame_t * pAbc, int argc, char ** argv )
+
 {
-	printf("Hello World");
+	printf("Hello World\n");
+
 }
 
 int Abc_CommandAbcTestNew( Abc_Frame_t * pAbc, int argc, char ** argv )
@@ -27793,112 +27777,6 @@ usage:
         case 'p':
             pPars->fUsePivots ^= 1;
             break;
-        case 'c':
-            pPars->fCluster ^= 1;
-            break;
-        case 's':
-            pPars->fSchedule ^= 1;
-            break;
-        case 'y':
-            pPars->fSkipOutCheck ^= 1;
-            break;
-        case 'z':
-            pPars->fSkipReach ^= 1;
-            break;
-        case 'v':
-            pPars->fVerbose ^= 1;
-            break;
-        case 'w':
-            pPars->fVeryVerbose ^= 1;
-            break;
-        case 'h':
-            goto usage;
-        default:
-            goto usage;
-        }
-    }
-    if ( pAbc->pGia == NULL )
-    {
-        Abc_Print( -1, "Abc_CommandAbc9ReachM(): There is no AIG.\n" );
-        return 1;
-    }
-    if ( Gia_ManRegNum(pAbc->pGia) == 0 )
-    {
-        Abc_Print( -1, "Abc_CommandAbc9ReachM(): The current AIG has no latches.\n" );
-        return 0;
-    } 
-    if ( Gia_ManObjNum(pAbc->pGia) >= (1<<16) )
-    {
-        Abc_Print( -1, "Abc_CommandAbc9ReachM(): Currently cannot handle AIGs with more than %d objects.\n", (1<<16) );
-        return 0;
-    }
-    pAbc->Status  = Llb_ManModelCheckGia( pAbc->pGia, pPars );
-    pAbc->nFrames = pPars->iFrame;
-    Abc_FrameReplaceCex( pAbc, &pAbc->pGia->pCexSeq );
-    if ( pLogFileName )
-        Abc_NtkWriteLogFile( pLogFileName, pAbc->pCex, pAbc->Status, pAbc->nFrames, "&reachm" );
-    return 0;
-
-usage:
-    Abc_Print( -2, "usage: &reachm [-TBFCHS num] [-L file] [-ripcsyzvwh]\n" );
-    Abc_Print( -2, "\t         model checking via BDD-based reachability (dependence-matrix-based)\n" );
-    Abc_Print( -2, "\t-T num : approximate time limit in seconds (0=infinite) [default = %d]\n", pPars->TimeLimit );
-    Abc_Print( -2, "\t-B num : max number of nodes in the intermediate BDDs [default = %d]\n", pPars->nBddMax );
-    Abc_Print( -2, "\t-F num : max number of reachability iterations [default = %d]\n", pPars->nIterMax );
-    Abc_Print( -2, "\t-C num : max number of variables in a cluster [default = %d]\n", pPars->nClusterMax );
-    Abc_Print( -2, "\t-H num : max number of hints to use [default = %d]\n", pPars->nHintDepth );
-    Abc_Print( -2, "\t-S num : the number of the starting hint [default = %d]\n", pPars->HintFirst );
-    Abc_Print( -2, "\t-L file: the log file name [default = %s]\n", pLogFileName ? pLogFileName : "no logging" );
-    Abc_Print( -2, "\t-r     : enable dynamic BDD variable reordering [default = %s]\n", pPars->fReorder? "yes": "no" );  
-    Abc_Print( -2, "\t-i     : enable extraction of inductive constraints [default = %s]\n", pPars->fIndConstr? "yes": "no" );  
-    Abc_Print( -2, "\t-p     : enable partitions for internal cut-points [default = %s]\n", pPars->fUsePivots? "yes": "no" );  
-    Abc_Print( -2, "\t-c     : enable clustering of partitions [default = %s]\n", pPars->fCluster? "yes": "no" );  
-    Abc_Print( -2, "\t-s     : enable scheduling of clusters [default = %s]\n", pPars->fSchedule? "yes": "no" );  
-    Abc_Print( -2, "\t-y     : skip checking property outputs [default = %s]\n", pPars->fSkipOutCheck? "yes": "no" );  
-    Abc_Print( -2, "\t-z     : skip reachability (run preparation phase only) [default = %s]\n", pPars->fSkipReach? "yes": "no" );  
-    Abc_Print( -2, "\t-v     : prints verbose information [default = %s]\n", pPars->fVerbose? "yes": "no" );  
-    Abc_Print( -2, "\t-w     : prints dependency matrix [default = %s]\n", pPars->fVeryVerbose? "yes": "no" );  
-    Abc_Print( -2, "\t-h     : print the command usage\n");
-    return 1;
-}
-
-/**Function*************************************************************
-
-  Synopsis    []
-
-  Description []
-               
-  SideEffects []
-
-  SeeAlso     []
-
-***********************************************************************/
-int Abc_CommandAbc9ReachP( Abc_Frame_t * pAbc, int argc, char ** argv )
-{
-    Gia_ParLlb_t Pars, * pPars = &Pars;
-    Abc_Ntk_t * pNtk = Abc_FrameReadNtk(pAbc);
-    Aig_Man_t * pMan;
-    char * pLogFileName = NULL;
-    int c;
-    extern int Llb_ManReachMinCut( Aig_Man_t * pAig, Gia_ParLlb_t * pPars );
-
-    // set defaults
-    Llb_ManSetDefaultParams( pPars );
-    Extra_UtilGetoptReset();
-    while ( ( c = Extra_UtilGetopt( argc, argv, "NBFTLrbyzdvwh" ) ) != EOF )
-    {
-        switch ( c )
-        {
-        case 'N':
-            if ( globalUtilOptind >= argc )
-            {
-                Abc_Print( -1, "Command line switch \"-N\" should be followed by an integer.\n" );
-                goto usage;
-            }
-            pPars->nPartValue = atoi(argv[globalUtilOptind]);
-            globalUtilOptind++;
-            if ( pPars->nPartValue < 0 ) 
-                goto usage;
             break;
         case 'B':
             if ( globalUtilOptind >= argc )
@@ -28416,3 +28294,117 @@ usage:
 
 ABC_NAMESPACE_IMPL_END
 
+/**CFile****************************************************************
+ 
+  FileName    [abc.c] 
+
+  SystemName  [ABC: Logic synthesis and verification system.]
+
+  PackageName [Network and node package.]
+  
+  Synopsis    [Command file.]
+
+  Author      [Alan Mishchenko]
+   
+  Affiliation [UC Berkeley]
+
+  Date        [Ver. 1.0. Started - June 20, 2005.]
+
+  Revision    [$Id: abc.c,v 1.00 2005/06/20 00:00:00 alanmi Exp $]
+
+***********************************************************************/
+
+#include "abc.h"
+#include "main.h"
+#include "mainInt.h"
+#include "fraig.h"
+#include "fxu.h"
+#include "cut.h"
+#include "fpga.h"
+#include "if.h"
+#include "sim.h"
+#include "res.h"
+#include "lpk.h"
+#include "giaAig.h"
+#include "dar.h"
+#include "mfs.h"
+#include "mfx.h"
+#include "fra.h"
+#include "saig.h"
+#include "nwkMerge.h"
+#include "int.h"
+#include "dch.h"
+#include "ssw.h"
+#include "cgt.h"
+#include "kit.h"
+#include "amap.h"
+#include "retInt.h"
+#include "cnf.h"
+#include "cec.h"
+#include "giaAbs.h"
+#include "pdr.h" 
+
+#include <stdio.h>
+#include "tim.h"
+#include "llb.h"
+#include "ntlnwk.h"
+#include "mfx.h"
+#include "bbr.h"
+#include "cov.h"
+
+#include "cmd.h"
+#include "extra.h"
+
+#ifdef _WIN32
+//#include <io.h>
+#else
+#include <unistd.h>
+#endif
+
+ABC_NAMESPACE_IMPL_START
+
+////////////////////////////////////////////////////////////////////////
+///                        DECLARATIONS                              ///
+////////////////////////////////////////////////////////////////////////
+
+static int Abc_CommandPrintStats             ( Abc_Frame_t * pAbc, int argc, char ** argv );
+static int Abc_CommandPrintExdc              ( Abc_Frame_t * pAbc, int argc, char ** argv );
+static int Abc_CommandPrintIo                ( Abc_Frame_t * pAbc, int argc, char ** argv );
+static int Abc_CommandPrintLatch             ( Abc_Frame_t * pAbc, int argc, char ** argv );
+static int Abc_CommandPrintFanio             ( Abc_Frame_t * pAbc, int argc, char ** argv );
+static int Abc_CommandPrintMffc              ( Abc_Frame_t * pAbc, int argc, char ** argv );
+static int Abc_CommandPrintFactor            ( Abc_Frame_t * pAbc, int argc, char ** argv );
+static int Abc_CommandPrintLevel             ( Abc_Frame_t * pAbc, int argc, char ** argv );
+static int Abc_CommandPrintSupport           ( Abc_Frame_t * pAbc, int argc, char ** argv );
+static int Abc_CommandPrintSymms             ( Abc_Frame_t * pAbc, int argc, char ** argv );
+static int Abc_CommandPrintUnate             ( Abc_Frame_t * pAbc, int argc, char ** argv );
+static int Abc_CommandPrintAuto              ( Abc_Frame_t * pAbc, int argc, char ** argv );
+static int Abc_CommandPrintKMap              ( Abc_Frame_t * pAbc, int argc, char ** argv );
+static int Abc_CommandPrintGates             ( Abc_Frame_t * pAbc, int argc, char ** argv );
+static int Abc_CommandPrintSharing           ( Abc_Frame_t * pAbc, int argc, char ** argv );
+static int Abc_CommandPrintXCut              ( Abc_Frame_t * pAbc, int argc, char ** argv );
+static int Abc_CommandPrintDsd               ( Abc_Frame_t * pAbc, int argc, char ** argv );
+static int Abc_CommandPrintCone              ( Abc_Frame_t * pAbc, int argc, char ** argv );
+static int Abc_CommandPrintMiter             ( Abc_Frame_t * pAbc, int argc, char ** argv );
+static int Abc_CommandPrintStatus            ( Abc_Frame_t * pAbc, int argc, char ** argv );
+
+static int Abc_CommandShow                   ( Abc_Frame_t * pAbc, int argc, char ** argv );
+static int Abc_CommandShowBdd                ( Abc_Frame_t * pAbc, int argc, char ** argv );
+static int Abc_CommandShowCut                ( Abc_Frame_t * pAbc, int argc, char ** argv );
+
+static int Abc_CommandCollapse               ( Abc_Frame_t * pAbc, int argc, char ** argv );
+static int Abc_CommandStrash                 ( Abc_Frame_t * pAbc, int argc, char ** argv );
+static int Abc_CommandBalance                ( Abc_Frame_t * pAbc, int argc, char ** argv );
+static int Abc_CommandMuxStruct              ( Abc_Frame_t * pAbc, int argc, char ** argv );
+static int Abc_CommandMulti                  ( Abc_Frame_t * pAbc, int argc, char ** argv );
+static int Abc_CommandRenode                 ( Abc_Frame_t * pAbc, int argc, char ** argv );
+static int Abc_CommandCleanup                ( Abc_Frame_t * pAbc, int argc, char ** argv );
+static int Abc_CommandSweep                  ( Abc_Frame_t * pAbc, int argc, char ** argv );
+static int Abc_CommandFastExtract            ( Abc_Frame_t * pAbc, int argc, char ** argv );
+static int Abc_CommandEliminate              ( Abc_Frame_t * pAbc, int argc, char ** argv );
+static int Abc_CommandDisjoint               ( Abc_Frame_t * pAbc, int argc, char ** argv );
+static int Abc_CommandLutpack                ( Abc_Frame_t * pAbc, int argc, char ** argv );
+static int Abc_CommandLutmin                 ( Abc_Frame_t * pAbc, int argc, char ** argv );
+static int Abc_CommandImfs                   ( Abc_Frame_t * pAbc, int argc, char ** argv );
+static int Abc_CommandMfs                    ( Abc_Frame_t * pAbc, int argc, char ** argv );
+static int Abc_CommandTrace                  ( Abc_Frame_t * pAbc, int argc, char ** argv );
