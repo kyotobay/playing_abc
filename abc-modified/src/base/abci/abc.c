@@ -23555,22 +23555,6 @@ int Abc_CommandAbcMyTest( Abc_Frame_t * pAbc, int argc, char ** argv )
         }
     }
 
-    //if ( pNtk == NULL )
-    //{
-      //  Abc_Print( -1, "Empty network.\n" );
-        //return 1;
-   // }
-
-    //if ( !Abc_NtkIsStrash( pNtk) )
-   // {
-     //   Abc_Print( -1, "The current network is not an AIG. Cannot continue.\n" );
-       // return 1;
-   // }
-
-//    Abc_NtkTestProcedure( pNtk, NULL );
-
- //   return 0;
-
 usage:
     Abc_Print( -2, "usage: mytest \n" );
     Abc_Print( -2, "\t        printing 'hello abc'\n" );
