@@ -60,6 +60,8 @@ Abc_Ntk_t * Io_ReadBaf( char * pFileName, int fCheck )
     fread( pContents, nFileSize, 1, pFile );
     fclose( pFile );
 
+//debugging
+//    printf("pContents has %c \n", pContents);
     // skip the comments (comment lines begin with '#' and end with '\n')
     for ( pCur = pContents; *pCur == '#'; )
         while ( *pCur++ != '\n' );

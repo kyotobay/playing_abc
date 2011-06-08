@@ -81,6 +81,8 @@ Io_FileType_t Io_ReadFileType( char * pFileName )
         return IO_FILE_SMV;
     if ( !strcmp( pExt, "v" ) )
         return IO_FILE_VERILOG;
+    if ( !strcmp( pExt, "txt" ) )
+        return IO_FILE_TXT;
     return IO_FILE_UNKNOWN;
 }
 
@@ -147,6 +149,8 @@ Abc_Ntk_t * Io_ReadNetlist( char * pFileName, Io_FileType_t FileType, int fCheck
         pNtk = Io_ReadPla( pFileName, 0, fCheck );
     else if ( FileType == IO_FILE_VERILOG )
         pNtk = Io_ReadVerilog( pFileName, fCheck );
+    else if ( FileType == IO_FILE_TXT )
+        pNtk = Io_ReadTxt( pFileName, fCheck ) ;
     else 
     {
         fprintf( stderr, "Unknown file format.\n" );
@@ -440,6 +444,9 @@ void Io_Write( Abc_Ntk_t * pNtk, char * pFileName, Io_FileType_t FileType )
             Abc_NtkToAig( pNtkTemp );
         Io_WriteVerilog( pNtkTemp, pFileName );
     }
+    //else if ( FileType == IO_FILE_TXT )
+   // {
+     //  }
     else 
         fprintf( stderr, "Unknown file format.\n" );
     Abc_NtkDelete( pNtkTemp );
@@ -474,6 +481,8 @@ void Io_WriteHie( Abc_Ntk_t * pNtk, char * pBaseName, char * pFileName )
         pNtkBase = Io_ReadBlifMv( pBaseName, 1, 1 );
     else if ( Io_ReadFileType(pBaseName) == IO_FILE_VERILOG )
         pNtkBase = Io_ReadVerilog( pBaseName, 1 );
+    else if ( Io_ReadFileType(pBaseName) == IO_FILE_TXT )
+        pNtkBase = Io_ReadTxt( pBaseName, 1 );
     else 
         fprintf( stderr, "Unknown input file format.\n" );
     if ( pNtkBase == NULL )

@@ -56,6 +56,7 @@ typedef enum {
     IO_FILE_DOT,      
     IO_FILE_EDIF,      
     IO_FILE_EQN,      
+    IO_FILE_TXT,
     IO_FILE_GML,      
     IO_FILE_LIST,      
     IO_FILE_PLA,      
@@ -89,6 +90,8 @@ extern Abc_Ntk_t *        Io_ReadBench( char * pFileName, int fCheck );
 extern void               Io_ReadBenchInit( Abc_Ntk_t * pNtk, char * pFileName );
 /*=== abcReadEdif.c ===========================================================*/
 extern Abc_Ntk_t *        Io_ReadEdif( char * pFileName, int fCheck );
+/*=== abcReadTxt.c ===========================================================*/
+extern Abc_Ntk_t *        Io_ReadTxt( char * pFileName, int fCheck );
 /*=== abcReadEqn.c ============================================================*/
 extern Abc_Ntk_t *        Io_ReadEqn( char * pFileName, int fCheck );
 /*=== abcReadPla.c ============================================================*/
