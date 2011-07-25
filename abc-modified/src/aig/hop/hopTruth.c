@@ -164,7 +164,7 @@ unsigned * Hop_ManConvertAigToTruth( Hop_Man_t * p, Hop_Obj_t * pRoot, int nVars
         vTtElems = NULL;
 
     // clear the data fields and set marks
-    nNodes = Hop_ManConvertAigToTruth_rec1( Hop_Regular(pRoot) );
+    nNodes = Hop_ManConvertAigToTruth_rec1( Hop_Regular( pRoot) );
     // prepare memory
     nWords = Hop_TruthWordNum( nVars );
     Vec_IntClear( vTruth );
@@ -181,8 +181,8 @@ unsigned * Hop_ManConvertAigToTruth( Hop_Man_t * p, Hop_Obj_t * pRoot, int nVars
         return pTruth;
     }
     // set elementary truth tables at the leaves
-    assert( nVars <= Hop_ManPiNum(p) );
-//    assert( Hop_ManPiNum(p) <= 8 ); 
+//    assert( nVars <= Hop_ManPiNum(p) );
+    assert( Hop_ManPiNum(p) <= 8 ); 
     if ( fMsbFirst )
     {
 //        Hop_ManForEachPi( p, pObj, i )

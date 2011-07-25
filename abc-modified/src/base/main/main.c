@@ -292,8 +292,6 @@ static int TypeCheck( Abc_Frame_t * pAbc, const char * s )
         return 1;
     else if (strcmp(s, "bench") == 0)
         return 1;
-    //else if (strcmp(s, "txt") == 0)
-      //  return 1;
     else if (strcmp(s, "pla") == 0)
         return 1;
     else if (strcmp(s, "none") == 0)

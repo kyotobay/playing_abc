@@ -36,9 +36,6 @@ static int IoCommandReadBlifMv  ( Abc_Frame_t * pAbc, int argc, char **argv );
 static int IoCommandReadBench   ( Abc_Frame_t * pAbc, int argc, char **argv );
 static int IoCommandReadDsd     ( Abc_Frame_t * pAbc, int argc, char **argv );
 static int IoCommandReadEdif    ( Abc_Frame_t * pAbc, int argc, char **argv );
-
-static int IoCommandReadTxt    ( Abc_Frame_t * pAbc, int argc, char **argv );
-
 static int IoCommandReadEqn     ( Abc_Frame_t * pAbc, int argc, char **argv );
 static int IoCommandReadInit    ( Abc_Frame_t * pAbc, int argc, char **argv );
 static int IoCommandReadPla     ( Abc_Frame_t * pAbc, int argc, char **argv );
@@ -51,6 +48,7 @@ static int IoCommandReadStatus  ( Abc_Frame_t * pAbc, int argc, char **argv );
 static int IoCommandWrite       ( Abc_Frame_t * pAbc, int argc, char **argv );
 static int IoCommandWriteHie    ( Abc_Frame_t * pAbc, int argc, char **argv );
 static int IoCommandWriteAiger  ( Abc_Frame_t * pAbc, int argc, char **argv );
+static int IoCommandWriteAigerCex( Abc_Frame_t * pAbc, int argc, char **argv );
 static int IoCommandWriteBaf    ( Abc_Frame_t * pAbc, int argc, char **argv );
 static int IoCommandWriteBblif  ( Abc_Frame_t * pAbc, int argc, char **argv );
 static int IoCommandWriteBlif   ( Abc_Frame_t * pAbc, int argc, char **argv );
@@ -104,9 +102,6 @@ void Io_Init( Abc_Frame_t * pAbc )
 //    Cmd_CommandAdd( pAbc, "I/O", "read_edif",     IoCommandReadEdif,     1 );
     Cmd_CommandAdd( pAbc, "I/O", "read_eqn",      IoCommandReadEqn,      1 );
     Cmd_CommandAdd( pAbc, "I/O", "read_init",     IoCommandReadInit,     1 );
-
-    Cmd_CommandAdd( pAbc, "I/O", "read_txt",      IoCommandReadTxt,      1 );
-
     Cmd_CommandAdd( pAbc, "I/O", "read_pla",      IoCommandReadPla,      1 );
     Cmd_CommandAdd( pAbc, "I/O", "read_truth",    IoCommandReadTruth,    1 );
     Cmd_CommandAdd( pAbc, "I/O", "read_verilog",  IoCommandReadVerilog,  1 );
@@ -117,6 +112,7 @@ void Io_Init( Abc_Frame_t * pAbc )
     Cmd_CommandAdd( pAbc, "I/O", "write",         IoCommandWrite,        0 );
     Cmd_CommandAdd( pAbc, "I/O", "write_hie",     IoCommandWriteHie,     0 );
     Cmd_CommandAdd( pAbc, "I/O", "write_aiger",   IoCommandWriteAiger,   0 );
+    Cmd_CommandAdd( pAbc, "I/O", "write_aiger_cex",   IoCommandWriteAigerCex,   0 );
     Cmd_CommandAdd( pAbc, "I/O", "write_baf",     IoCommandWriteBaf,     0 );
     Cmd_CommandAdd( pAbc, "I/O", "write_bblif",   IoCommandWriteBblif,   0 );
     Cmd_CommandAdd( pAbc, "I/O", "write_blif",    IoCommandWriteBlif,    0 );
@@ -695,60 +691,7 @@ usage:
     fprintf( pAbc->Err, "\tfile   : the name of a file to read\n" );
     return 1;
 }
-/**Function*************************************************************
 
-  Synopsis    []
-
-  Description []
-               
-  SideEffects []
-
-  SeeAlso     []
-
-***********************************************************************/
-int IoCommandReadTxt( Abc_Frame_t * pAbc, int argc, char ** argv )
-{
-    Abc_Ntk_t * pNtk;
-    char * pFileName;
-    int fCheck;
-    int c;
-
-    fCheck = 1;
-    Extra_UtilGetoptReset();
-    while ( ( c = Extra_UtilGetopt( argc, argv, "ch" ) ) != EOF )
-    {
-        switch ( c )
-        {
-            case 'c':
-                fCheck ^= 1;
-                break;
-            case 'h':
-                goto usage;
-            default:
-                goto usage;
-        }
-    }
-    if ( argc != globalUtilOptind + 1 )
-        goto usage;
-    // get the input file name
-    pFileName = argv[globalUtilOptind];
-    // read the file using the corresponding file reader
-    pNtk = Io_Read( pFileName, IO_FILE_TXT, fCheck );
-    if ( pNtk == NULL )
-        return 1;
-    // replace the current network
-    Abc_FrameReplaceCurrentNetwork( pAbc, pNtk );
-    Abc_FrameClearVerifStatus( pAbc );
-    return 0;
-
-usage:
-    fprintf( pAbc->Err, "usage: read_txt [-ch] <file>\n" );
-    fprintf( pAbc->Err, "\t         reads the network in txt (works only for ISCAS benchmarks)\n" );
-    fprintf( pAbc->Err, "\t-c     : toggle network check after reading [default = %s]\n", fCheck? "yes":"no" );
-    fprintf( pAbc->Err, "\t-h     : prints the command summary\n" );
-    fprintf( pAbc->Err, "\tfile   : the name of a file to read\n" );
-    return 1;
-}
 /**Function*************************************************************
 
   Synopsis    []
@@ -1479,6 +1422,52 @@ usage:
     fprintf( pAbc->Err, "\t-c     : toggle writing more compactly [default = %s]\n", fCompact? "yes" : "no" );
     fprintf( pAbc->Err, "\t-h     : print the help massage\n" );
     fprintf( pAbc->Err, "\tfile   : the name of the file to write (extension .aig)\n" );
+    return 1;
+}
+
+/**Function*************************************************************
+
+  Synopsis    []
+
+  Description []
+               
+  SideEffects []
+
+  SeeAlso     []
+
+***********************************************************************/
+int IoCommandWriteAigerCex( Abc_Frame_t * pAbc, int argc, char **argv )
+{
+    char * pFileName;
+    int c;
+    Extra_UtilGetoptReset();
+    while ( ( c = Extra_UtilGetopt( argc, argv, "h" ) ) != EOF )
+    {
+        switch ( c )
+        {
+            case 'h':
+                goto usage;
+            default:
+                goto usage;
+        }
+    }
+    if ( pAbc->pCex == NULL )
+    {
+        fprintf( pAbc->Out, "There is no current CEX.\n" );
+        return 0;
+    }
+    if ( argc != globalUtilOptind + 1 )
+        goto usage;
+    // get the output file name
+    pFileName = argv[globalUtilOptind];
+    Io_WriteAigerCex( pAbc->pCex, pAbc->pNtkCur, pAbc->pGia, pFileName );
+    return 0;
+
+usage:
+    fprintf( pAbc->Err, "usage: write_aiger_cex [-h] <file>\n" );
+    fprintf( pAbc->Err, "\t         writes the current CEX in the AIGER format (http://fmv.jku.at/aiger)\n" );
+    fprintf( pAbc->Err, "\t-h     : print the help massage\n" );
+    fprintf( pAbc->Err, "\tfile   : the name of the file to write\n" );
     return 1;
 }
 

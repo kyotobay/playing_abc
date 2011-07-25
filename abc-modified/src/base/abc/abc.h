@@ -179,9 +179,10 @@ struct Abc_Ntk_t_
     Vec_Ptr_t *       vBoxes;        // the array of boxes
 	Vec_Ptr_t *       vLtlProperties;
     // the number of living objects
-    int               nConstrs;      // the number of constraints (model checking only)
-    int               nObjs;         // the number of live objs
     int nObjCounts[ABC_OBJ_NUMBER];  // the number of objects by type
+    int               nObjs;         // the number of live objs
+    int               nConstrs;      // the number of constraints
+    int               nRealPos;      // the number of real POs
     // the backup network and the step number
     Abc_Ntk_t *       pNetBackup;    // the pointer to the previous backup network
     int               iStep;         // the generation number for the given network
@@ -210,6 +211,7 @@ struct Abc_Ntk_t_
     void *            pHaig;         // history AIG
     float *           pLutTimes;     // arrivals/requireds/slacks using LUT-delay model
     Vec_Ptr_t *       vOnehots;      // names of one-hot-encoded registers
+    Vec_Int_t *       vObjPerm;      // permutation saved
     // node attributes
     Vec_Ptr_t *       vAttrs;        // managers of various node attributes (node functionality, global BDDs, etc)
 };
@@ -378,8 +380,30 @@ static inline int         Abc_ObjFanoutEdgeNum( Abc_Obj_t * pObj, Abc_Obj_t * pF
 static inline Abc_Obj_t * Abc_ObjFanout( Abc_Obj_t * pObj, int i )   { return (Abc_Obj_t *)pObj->pNtk->vObjs->pArray[ pObj->vFanouts.pArray[i] ];  }
 static inline Abc_Obj_t * Abc_ObjFanout0( Abc_Obj_t * pObj )         { return (Abc_Obj_t *)pObj->pNtk->vObjs->pArray[ pObj->vFanouts.pArray[0] ];  }
 static inline Abc_Obj_t * Abc_ObjFanin( Abc_Obj_t * pObj, int i )    { return (Abc_Obj_t *)pObj->pNtk->vObjs->pArray[ pObj->vFanins.pArray[i] ];   }
-static inline Abc_Obj_t * Abc_ObjFanin0( Abc_Obj_t * pObj )          { return (Abc_Obj_t *)pObj->pNtk->vObjs->pArray[ pObj->vFanins.pArray[0] ];   }
-static inline Abc_Obj_t * Abc_ObjFanin1( Abc_Obj_t * pObj )          { return (Abc_Obj_t *)pObj->pNtk->vObjs->pArray[ pObj->vFanins.pArray[1] ];   }
+//static inline Abc_Obj_t * Abc_ObjFanin0( Abc_Obj_t * pObj )          { return (Abc_Obj_t *)pObj->pNtk->vObjs->pArray[ pObj->vFanins.pArray[0] ];   }
+static inline Abc_Obj_t * Abc_ObjFanin0( Abc_Obj_t * pObj )
+{
+	if(pObj->vFanins.pArray == NULL)
+	{
+		return NULL;
+	}
+	else
+	{
+		return (Abc_Obj_t *)pObj->pNtk->vObjs->pArray[ pObj->vFanins.pArray[0] ];
+	}
+}
+//static inline Abc_Obj_t * Abc_ObjFanin1( Abc_Obj_t * pObj )          { return (Abc_Obj_t *)pObj->pNtk->vObjs->pArray[ pObj->vFanins.pArray[1] ];   }
+static inline Abc_Obj_t * Abc_ObjFanin1( Abc_Obj_t * pObj )
+{
+	if(pObj->vFanins.pArray == NULL)
+	{
+		return NULL;
+	}
+	else
+	{
+		return (Abc_Obj_t *)pObj->pNtk->vObjs->pArray[ pObj->vFanins.pArray[1] ];
+	}
+}
 static inline Abc_Obj_t * Abc_ObjFanin0Ntk( Abc_Obj_t * pObj )       { return (Abc_NtkIsNetlist(pObj->pNtk)? Abc_ObjFanin0(pObj)  : pObj);  }
 static inline Abc_Obj_t * Abc_ObjFanout0Ntk( Abc_Obj_t * pObj )      { return (Abc_NtkIsNetlist(pObj->pNtk)? Abc_ObjFanout0(pObj) : pObj);  }
 static inline int         Abc_ObjFaninC0( Abc_Obj_t * pObj )         { return pObj->fCompl0;                                                }
@@ -707,6 +731,8 @@ extern ABC_DLL Abc_Ntk_t *        Abc_NtkCreateWithNode( char * pSop );
 extern ABC_DLL void               Abc_NtkDelete( Abc_Ntk_t * pNtk );
 extern ABC_DLL void               Abc_NtkFixNonDrivenNets( Abc_Ntk_t * pNtk );
 extern ABC_DLL void               Abc_NtkMakeComb( Abc_Ntk_t * pNtk, int fRemoveLatches );
+extern ABC_DLL void               Abc_NtkPermute( Abc_Ntk_t * pNtk, int fInputs, int fOutputs, int fFlops );
+extern ABC_DLL void               Abc_NtkUnpermute( Abc_Ntk_t * pNtk );
 /*=== abcObj.c ==========================================================*/
 extern ABC_DLL Abc_Obj_t *        Abc_ObjAlloc( Abc_Ntk_t * pNtk, Abc_ObjType_t Type );
 extern ABC_DLL void               Abc_ObjRecycle( Abc_Obj_t * pObj );

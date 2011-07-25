@@ -11,7 +11,6 @@ SRC +=  src/base/io/io.c \
 	src/base/io/ioReadEqn.c \
 	src/base/io/ioReadPla.c \
 	src/base/io/ioReadVerilog.c \
-	src/base/io/ioReadTxt.c \
 	src/base/io/ioUtil.c \
 	src/base/io/ioWriteAiger.c \
 	src/base/io/ioWriteBaf.c \

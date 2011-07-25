@@ -1305,6 +1305,23 @@ void Abc_AigPrintNode( Abc_Obj_t * pNode )
     printf( "\n" );
 }
 
+void Abc_AigBrowseNode( Abc_Obj_t * pNode)
+{
+	Abc_Obj_t * pNodeR = Abc_ObjRegular(pNode);
+	printf("%s\n", Abc_ObjName(pNodeR));
+	if(Abc_ObjFanin0(pNode) != NULL)
+	{
+	// adress of node	printf("%p\n", Abc_ObjFanin0(pNode));
+		Abc_AigBrowseNode(Abc_ObjFanin0(pNode));
+
+	}
+	if(Abc_ObjFanin1(pNode) != NULL)
+	{
+	// adress of node	printf("%p\n", Abc_ObjFanin1(pNode));
+		Abc_AigBrowseNode(Abc_ObjFanin1(pNode));
+	}
+	
+}
 
 /**Function*************************************************************
 

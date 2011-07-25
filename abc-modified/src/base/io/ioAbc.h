@@ -56,7 +56,6 @@ typedef enum {
     IO_FILE_DOT,      
     IO_FILE_EDIF,      
     IO_FILE_EQN,      
-    IO_FILE_TXT,
     IO_FILE_GML,      
     IO_FILE_LIST,      
     IO_FILE_PLA,      
@@ -90,8 +89,6 @@ extern Abc_Ntk_t *        Io_ReadBench( char * pFileName, int fCheck );
 extern void               Io_ReadBenchInit( Abc_Ntk_t * pNtk, char * pFileName );
 /*=== abcReadEdif.c ===========================================================*/
 extern Abc_Ntk_t *        Io_ReadEdif( char * pFileName, int fCheck );
-/*=== abcReadTxt.c ===========================================================*/
-extern Abc_Ntk_t *        Io_ReadTxt( char * pFileName, int fCheck );
 /*=== abcReadEqn.c ============================================================*/
 extern Abc_Ntk_t *        Io_ReadEqn( char * pFileName, int fCheck );
 /*=== abcReadPla.c ============================================================*/
@@ -100,6 +97,7 @@ extern Abc_Ntk_t *        Io_ReadPla( char * pFileName, int fZeros, int fCheck )
 extern Abc_Ntk_t *        Io_ReadVerilog( char * pFileName, int fCheck );
 /*=== abcWriteAiger.c =========================================================*/
 extern void               Io_WriteAiger( Abc_Ntk_t * pNtk, char * pFileName, int fWriteSymbols, int fCompact );
+extern void               Io_WriteAigerCex( Abc_Cex_t * pCex, Abc_Ntk_t * pNtk, void * pG, char * pFileName );
 /*=== abcWriteBaf.c ===========================================================*/
 extern void               Io_WriteBaf( Abc_Ntk_t * pNtk, char * pFileName );
 /*=== abcWriteBblif.c ===========================================================*/
