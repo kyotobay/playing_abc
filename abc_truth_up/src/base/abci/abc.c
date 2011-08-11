@@ -33,6 +33,7 @@
 #include "dar.h"
 #include "mfs.h"
 #include "mfx.h"
+#include "abc_FD.h"
 #include "fra.h"
 #include "saig.h"
 #include "nwkMerge.h"

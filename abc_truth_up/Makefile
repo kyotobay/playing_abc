@@ -55,7 +55,8 @@ include $(patsubst %, %/module.make, $(MODULES))
 OBJ := \
 	$(patsubst %.cc, %.o, $(filter %.cc, $(SRC))) \
 	$(patsubst %.c, %.o,  $(filter %.c, $(SRC)))  \
-	$(patsubst %.y, %.o,  $(filter %.y, $(SRC))) 
+	$(patsubst %.y, %.o,  $(filter %.y, $(SRC)))  \
+	$(patsubst %.cpp, %.o, $(filter %.cpp, $(SRC)))  
 
 DEP := $(OBJ:.o=.d)
 
