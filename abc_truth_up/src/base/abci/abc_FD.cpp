@@ -1,10 +1,13 @@
 #include <iostream>
 #include <stdint.h>
 #include <vector>
+#include <fstream>
+#include "abc_FD.h"
 
 using namespace::std;
 
 #define DEBUG 1
+
 
 //--------------------------------------------------------------------------
 
@@ -45,12 +48,12 @@ void read_table(bool *table, int n)
 
 int projection(int orig_num, int num_vars, int *var_list)
 {
-    	int x = 0;
-    	for (int i = 0; i < num_vars; i++)
-    	{
+	int x = 0;
+	for (int i = 0; i < num_vars; i++)
+	{
 		if (orig_num & (1 << var_list[i]))
 			x |= (1 << i);
-    	}
+	}
 
 	return x;
 }
@@ -67,12 +70,12 @@ struct rectangle_entry{
 
 class brick
 {
-private:
+	private:
 	int num_vars;
 	int *var_list;
 	bool *table;
 
-public:
+	public:
 	brick(int vars);
 	void read_brick();
 
@@ -80,7 +83,7 @@ public:
 	int *get_var_list() {return var_list;}
 	bool *get_table() {return table;}
 
-    	void fill_rectangle(rectangle_entry *rectangle, int count);
+	void fill_rectangle(rectangle_entry *rectangle, int count);
 };
 
 //--------------------------------------------------------------------------
@@ -94,7 +97,7 @@ brick::brick(int vars)
 
 //--------------------------------------------------------------------------
 
-void
+	void
 brick::read_brick()
 {
 	read_var_list(var_list, num_vars);
@@ -103,27 +106,27 @@ brick::read_brick()
 
 //--------------------------------------------------------------------------
 
-void 
+	void 
 brick::fill_rectangle(rectangle_entry *rectangles, int count)
 {
-    	int size = bin_pow(count);
-    	for (int i = 0; i < size; i++)
-    	{
+	int size = bin_pow(count);
+	for (int i = 0; i < size; i++)
+	{
 		rectangles[i].g_value = table[projection(i, num_vars, var_list)];        	
-    	}
+	}
 }
 
 //--------------------------------------------------------------------------
 
-void read_inps(bool *table, int num_inps, brick **brick_list, int num_functions)
+void read_inps(bool *table, int num_inps, brick **brick_list, int num_functions )
 {
 	read_table(table, bin_pow(num_inps));
-	
+
 	for (int i = 0; i < num_functions; i++)
 	{
 		int vars;
 		cin >> vars;
-		
+
 		brick_list[i] = new brick(vars);
 		brick_list[i]->read_brick();
 	}
@@ -283,20 +286,20 @@ void split(rectangle_entry *rectangles, brick *b, int vars, int *num_groups)
 	b->fill_rectangle(rectangles, vars);
 
 	int size = bin_pow(vars);
-    	int *groups = new int[2 * (*num_groups)];
+	int *groups = new int[2 * (*num_groups)];
 
 	for (int i = 0; i < 2 * (*num_groups); i++)
 		groups[i] = 0;
 
 	// assigning the ids to the splitted rectangles
-    	for (int i = 0; i < size; i++)
-    	{
-        	if (rectangles[i].group_id == -1)
-            		continue;
+	for (int i = 0; i < size; i++)
+	{
+		if (rectangles[i].group_id == -1)
+			continue;
 
-        	rectangles[i].group_id <<= 1;
-        	if (rectangles[i].g_value)
-            		rectangles[i].group_id |= 1;
+		rectangles[i].group_id <<= 1;
+		if (rectangles[i].g_value)
+			rectangles[i].group_id |= 1;
 
 		if (rectangles[i].f_value)
 		{
@@ -306,9 +309,9 @@ void split(rectangle_entry *rectangles, brick *b, int vars, int *num_groups)
 		{
 			groups[rectangles[i].group_id] |= 2;
 		}
-    	}
+	}
 
-    	// removing the degenerate rectangles
+	// removing the degenerate rectangles
 	*num_groups = remove_degenerate(groups, 2 * (*num_groups));
 
 	// reassigning the new ids
@@ -319,7 +322,7 @@ void split(rectangle_entry *rectangles, brick *b, int vars, int *num_groups)
 
 		rectangles[i].group_id = groups[rectangles[i].group_id];
 	}
-	
+
 	delete[] groups;
 }
 
@@ -340,7 +343,7 @@ bool is_functionally_dependent(bool *table, int num_inps, brick **brick_list,
 	}
 
 	int num_groups = 1;
-	
+
 	if (DEBUG)
 	{
 		std::cout << "Original uncovered rectangle" << std::endl;
@@ -379,29 +382,43 @@ bool is_functionally_dependent(bool *table, int num_inps, brick **brick_list,
 
 void check_FD()
 {
-	int num_inps, num_bricks;
-	cin >> num_inps >> num_bricks;
+	cout << "It shits lol catzzzzz. She's a barbie Girl, its compiling! Let's ROCK! Schagadelic!!" << endl;
 
-	int size = bin_pow(num_inps);
-	bool *table = new bool[size];
-
-	brick **brick_list = new brick*[num_bricks];	
-	read_inps(table, num_inps, brick_list, num_bricks);
-
-	if (DEBUG)
+	const char input_file_name[] = "my_in.txt";
+	filebuf inputFileBuffer;
+	inputFileBuffer.open(input_file_name, ios::in);
+	if (!inputFileBuffer.is_open())
 	{
-		std::cout << "Reading done successfully" << std::endl;
-		std::cout << "------------------------------------------" << std::endl;
+		cerr << "Could not open input file: " << string("input")  << ", using stdin instead" << endl;
+	} else {
+		istream is(&inputFileBuffer);
+		cin.rdbuf(is.rdbuf());
+
+		int num_inps, num_bricks;
+		cin >> num_inps >> num_bricks;
+
+		int size = bin_pow(num_inps);
+		bool *table = new bool[size];
+
+		brick **brick_list = new brick*[num_bricks];	
+		read_inps(table, num_inps, brick_list, num_bricks);
+
+		if (DEBUG)
+		{
+			std::cout << "Reading done successfully" << std::endl;
+			std::cout << "------------------------------------------" << std::endl;
+		}
+
+		vector<int> pos_group;
+		vector<int> neg_group;
+
+		bool res = is_functionally_dependent(table, num_inps, brick_list, num_bricks, 
+				pos_group, neg_group);
+
+		if (res)
+			std::cout << "functional dependency exist" << std::endl;
+		else
+			std::cout << "functional dependency does not exist" << std::endl;
+		inputFileBuffer.close();
 	}
-
-	vector<int> pos_group;
-	vector<int> neg_group;
-	
-	bool res = is_functionally_dependent(table, num_inps, brick_list, num_bricks, 
-			pos_group, neg_group);
-
-	if (res)
-		std::cout << "functional dependency exist" << std::endl;
-	else
-		std::cout << "functional dependency does not exist" << std::endl;
 }

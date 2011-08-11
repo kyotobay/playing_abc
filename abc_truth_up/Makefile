@@ -43,7 +43,12 @@ CFLAGS   += -Wall -Wno-unused-function $(OPTFLAGS) $(patsubst %, -I%, $(MODULES)
 CXXFLAGS += $(CFLAGS) 
 
 #LIBS := -m32 -ldl -rdynamic -lreadline -ltermcap
-LIBS := -ldl /usr/lib64/libreadline.a /usr/lib64/libncurses.a -rdynamic
+#
+# Commented out for debug
+#LIBS := -ldl /usr/lib64/libreadline.a /usr/lib64/libncurses.a -rdynamic
+
+# For build on Archlinnux
+LIBS := -ldl /usr/lib/libreadline.a /usr/lib/libncurses.a -rdynamic
 
 SRC  := 
 GARBAGE := core core.* *.stackdump ./tags $(PROG)
@@ -67,6 +72,9 @@ DEP := $(OBJ:.o=.d)
 
 %.d: %.cc
 	./depends.sh $(CXX) `dirname $*.cc` $(CXXFLAGS) $(CFLAGS) $*.cc > $@
+
+%.d: %.cpp
+	./depends.sh $(CXX) `dirname $*.cpp` $(CXXFLAGS) $(CFLAGS) $*.cpp > $@
 
 -include $(DEP)
 
