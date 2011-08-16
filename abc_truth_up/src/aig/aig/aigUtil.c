@@ -574,7 +574,7 @@ void Aig_ObjPrintEqn( FILE * pFile, Aig_Obj_t * pObj, Vec_Vec_t * vLevels, int L
     }
     // AND case
     Vec_VecExpand( vLevels, Level );
-    vSuper = Vec_VecEntry(vLevels, Level);
+    vSuper = (Vec_Ptr_t *)Vec_VecEntry(vLevels, Level);
     Aig_ObjCollectMulti( pObj, vSuper );
     fprintf( pFile, "%s", (Level==0? "" : "(") );
     Vec_PtrForEachEntry( Aig_Obj_t *, vSuper, pFanin, i )
@@ -623,7 +623,7 @@ void Aig_ObjPrintVerilog( FILE * pFile, Aig_Obj_t * pObj, Vec_Vec_t * vLevels, i
     if ( Aig_ObjIsExor(pObj) )
     {
         Vec_VecExpand( vLevels, Level );
-        vSuper = Vec_VecEntry( vLevels, Level );
+        vSuper = (Vec_Ptr_t *)Vec_VecEntry( vLevels, Level );
         Aig_ObjCollectMulti( pObj, vSuper );
         fprintf( pFile, "%s", (Level==0? "" : "(") );
         Vec_PtrForEachEntry( Aig_Obj_t *, vSuper, pFanin, i )
@@ -661,7 +661,7 @@ void Aig_ObjPrintVerilog( FILE * pFile, Aig_Obj_t * pObj, Vec_Vec_t * vLevels, i
     }
     // AND case
     Vec_VecExpand( vLevels, Level );
-    vSuper = Vec_VecEntry(vLevels, Level);
+    vSuper = (Vec_Ptr_t *)Vec_VecEntry(vLevels, Level);
     Aig_ObjCollectMulti( pObj, vSuper );
     fprintf( pFile, "%s", (Level==0? "" : "(") );
     Vec_PtrForEachEntry( Aig_Obj_t *, vSuper, pFanin, i )
@@ -1118,7 +1118,7 @@ char * Aig_FileNameGenericAppend( char * pBase, char * pSuffix )
 
 /**Function*************************************************************
 
-  Synopsis    [Creates a sequence of random numbers.]
+  Synopsis    [Creates a sequence or random numbers.]
 
   Description []
                
@@ -1148,7 +1148,7 @@ void Aig_ManRandomTest2()
 
 /**Function*************************************************************
 
-  Synopsis    [Creates a sequence of random numbers.]
+  Synopsis    [Creates a sequence or random numbers.]
 
   Description []
                
@@ -1181,7 +1181,7 @@ void Aig_ManRandomTest1()
 
 /**Function*************************************************************
 
-  Synopsis    [Creates a sequence of random numbers.]
+  Synopsis    [Creates a sequence or random numbers.]
 
   Description []
                
@@ -1202,23 +1202,6 @@ unsigned Aig_ManRandom( int fReset )
     m_z = 36969 * (m_z & 65535) + (m_z >> 16);
     m_w = 18000 * (m_w & 65535) + (m_w >> 16);
     return (m_z << 16) + m_w;
-}
-
-/**Function*************************************************************
-
-  Synopsis    [Creates a sequence of random numbers.]
-
-  Description []
-               
-  SideEffects []
-
-  SeeAlso     []
-
-***********************************************************************/
-word Aig_ManRandom64( int fReset )
-{
-    word Res = (word)Aig_ManRandom(fReset);
-    return Res | ((word)Aig_ManRandom(0) << 32);
 }
 
 

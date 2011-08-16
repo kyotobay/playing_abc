@@ -33,6 +33,7 @@
 #include "gia.h"
 #include "cec.h"
 #include "csw.h"
+#include "giaAbs.h"
 #include "pdr.h" 
 
 ABC_NAMESPACE_IMPL_START
@@ -1805,7 +1806,8 @@ int Abc_NtkDarBmc3( Abc_Ntk_t * pNtk, Saig_ParBmc_t * pPars )
     pNtk->pSeqModel = pMan->pSeqModel; pMan->pSeqModel = NULL;
     if ( RetValue == 1 )
     {
-        printf( "Explored all reachable states after completing %d frames.  ", 1<<Aig_ManRegNum(pMan) );
+//        printf( "No output asserted in %d frames. ", pPars->iFrame );
+        printf( "Incorrect return value.  " );
     }
     else if ( RetValue == -1 )
     {
@@ -1824,9 +1826,9 @@ int Abc_NtkDarBmc3( Abc_Ntk_t * pNtk, Saig_ParBmc_t * pPars )
                 printf( "(timeout %d sec). ", pPars->nTimeOut );
             else
                 printf( "(conf limit %d). ", pPars->nConfLimit );
-//            if ( pNtk->vSeqModelVec )
-//                Vec_PtrFreeFree( pNtk->vSeqModelVec );
-//            pNtk->vSeqModelVec = pMan->vSeqModelVec;  pMan->vSeqModelVec = NULL;
+            if ( pNtk->pSeqModelVec )
+                Vec_PtrFreeFree( pNtk->pSeqModelVec );
+            pNtk->pSeqModelVec = pMan->pSeqModelVec;  pMan->pSeqModelVec = NULL;
         }
     }
     else // if ( RetValue == 0 )
@@ -1838,17 +1840,8 @@ int Abc_NtkDarBmc3( Abc_Ntk_t * pNtk, Saig_ParBmc_t * pPars )
         }
         else
         {
-            int nOutputs = Saig_ManPoNum(pMan) - Saig_ManConstrNum(pMan);
-            if ( Vec_PtrCountZero(pMan->vSeqModelVec) == 0 )
-                printf( "All %d outputs are found to be SAT.   ", nOutputs );
-            else if ( Vec_PtrCountZero(pMan->vSeqModelVec) == nOutputs )
-                printf( "None of the %d outputs is found to be SAT.   ", nOutputs );
-            else
-                printf( "Some outputs (%d out of %d) are proved SAT.   ", 
-                    nOutputs - Vec_PtrCountZero(pMan->vSeqModelVec), nOutputs );
-            if ( pNtk->vSeqModelVec )
-                Vec_PtrFreeFree( pNtk->vSeqModelVec );
-            pNtk->vSeqModelVec = pMan->vSeqModelVec;  pMan->vSeqModelVec = NULL;
+            printf( "Incorrect return value.  " );
+//            printf( "At least one output asserted (out=%d, frame=%d). ", pCex->iPo, pCex->iFrame );
         }
     }
     ABC_PRT( "Time", clock() - clk );
@@ -2033,59 +2026,6 @@ int Abc_NtkDarDemiter( Abc_Ntk_t * pNtk )
         printf( "Converting network into AIG has failed.\n" );
         return 0;
     }
-//    if ( !Saig_ManDemiterSimple( pMan, &pPart0, &pPart1 ) )
-    if ( !Saig_ManDemiterSimpleDiff( pMan, &pPart0, &pPart1 ) )
-    {
-        printf( "Demitering has failed.\n" );
-        return 0;
-    }
-    // create file names
-    pFileNameGeneric = Extra_FileNameGeneric( pNtk->pSpec );
-    sprintf( pFileName0,  "%s%s",  pFileNameGeneric, "_part0.aig" ); 
-    sprintf( pFileName1,  "%s%s",  pFileNameGeneric, "_part1.aig" ); 
-    ABC_FREE( pFileNameGeneric );
-    // dump files
-    Ioa_WriteAiger( pPart0, pFileName0, 0, 0 );
-    Ioa_WriteAiger( pPart1, pFileName1, 0, 0 );
-    printf( "Demitering produced two files \"%s\" and \"%s\".\n", pFileName0, pFileName1 );
-    // create two-level miter
-//    pMiter = Saig_ManCreateMiterTwo( pPart0, pPart1, 2 );
-//    Aig_ManDumpBlif( pMiter, "miter01.blif", NULL, NULL );
-//    Aig_ManStop( pMiter );
-//    printf( "The new miter is written into file \"%s\".\n", "miter01.blif" );
-    Aig_ManStop( pPart0 );
-    Aig_ManStop( pPart1 );
-    Aig_ManStop( pMan );
-    return 1;
-} 
-
-/**Function*************************************************************
-
-  Synopsis    [Gives the current ABC network to AIG manager for processing.]
-
-  Description []
-               
-  SideEffects []
-
-  SeeAlso     []
-
-***********************************************************************/
-int Abc_NtkDarDemiterNew( Abc_Ntk_t * pNtk )
-{ 
-    char * pFileNameGeneric, pFileName0[1000], pFileName1[1000];
-    Aig_Man_t * pMan, * pPart0, * pPart1;//, * pMiter;
-    // derive the AIG manager
-    pMan = Abc_NtkToDar( pNtk, 0, 1 );
-    if ( pMan == NULL )
-    {
-        printf( "Converting network into AIG has failed.\n" );
-        return 0;
-    }
-
-    Saig_ManDemiterNew( pMan );
-    Aig_ManStop( pMan );
-    return 1;
-
 //    if ( !Saig_ManDemiterSimple( pMan, &pPart0, &pPart1 ) )
     if ( !Saig_ManDemiterSimpleDiff( pMan, &pPart0, &pPart1 ) )
     {
@@ -3016,52 +2956,6 @@ int Abc_NtkDarSeqSim( Abc_Ntk_t * pNtk, int nFrames, int nWords, int TimeOut, in
 
 /**Function*************************************************************
 
-  Synopsis    [Performs random simulation.]
-
-  Description []
-               
-  SideEffects []
-
-  SeeAlso     []
-
-***********************************************************************/
-int Abc_NtkDarSeqSim3( Abc_Ntk_t * pNtk, int nFrames, int nWords, int nBinSize, int nRounds, int nRandSeed, int TimeOut, int fVerbose )
-{
-    Aig_Man_t * pMan;
-    int status, RetValue = -1, clk = clock();
-    if ( Abc_NtkGetChoiceNum(pNtk) )
-    {
-        printf( "Removing %d choices from the AIG.\n", Abc_NtkGetChoiceNum(pNtk) );
-        Abc_AigCleanup((Abc_Aig_t *)pNtk->pManFunc);
-    }
-    pMan = Abc_NtkToDar( pNtk, 0, 1 );
-    if ( Ssw_RarSimulate( pMan, nFrames, nWords, nBinSize, nRounds, nRandSeed, TimeOut, fVerbose ) == 0 )
-    { 
-        if ( pMan->pSeqModel )
-        {
-            printf( "Simulation of %d frames with %d words asserted output %d in frame %d. ", 
-                nFrames, nWords, pMan->pSeqModel->iPo, pMan->pSeqModel->iFrame );
-            status = Saig_ManVerifyCex( pMan, pMan->pSeqModel );
-            if ( status == 0 )
-                printf( "Abc_NtkDarSeqSim(): Counter-example verification has FAILED.\n" );
-        }
-        ABC_FREE( pNtk->pModel );
-        ABC_FREE( pNtk->pSeqModel );
-        pNtk->pSeqModel = pMan->pSeqModel; pMan->pSeqModel = NULL;
-        RetValue = 0;
-    }
-    else
-    {
-//        printf( "Simulation of %d frames with %d words did not assert the outputs.    ", 
-//            nFrames, nWords );
-    }
-    ABC_PRT( "Time", clock() - clk );
-    Aig_ManStop( pMan );
-    return RetValue;
-}
-
-/**Function*************************************************************
-
   Synopsis    [Gives the current ABC network to AIG manager for processing.]
 
   Description []
@@ -3159,15 +3053,16 @@ Abc_Ntk_t * Abc_NtkDarTempor( Abc_Ntk_t * pNtk, int nFrames, int TimeOut, int nC
   SeeAlso     []
 
 ***********************************************************************/
-int Abc_NtkDarInduction( Abc_Ntk_t * pNtk, int nFramesMax, int nConfMax, int fUnique, int fUniqueAll, int fGetCex, int fVerbose, int fVeryVerbose )
+int Abc_NtkDarInduction( Abc_Ntk_t * pNtk, int nFramesMax, int nConfMax, int fUnique, int fUniqueAll, int fVerbose, int fVeryVerbose )
 { 
-    Aig_Man_t * pMan;
+    Aig_Man_t * pMan, * pTemp;
     int clkTotal = clock();
     int RetValue;
     pMan = Abc_NtkToDar( pNtk, 0, 1 );
     if ( pMan == NULL )
         return -1;
-    RetValue = Saig_ManInduction( pMan, nFramesMax, nConfMax, fUnique, fUniqueAll, fGetCex, fVerbose, fVeryVerbose );
+    RetValue = Saig_ManInduction( pTemp = pMan, nFramesMax, nConfMax, fUnique, fUniqueAll, fVerbose, fVeryVerbose );
+    Aig_ManStop( pTemp );
     if ( RetValue == 1 )
     {
         printf( "Networks are equivalent.   " );
@@ -3183,16 +3078,69 @@ ABC_PRT( "Time", clock() - clkTotal );
         printf( "Networks are UNDECIDED.   " );
 ABC_PRT( "Time", clock() - clkTotal );
     }
-    if ( fGetCex )
-    {
-        ABC_FREE( pNtk->pModel );
-        ABC_FREE( pNtk->pSeqModel );
-        pNtk->pSeqModel = pMan->pSeqModel; pMan->pSeqModel = NULL;
-    }
-    Aig_ManStop( pMan );
     return RetValue;
 }
 
+
+/**Function*************************************************************
+
+  Synopsis    [Performs proof-based abstraction.]
+
+  Description []
+               
+  SideEffects []
+
+  SeeAlso     []
+
+***********************************************************************/
+Abc_Ntk_t * Abc_NtkDarCegar( Abc_Ntk_t * pNtk, Gia_ParAbs_t * pPars )
+{
+    Abc_Ntk_t * pNtkAig;
+    Aig_Man_t * pMan, * pTemp;
+    assert( Abc_NtkIsStrash(pNtk) );
+    pMan = Abc_NtkToDar( pNtk, 0, 1 );
+    if ( pMan == NULL )
+        return NULL;
+
+    if ( pPars->fConstr )
+    {
+        printf( "This option is currently not implemented.\n" );
+        Aig_ManStop( pMan );
+        return NULL;
+    }
+    if ( pPars->fConstr )
+    {
+        if ( Saig_ManDetectConstrTest(pMan) )
+        {
+            printf( "Performing abstraction while dynamically adding constraints...\n" );
+            pMan = Saig_ManDupUnfoldConstrs( pTemp = pMan );
+            Aig_ManStop( pTemp );
+            pMan = Saig_ManConCexAbstraction( pTemp = pMan, pPars );
+        }
+        else
+        {
+            printf( "Constraints are not available. Performing abstraction w/o constraints.\n" );
+            pMan = Saig_ManCexAbstraction( pTemp = pMan, pPars );
+        }
+    }
+    else
+        pMan = Saig_ManCexAbstraction( pTemp = pMan, pPars );
+    if ( pTemp->pSeqModel )
+    {
+        ABC_FREE( pNtk->pModel );
+        ABC_FREE( pNtk->pSeqModel );
+        pNtk->pSeqModel = pTemp->pSeqModel; pTemp->pSeqModel = NULL;
+    }
+    Aig_ManStop( pTemp );
+    if ( pMan == NULL )
+        return NULL;
+
+    pNtkAig = Abc_NtkAfterTrim( pMan, pNtk );
+//    pNtkAig->pName = Extra_UtilStrsav(pNtk->pName);
+//    pNtkAig->pSpec = Extra_UtilStrsav(pNtk->pSpec);
+    Aig_ManStop( pMan );
+    return pNtkAig;
+}
 
 /**Function*************************************************************
 
@@ -4223,7 +4171,13 @@ Abc_Ntk_t * Abc_NtkDarTestNtk( Abc_Ntk_t * pNtk )
     pMan = Abc_NtkToDar( pNtk, 0, 1 );
     if ( pMan == NULL )
         return NULL;
-
+/*
+    Aig_ManSetRegNum( pMan, pMan->nRegs );
+    pMan = Saig_ManCexAbstraction( pTemp = pMan, 5, 10000, 0, 0, 0, -1, -1, 99, fUseBdds, fUseDprove, 0, 1 );
+    Aig_ManStop( pTemp );
+    if ( pMan == NULL )
+        return NULL;
+*/
 /*
     Aig_ManSetRegNum( pMan, pMan->nRegs );
     pMan = Saig_ManDualRail( pTemp = pMan, 1 );

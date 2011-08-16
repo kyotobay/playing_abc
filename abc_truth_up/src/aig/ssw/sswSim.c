@@ -579,27 +579,6 @@ void Ssw_SmlObjAssignConst( Ssw_Sml_t * p, Aig_Obj_t * pObj, int fConst1, int iF
   SeeAlso     []
 
 ***********************************************************************/
-void Ssw_SmlObjAssignConstWord( Ssw_Sml_t * p, Aig_Obj_t * pObj, int fConst1, int iFrame, int iWord )
-{
-    unsigned * pSims;
-    assert( iFrame < p->nFrames );
-    assert( iWord < p->nWordsFrame );
-    assert( Aig_ObjIsPi(pObj) );
-    pSims = Ssw_ObjSim( p, pObj->Id ) + p->nWordsFrame * iFrame;
-    pSims[iWord] = fConst1? ~(unsigned)0 : 0;
-} 
-
-/**Function*************************************************************
-
-  Synopsis    [Assigns constant patterns to the PI node.]
-
-  Description []
-               
-  SideEffects []
-
-  SeeAlso     []
-
-***********************************************************************/
 void Ssw_SmlObjSetWord( Ssw_Sml_t * p, Aig_Obj_t * pObj, unsigned Word, int iWord, int iFrame )
 {
     unsigned * pSims;
@@ -925,33 +904,6 @@ void Ssw_SmlInitialize( Ssw_Sml_t * p, int fInit )
   SeeAlso     []
 
 ***********************************************************************/
-void Ssw_SmlInitializeSpecial( Ssw_Sml_t * p, Vec_Int_t * vInit )
-{
-    Aig_Obj_t * pObj;
-    int Entry, i, nRegs;
-    nRegs = Aig_ManRegNum(p->pAig);
-    assert( nRegs > 0 );
-    assert( nRegs <= Aig_ManPiNum(p->pAig) );
-    assert( Vec_IntSize(vInit) == nRegs * p->nWordsFrame );
-    // assign random info for primary inputs
-    Saig_ManForEachPi( p->pAig, pObj, i )
-        Ssw_SmlAssignRandom( p, pObj );
-    // assign the initial state for the latches
-    Vec_IntForEachEntry( vInit, Entry, i )
-        Ssw_SmlObjAssignConstWord( p, Saig_ManLo(p->pAig, i % nRegs), Entry, 0, i / nRegs );
-}
-
-/**Function*************************************************************
-
-  Synopsis    [Assings random simulation info for the PIs.]
-
-  Description []
-               
-  SideEffects []
-
-  SeeAlso     []
-
-***********************************************************************/
 void Ssw_SmlReinitialize( Ssw_Sml_t * p )
 {
     Aig_Obj_t * pObj, * pObjLi, * pObjLo;
@@ -982,12 +934,8 @@ int Ssw_SmlCheckNonConstOutputs( Ssw_Sml_t * p )
     Aig_Obj_t * pObj;
     int i;
     Saig_ManForEachPo( p->pAig, pObj, i )
-    {
-        if ( p->pAig->nConstrs && i >= Saig_ManPoNum(p->pAig) - p->pAig->nConstrs )
-            return 0;
         if ( !Ssw_SmlNodeIsZero(p, pObj) )
             return 1;
-    }
     return 0;
 }
 
@@ -1171,28 +1119,6 @@ Ssw_Sml_t * Ssw_SmlStart( Aig_Man_t * pAig, int nPref, int nFrames, int nWordsFr
 void Ssw_SmlClean( Ssw_Sml_t * p )
 {
     memset( p->pData, 0, sizeof(unsigned) * Aig_ManObjNumMax(p->pAig) * p->nWordsTotal );
-}
-
-/**Function*************************************************************
-
-  Synopsis    [Get simulation data.]
-
-  Description []
-               
-  SideEffects []
-
-  SeeAlso     []
-
-***********************************************************************/
-Vec_Ptr_t * Ssw_SmlSimDataPointers( Ssw_Sml_t * p )
-{
-    Vec_Ptr_t * vSimInfo;
-    Aig_Obj_t * pObj;
-    int i;
-    vSimInfo = Vec_PtrStart( Aig_ManObjNumMax(p->pAig) );
-    Aig_ManForEachObj( p->pAig, pObj, i )
-        Vec_PtrWriteEntry( vSimInfo, i, Ssw_ObjSim(p, i) );
-    return vSimInfo;
 }
 
 /**Function*************************************************************

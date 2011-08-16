@@ -2421,10 +2421,6 @@ SOURCE=.\src\misc\util\utilMem.h
 
 SOURCE=.\src\misc\util\utilSignal.c
 # End Source File
-# Begin Source File
-
-SOURCE=.\src\misc\util\utilSort.c
-# End Source File
 # End Group
 # Begin Group "nm"
 
@@ -3491,15 +3487,7 @@ SOURCE=.\src\aig\saig\saigAbs.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\aig\saig\saigAbsCba.c
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\aig\saig\saigAbsPba.c
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\aig\saig\saigAbsStart.c
+SOURCE=.\src\aig\saig\saigAbs2.c
 # End Source File
 # Begin Source File
 
@@ -3512,10 +3500,6 @@ SOURCE=.\src\aig\saig\saigBmc2.c
 # Begin Source File
 
 SOURCE=.\src\aig\saig\saigBmc3.c
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\aig\saig\saigCexMin.c
 # End Source File
 # Begin Source File
 
@@ -3555,11 +3539,11 @@ SOURCE=.\src\aig\saig\saigOutDec.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\aig\saig\saigPhase.c
+SOURCE=.\src\aig\saig\saigPba.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\aig\saig\saigRefSat.c
+SOURCE=.\src\aig\saig\saigPhase.c
 # End Source File
 # Begin Source File
 
@@ -3792,10 +3776,6 @@ SOURCE=.\src\aig\ssw\sswPairs.c
 # Begin Source File
 
 SOURCE=.\src\aig\ssw\sswPart.c
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\aig\ssw\sswRarity.c
 # End Source File
 # Begin Source File
 

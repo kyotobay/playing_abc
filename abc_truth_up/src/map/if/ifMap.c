@@ -94,11 +94,8 @@ void If_ObjPerformMappingAnd( If_Man_t * p, If_Obj_t * pObj, int Mode, int fPrep
     If_Cut_t * pCut0, * pCut1, * pCut;
     int i, k;
  
-//    assert( p->pPars->fSeqMap || !If_ObjIsAnd(pObj->pFanin0) || pObj->pFanin0->pCutSet->nCuts > 1 );
-//    assert( p->pPars->fSeqMap || !If_ObjIsAnd(pObj->pFanin1) || pObj->pFanin1->pCutSet->nCuts > 1 );
-
-    assert( p->pPars->fSeqMap || !If_ObjIsAnd(pObj->pFanin0) || pObj->pFanin0->pCutSet->nCuts > 0 );
-    assert( p->pPars->fSeqMap || !If_ObjIsAnd(pObj->pFanin1) || pObj->pFanin1->pCutSet->nCuts > 0 );
+    assert( p->pPars->fSeqMap || !If_ObjIsAnd(pObj->pFanin0) || pObj->pFanin0->pCutSet->nCuts > 1 );
+    assert( p->pPars->fSeqMap || !If_ObjIsAnd(pObj->pFanin1) || pObj->pFanin1->pCutSet->nCuts > 1 );
 
     // prepare
     if ( !p->pPars->fSeqMap )
@@ -235,11 +232,8 @@ void If_ObjPerformMappingAnd( If_Man_t * p, If_Obj_t * pObj, int Mode, int fPrep
     assert( pCutSet->nCuts > 0 );
 
     // add the trivial cut to the set
-    if ( !pObj->fSkipCut )
-    {
-        If_ManSetupCutTriv( p, pCutSet->ppCuts[pCutSet->nCuts++], pObj->Id );
-        assert( pCutSet->nCuts <= pCutSet->nCutsMax+1 );
-    }
+    If_ManSetupCutTriv( p, pCutSet->ppCuts[pCutSet->nCuts++], pObj->Id );
+    assert( pCutSet->nCuts <= pCutSet->nCutsMax+1 );
 
     // update the best cut
     if ( !fPreprocess || pCutSet->ppCuts[0]->Delay <= pObj->Required + p->fEpsilon )
@@ -331,11 +325,8 @@ void If_ObjPerformMappingChoice( If_Man_t * p, If_Obj_t * pObj, int Mode, int fP
     assert( pCutSet->nCuts > 0 );
 
     // add the trivial cut to the set
-    if ( !pObj->fSkipCut )
-    {
-        If_ManSetupCutTriv( p, pCutSet->ppCuts[pCutSet->nCuts++], pObj->Id );
-        assert( pCutSet->nCuts <= pCutSet->nCutsMax+1 );
-    }
+    If_ManSetupCutTriv( p, pCutSet->ppCuts[pCutSet->nCuts++], pObj->Id );
+    assert( pCutSet->nCuts <= pCutSet->nCutsMax+1 );
 
     // update the best cut
     if ( !fPreprocess || pCutSet->ppCuts[0]->Delay <= pObj->Required + p->fEpsilon )

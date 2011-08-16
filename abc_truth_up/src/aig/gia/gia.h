@@ -34,7 +34,6 @@
 
 #include "vec.h"
 #include "utilCex.h"
-#include "giaAbs.h"
 
 ////////////////////////////////////////////////////////////////////////
 ///                         PARAMETERS                               ///
@@ -196,6 +195,8 @@ extern int Gia_ManSimSimulate( Gia_Man_t * pAig, Gia_ParSim_t * pPars );
 
 
 static inline int          Gia_IntAbs( int n )                    { return (n < 0)? -n : n;                                     }
+//static inline int          Gia_Float2Int( float Val )             { return *((int *)&Val);                                      }
+//static inline float        Gia_Int2Float( int Num )               { return *((float *)&Num);                                    }
 static inline int          Gia_Float2Int( float Val )             { union { int x; float y; } v; v.y = Val; return v.x;         }
 static inline float        Gia_Int2Float( int Num )               { union { int x; float y; } v; v.x = Num; return v.y;         }
 static inline int          Gia_Base2Log( unsigned n )             { int r; if ( n < 2 ) return n; for ( r = 0, n--; n; n >>= 1, r++ ); return r; }
@@ -596,12 +597,6 @@ static inline int         Gia_ObjLutFanin( Gia_Man_t * p, int Id, int i )   { re
 ///                    FUNCTION DECLARATIONS                         ///
 ////////////////////////////////////////////////////////////////////////
 
-/*=== giaAbs.c ===========================================================*/
-extern void                Gia_ManCexAbstractionStart( Gia_Man_t * p, Gia_ParAbs_t * pPars );
-Gia_Man_t *                Gia_ManCexAbstractionDerive( Gia_Man_t * pGia );
-int                        Gia_ManCexAbstractionRefine( Gia_Man_t * pGia, Abc_Cex_t * pCex, int fTryFour, int fSensePath, int fVerbose );
-extern int                 Gia_ManPbaPerform( Gia_Man_t * pGia, int nFrames, int nConfLimit, int fVerbose );
-extern int                 Gia_ManCbaPerform( Gia_Man_t * pGia, void * pPars );
 /*=== giaAiger.c ===========================================================*/
 extern int                 Gia_FileSize( char * pFileName );
 extern Gia_Man_t *         Gia_ReadAigerFromMemory( char * pContents, int nFileSize, int fCheck );
@@ -655,8 +650,6 @@ extern Gia_Man_t *         Gia_ManDupTopAnd( Gia_Man_t * p, int fVerbose );
 extern Gia_Man_t *         Gia_ManMiter( Gia_Man_t * pAig0, Gia_Man_t * pAig1, int fDualOut, int fSeq, int fVerbose );
 extern Gia_Man_t *         Gia_ManTransformMiter( Gia_Man_t * p );
 extern Gia_Man_t *         Gia_ManChoiceMiter( Vec_Ptr_t * vGias );
-extern Gia_Man_t *         Gia_ManDupWithConstraints( Gia_Man_t * p, Vec_Int_t * vPoTypes );
-extern Gia_Man_t *         Gia_ManDupAbstraction( Gia_Man_t * p, Vec_Int_t * vFlopClasses );
 /*=== giaEnable.c ==========================================================*/
 extern void                Gia_ManDetectSeqSignals( Gia_Man_t * p, int fSetReset, int fVerbose );
 extern Gia_Man_t *         Gia_ManUnrollAndCofactor( Gia_Man_t * p, int nFrames, int nFanMax, int fVerbose );

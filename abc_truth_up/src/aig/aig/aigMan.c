@@ -211,8 +211,8 @@ void Aig_ManStop( Aig_Man_t * p )
     Vec_IntFreeP( &p->vProbs );
     Vec_IntFreeP( &p->vCiNumsOrig );
     Vec_PtrFreeP( &p->vMapped );
-    if ( p->vSeqModelVec )
-        Vec_PtrFreeFree( p->vSeqModelVec );
+    if ( p->pSeqModelVec )
+        Vec_PtrFreeFree( p->pSeqModelVec );
     ABC_FREE( p->pTerSimData );
     ABC_FREE( p->pFastSim );
     ABC_FREE( p->pData );

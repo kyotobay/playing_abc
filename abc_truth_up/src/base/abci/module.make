@@ -56,7 +56,6 @@ SRC +=	src/base/abci/abc.c \
 	src/base/abci/abcSense.c \
 	src/base/abci/abcSpeedup.c \
 	src/base/abci/abcStrash.c \
-	src/base/abci/abc_FD.cpp \
 	src/base/abci/abcSweep.c \
 	src/base/abci/abcSymm.c \
 	src/base/abci/abcTiming.c \
@@ -64,4 +63,3 @@ SRC +=	src/base/abci/abc.c \
 	src/base/abci/abcUnreach.c \
 	src/base/abci/abcVerify.c \
 	src/base/abci/abcXsim.c 
-

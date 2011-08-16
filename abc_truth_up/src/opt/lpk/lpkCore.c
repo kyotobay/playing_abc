@@ -20,7 +20,6 @@
  
 #include "lpkInt.h"
 #include "cloud.h"
-#include "main.h"
 
 ABC_NAMESPACE_IMPL_START
 
@@ -98,7 +97,7 @@ int Lpk_NodeHasChanged( Lpk_Man_t * p, int iNode )
     Vec_Ptr_t * vNodes;
     Abc_Obj_t * pTemp;
     int i;
-    vNodes = Vec_VecEntry( p->vVisited, iNode );
+    vNodes = (Vec_Ptr_t *)Vec_VecEntry( p->vVisited, iNode );
     if ( Vec_PtrSize(vNodes) == 0 )
         return 1;
     Vec_PtrForEachEntry( Abc_Obj_t *, vNodes, pTemp, i )
@@ -517,10 +516,7 @@ int Lpk_Resynthesize( Abc_Ntk_t * pNtk, Lpk_Par_t * pPars )
     Abc_NtkSweep( pNtk, 0 );
 
     // get the number of inputs
-    if ( Abc_FrameReadLibLut() )
-        pPars->nLutSize = ((If_Lib_t *)Abc_FrameReadLibLut())->LutMax;
-    else
-        pPars->nLutSize = Abc_NtkGetFaninMax( pNtk );
+    pPars->nLutSize = Abc_NtkGetFaninMax( pNtk );
     if ( pPars->nLutSize > 6 )
         pPars->nLutSize = 6;
     if ( pPars->nLutSize < 3 )

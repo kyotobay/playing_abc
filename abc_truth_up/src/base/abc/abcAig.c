@@ -20,10 +20,6 @@
 
 #include "abc.h"
 #include "extra.h"
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-
 
 ABC_NAMESPACE_IMPL_START
 
@@ -1176,7 +1172,7 @@ void Abc_AigRemoveFromLevelStructure( Vec_Vec_t * vStruct, Abc_Obj_t * pNode )
     Abc_Obj_t * pTemp;
     int m;
     assert( pNode->fMarkA );
-    vVecTemp = Vec_VecEntry( vStruct, pNode->Level );
+    vVecTemp = (Vec_Ptr_t *)Vec_VecEntry( vStruct, pNode->Level );
     Vec_PtrForEachEntry( Abc_Obj_t *, vVecTemp, pTemp, m )
     {
         if ( pTemp != pNode )
@@ -1205,7 +1201,7 @@ void Abc_AigRemoveFromLevelStructureR( Vec_Vec_t * vStruct, Abc_Obj_t * pNode )
     Abc_Obj_t * pTemp;
     int m;
     assert( pNode->fMarkB );
-    vVecTemp = Vec_VecEntry( vStruct, Abc_ObjReverseLevel(pNode) );
+    vVecTemp = (Vec_Ptr_t *)Vec_VecEntry( vStruct, Abc_ObjReverseLevel(pNode) );
     Vec_PtrForEachEntry( Abc_Obj_t *, vVecTemp, pTemp, m )
     {
         if ( pTemp != pNode )
@@ -1287,10 +1283,10 @@ int Abc_AigNodeHasComplFanoutEdgeTrav( Abc_Obj_t * pNode )
   SeeAlso     []
 
 ***********************************************************************/
-void Abc_AigPrintNode( Abc_Obj_t * pNode )
+void Abc_AigBrowseNode( Abc_Obj_t * pNode )
 {
     Abc_Obj_t * pNodeR = Abc_ObjRegular(pNode);
-    if ( Abc_ObjIsCi(pNodeR) )
+/*    if ( Abc_ObjIsCi(pNodeR) )
     {
         printf( "CI %4s%s.\n", Abc_ObjName(pNodeR), Abc_ObjIsComplement(pNode)? "\'" : "" );
         return;
@@ -1299,7 +1295,11 @@ void Abc_AigPrintNode( Abc_Obj_t * pNode )
     {
         printf( "Constant 1 %s.\n", Abc_ObjIsComplement(pNode)? "(complemented)" : ""  );
         return;
-    }
+    } */
+
+    if ( (!Abc_ObjIsCi(pNodeR)) && (!Abc_AigNodeIsConst(pNodeR)))
+{
+ 
     // print the node's function
     printf( "%7s%s", Abc_ObjName(pNodeR),                Abc_ObjIsComplement(pNode)? "\'" : "" );
     printf( " = " );
@@ -1308,188 +1308,169 @@ void Abc_AigPrintNode( Abc_Obj_t * pNode )
     printf( "%7s%s", Abc_ObjName(Abc_ObjFanin1(pNodeR)), Abc_ObjFaninC1(pNodeR)?     "\'" : "" );
     printf( "\n" );
 }
-
-/**Function*************************************************************
-
-  Synopsis    [Pataki input assignment combinations 2^v]
-
-  Description []
-               
-  SideEffects []
-
-  SeeAlso     []
-
-***********************************************************************/
+}
 
 int pow_2(int n)
 {
-        if(n == 0)
-                return 1;
-        else
-                return 2 * pow_2(n - 1);
+	if(n == 0)
+		return 1;
+	else
+		return pow_2(n - 1) * 2;
 }
 
-/**Function*************************************************************
-
-  Synopsis    [Pataki true truth]
-
-  Description []
-               
-  SideEffects []
-
-  SeeAlso     []
-
-***********************************************************************/
-bool Abc_AigTruth(Abc_Obj_t *pNode, int c)
+void Abc_AigPrintNode( Abc_Obj_t * pNode )
 {
-    Abc_Obj_t * pNodeR = Abc_ObjRegular(pNode);
-        bool v0, v1;
-        int i;
-        if(Abc_ObjIsCi(pNodeR))
-        {
-  //              for(i = 0; i < c; i++)
-    //                    printf("  ");
-       //         printf("leaf node %s : value = %d\n", Abc_ObjName(pNode), pNode->value);
-             return pNode->value;
-        }
-        else if(Abc_AigNodeIsConst(pNodeR))
-        {
-                return 1;
-        }
-        else
-        {
-                v0 = Abc_AigTruth(Abc_ObjFanin0(pNodeR), c + 1);
-                v1 = Abc_AigTruth(Abc_ObjFanin1(pNodeR), c + 1);
-                if(Abc_ObjFaninC0(pNodeR))
-                        v0 = !v0;
-                if(Abc_ObjFaninC1(pNodeR))
-                        v1 = !v1;
-      //          for(i = 0; i < c; i++)
-//                        printf("  ");
-               // printf("node %s : %d && %d = %d\n", Abc_ObjName(pNode), v0, v1, v0 && v1);
-                return v0 && v1;
-        }
-}
-
-/**Function*************************************************************
-
-  Synopsis    [Pataki variables variation]
-
-  Description []
-               
-  SideEffects []
-
-  SeeAlso     []
-
-***********************************************************************/
-bool Abc_VarAttribution(Abc_Obj_t *pNode, int nbVars, Abc_Ntk_t *pNtkRes, int count )
-{
-        int n, y = pow_2(nbVars), x = nbVars + 1, i, j;
-        int truth[y][x];
-    	Abc_Obj_t * pNodeR = Abc_ObjRegular(pNode);
-    	Abc_Obj_t * ourVars[nbVars];
-
-        Abc_NtkForEachPi(pNtkRes, pNodeR, n)
-        {
-                pNodeR->value = 0;
-                ourVars[n] = pNodeR;
-    }
-        for(i = 0; i < y; i++)
-        {
-                for(j = 0; j < nbVars; j++)
-                {
-                        if(ourVars[j]->value > 1)
-                        {
-                                ourVars[j]->value = 0;
-                                ourVars[j + 1]->value++;
-                        }
-                }
-               // printf("\n VARIABLES :\t");
-//                for(j = 0; j < nbVars; j++)
-  //              {
-    //                    printf("%d\t", ourVars[j]->value);
-      //          }
-       //         printf("\n");
-                for(j = 0; j < nbVars; j++)
-                {
-                        truth[i][j] = ourVars[j]->value;
-                }
-                truth[i][nbVars] = Abc_AigTruth(pNode, 0);
-    ourVars[0]->value++;
-        }
-       
-	CreateFDInputFile(pNtkRes, truth, i, nbVars, count);
-
-}
-
-
-/**Function*************************************************************
-
-  Synopsis    [Open and create file for FD check]
-
-  Description []
-               
-  SideEffects []
-
-  SeeAlso     []
-
-***********************************************************************/
-
-void CreateFDInputFile ( Abc_Ntk_t * pNtkRes, int **truth, int y, int x, int count )
-{
-	FILE *fichier;
-	int numOuts = Abc_NtkPoNum( pNtkRes ); 
-	int nbVars = Abc_NtkPiNum( pNtkRes ); 	
-	int n, i, j, c = 0;
-	int newTruth[y][x];
-
-	for(i = 0; i < y; i++)
-    	{
-        	for(j = 0; j < x; j++)
-        	{
-           	newTruth[i][j] = *(truth + c);
-            	c++;
-        	}
-    	}		
-		
-	fichier = fopen("my_in.txt", "a");
-
-	if(fichier != NULL) 
+	int i;
+	Abc_Obj_t * pNodeR = Abc_ObjRegular(pNode);
+	printf("%s\t", Abc_ObjName(pNodeR));
+	printf("and : %d\t", Abc_AigNodeIsAnd(pNode));
+	printf("const : %d\t", Abc_AigNodeIsConst(pNode));
+	printf("level : %d\n", (int)pNode->Level);
+	for(i = 0; i < Abc_ObjFanoutNum(pNode); i++)
 	{
-		if(count == 0)
+		Abc_AigPrintNode( pNode->vFanouts.pArray[i] );
+	}
+}
+
+void Abc_AigMkVarsNode( Abc_Obj_t * pNode, Abc_Ntk_t * pNtkRes)
+{
+	int nVars = pNtkRes->vPis->nSize;
+	int truth[pow_2(nVars)][nVars + 1];
+	int i, n, dump;
+	bool c;
+	for(n = 0; n < pow_2(nVars); n++)
+	{
+		for(i = 0; i < nVars; i++)
 		{
-			fprintf(fichier,"%d\n", nbVars);
-			fprintf(fichier,"%d\n", (numOuts-1));
-			fprintf(fichier,"\n");	
-		}
-		else 
-		{
-			fprintf(fichier,"\n");
-			fprintf(fichier, "%d ", nbVars);
-			for(i = 0; i < nbVars; i++)
+			if(Abc_ObjData(pNtkRes->vPis->pArray[i]) > 1 && i < nVars - 1)
 			{
-				fprintf(fichier, "%d ", i);
+				Abc_ObjSetData(pNtkRes->vPis->pArray[i], 0);
+				dump = (int)Abc_ObjData(pNtkRes->vPis->pArray[i + 1]);
+				Abc_ObjSetData(pNtkRes->vPis->pArray[i + 1], dump + 1);
 			}
-			fprintf(fichier, "\n");
 		}
-		for(i = 0; i < y;i++)
-        	{
-                	for(j = x-1; j < x; j++)
-               		{
-			fprintf(fichier, "%d\t", newTruth[i][j]);
-		        }
-                	fprintf(fichier, "\n");
-       		}
-		fclose(fichier);
+		c = Abc_AigTruthNode(pNode, 0);
+		for(i = 0; i < nVars; i++)
+		{
+			truth[n][i] = Abc_ObjData(pNtkRes->vPis->pArray[i]);
+		}
+		printf("adding %d\n", c);
+		truth[n][nVars] = c;
+		Abc_ObjSetData(pNtkRes->vPis->pArray[0], Abc_ObjData(pNtkRes->vPis->pArray[0]) + 1);
+	}
+	for(n = 0; n < pow_2(nVars); n++)
+	{
+		for(i = 0; i < nVars + 1; i++)
+		{
+			printf("%d\t", truth[n][i]);
+		}
+		printf("\n");
+	}
+}
+//pataki truth 2
+bool Abc_AigTruthResult( ms *pNode)
+{
+	int i;
+	bool v0, v1;
+	for(i = 0; i < 20; i++)
+	{
+	v0 = Abc_AigTruthResult(c0->pNode);
+	}
+	if(pNode->icc0)
+		v0 = !v0;
+	
+	v1 = Abc_AigTruthResult (pNode->c1);
+	if(pNode->icc1)
+		v1 = !v1;
+	
+	return v0 & v1;
+}  
+
+void Abc_VarAssignment( ms *myStrs, ms *myVars, Abc_Ntk_t * pNtkRes )
+{
+	int nVars = pNtkRes->vPis->nSize;
+	int numObjs = Abc_NtkObjNum( pNtkRes );
+	int truth[pow_2(nVars)][nVars + 1];
+	int n, i;
+	bool ret;
+
+	for(n = 0; n < pow_2(nVars); n++)
+	{
+		myVars[n].value = 0;
+		for(i = 0; i < nVars; i++)
+		{ 
+			if( (myVars[i].value) > 1 )
+			{
+				myVars[i].value = 0;
+				myVars[i+1].value++;
+			} 
+		}
+	for(i = 0; i < numObjs; i++)
+	{
+		if(myStrs[i].isroot)
+		{
+		ret = Abc_AigTruthResult(myStrs->pNode);
+		break;
+		}	
+	}	
+	for(i = 0; i < nVars; i++)
+	{
+		truth[n][i] = myVars[i].value;
+	}
+	truth[n][nVars] = ret;
+	}
+	for(n = 0; n < pow_2(nVars); n++)
+	{
+		for(i = 0; i < nVars + 1; i++)
+		{
+			printf("%d\t", truth[n][i]);
+		}
+		printf("\n");
+	}
+}
+	
+//pataki truth2 telos
+
+bool Abc_AigTruthNode( Abc_Obj_t * pNode, int nb )
+{
+	bool dump1, dump2;
+	printf("Lvl %d\t", nb);
+	printf("%s\t", Abc_ObjName(pNode));
+	printf("Node is and : %d\t", Abc_AigNodeIsAnd(pNode));
+	printf("Node is const : %d\n", Abc_AigNodeIsConst(pNode));
+	if((Abc_ObjFanin0(pNode) != NULL && Abc_ObjFanin1(pNode) != NULL && Abc_ObjFaninC0(pNode) != NULL && Abc_ObjFaninC1(pNode) != NULL))
+	{
+		if(Abc_AigNodeIsAnd(pNode) && nb > 0)
+		{
+			dump1 = Abc_AigTruthNode(Abc_ObjFanin0(pNode), nb + 1);
+			dump2 = Abc_AigTruthNode(Abc_ObjFanin1(pNode), nb + 1);
+			printf("\tand node : %d", (int)dump1);
+			if(pNode->fCompl0)
+			{
+				printf("/");
+				dump1 = 1 - dump1;
+ 	//			dump1 = ( ~ dump1);
+			}
+			printf(" & %d", (int)dump2);
+			if(pNode->fCompl1)
+			{
+				printf("/");
+				dump2 = 1 - dump2;
+			}
+			printf(" = %d\n", (int)(dump1 & dump2));
+			return dump1 & dump2;
+		}
+		else
+		{
+			return Abc_AigTruthNode(Abc_ObjFanin0(pNode), 1);
+		}
 	}
 	else
 	{
-		printf ("Unable to write the truth table to file");
+		printf("\tleaf : %d\n", (int)pNode->pData);
+		return (bool)pNode->pData;
 	}
-	
 }
-
-
 
 /**Function*************************************************************
 

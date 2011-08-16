@@ -154,7 +154,7 @@ struct Aig_Man_t_
     Vec_Int_t *      vFlopNums;      
     Vec_Int_t *      vFlopReprs;      
     Abc_Cex_t *      pSeqModel;
-    Vec_Ptr_t *      vSeqModelVec;   // vector of counter-examples (for sequential miters)
+    Vec_Ptr_t *      pSeqModelVec;   // vector of counter-examples (for sequential miters)
     Aig_Man_t *      pManExdc;
     Vec_Ptr_t *      vOnehots;
     Aig_Man_t *      pManHaig;
@@ -335,7 +335,6 @@ static inline void         Aig_ObjChild1Flip( Aig_Obj_t * pObj )  { assert( !Aig
 static inline Aig_Obj_t *  Aig_ObjCopy( Aig_Obj_t * pObj )        { assert( !Aig_IsComplement(pObj) ); return (Aig_Obj_t *)pObj->pData;               } 
 static inline void         Aig_ObjSetCopy( Aig_Obj_t * pObj, Aig_Obj_t * pCopy )     {  assert( !Aig_IsComplement(pObj) ); pObj->pData = pCopy;       } 
 static inline Aig_Obj_t *  Aig_ObjRealCopy( Aig_Obj_t * pObj )    { return Aig_NotCond((Aig_Obj_t *)Aig_Regular(pObj)->pData, Aig_IsComplement(pObj));}
-static inline int          Aig_ObjRealLit( Aig_Obj_t * pObj )     { return Aig_Var2Lit( Aig_ObjId(Aig_Regular(pObj)), Aig_IsComplement(pObj) );       }
 static inline int          Aig_ObjLevel( Aig_Obj_t * pObj )       { assert( !Aig_IsComplement(pObj) ); return pObj->Level;                            }
 static inline int          Aig_ObjLevelNew( Aig_Obj_t * pObj )    { assert( !Aig_IsComplement(pObj) ); return Aig_ObjFanin1(pObj)? 1 + Aig_ObjIsExor(pObj) + ABC_MAX(Aig_ObjFanin0(pObj)->Level, Aig_ObjFanin1(pObj)->Level) : Aig_ObjFanin0(pObj)->Level; }
 static inline int          Aig_ObjSetLevel( Aig_Obj_t * pObj, int i ) { assert( !Aig_IsComplement(pObj) ); return pObj->Level = i;                    }
@@ -419,15 +418,20 @@ static inline void Aig_ManRecycleMemory( Aig_Man_t * p, Aig_Obj_t * pEntry )
 // iterator over all objects, including those currently not used
 #define Aig_ManForEachObj( p, pObj, i )                                         \
     Vec_PtrForEachEntry( Aig_Obj_t *, p->vObjs, pObj, i ) if ( (pObj) == NULL ) {} else
-// iterator over the objects whose IDs are stored in an array
-#define Aig_ManForEachObjVec( vIds, p, pObj, i )                               \
-    for ( i = 0; i < Vec_IntSize(vIds) && (((pObj) = Aig_ManObj(p, Vec_IntEntry(vIds,i))), 1); i++ )
 // iterator over all nodes
 #define Aig_ManForEachNode( p, pObj, i )                                        \
     Vec_PtrForEachEntry( Aig_Obj_t *, p->vObjs, pObj, i ) if ( (pObj) == NULL || !Aig_ObjIsNode(pObj) ) {} else
 // iterator over all nodes
 #define Aig_ManForEachExor( p, pObj, i )                                        \
     Vec_PtrForEachEntry( Aig_Obj_t *, p->vObjs, pObj, i ) if ( (pObj) == NULL || !Aig_ObjIsExor(pObj) ) {} else
+// iterator over the nodes whose IDs are stored in the array
+#define Aig_ManForEachNodeVec( p, vIds, pObj, i )                               \
+    for ( i = 0; i < Vec_IntSize(vIds) && ((pObj) = Aig_ManObj(p, Vec_IntEntry(vIds,i))); i++ )
+// iterator over the nodes in the topological order
+#define Aig_ManForEachNodeInOrder( p, pObj )                                    \
+    for ( assert(p->pOrderData), p->iPrev = 0, p->iNext = p->pOrderData[1];     \
+          p->iNext && (((pObj) = Aig_ManObj(p, p->iNext)), 1);                  \
+          p->iNext = p->pOrderData[2*p->iPrev+1] )
 
 // these two procedures are only here for the use inside the iterator
 static inline int     Aig_ObjFanout0Int( Aig_Man_t * p, int ObjId )  { assert(ObjId < p->nFansAlloc);  return p->pFanData[5*ObjId];                         }
@@ -672,7 +676,6 @@ extern void            Aig_ManCleanPioNumbers( Aig_Man_t * p );
 extern int             Aig_ManChoiceNum( Aig_Man_t * p );
 extern char *          Aig_FileNameGenericAppend( char * pBase, char * pSuffix );
 extern unsigned        Aig_ManRandom( int fReset );
-extern word            Aig_ManRandom64( int fReset );
 extern void            Aig_ManRandomInfo( Vec_Ptr_t * vInfo, int iInputStart, int iWordStart, int iWordStop );
 extern void            Aig_NodeUnionLists( Vec_Ptr_t * vArr1, Vec_Ptr_t * vArr2, Vec_Ptr_t * vArr );
 extern void            Aig_NodeIntersectLists( Vec_Ptr_t * vArr1, Vec_Ptr_t * vArr2, Vec_Ptr_t * vArr );

@@ -521,7 +521,6 @@ Gia_Man_t * Gia_ManDupMarked( Gia_Man_t * p )
     int i, nRos = 0, nRis = 0;
     Gia_ManFillValue( p );
     pNew = Gia_ManStart( Gia_ManObjNum(p) );
-    pNew->nConstrs = p->nConstrs;
     pNew->pName = Gia_UtilStrsav( p->pName );
     Gia_ManConst0(p)->Value = 0;
     Gia_ManForEachObj1( p, pObj, i )
@@ -558,9 +557,7 @@ Gia_Man_t * Gia_ManDupMarked( Gia_Man_t * p )
             pRepr = Gia_ObjReprObj( p, i );
             if ( pRepr == NULL )
                 continue;
-//            assert( ~pRepr->Value );
-            if ( !~pRepr->Value )
-                continue;
+            assert( ~pRepr->Value );
             if ( Gia_Lit2Var(pObj->Value) != Gia_Lit2Var(pRepr->Value) )
                 Gia_ObjSetRepr( pNew, Gia_Lit2Var(pObj->Value), Gia_Lit2Var(pRepr->Value) ); 
         }
@@ -950,13 +947,13 @@ Gia_Man_t * Gia_ManDupOntop( Gia_Man_t * p, Gia_Man_t * p2 )
     Gia_ManForEachCi( p, pObj, i )
         pObj->Value = Gia_ManAppendCi(pNew);
     Gia_ManForEachAnd( p, pObj, i )
-        pObj->Value = Gia_ManHashAnd( pNew, Gia_ObjFanin0Copy(pObj), Gia_ObjFanin1Copy(pObj) );
+        pObj->Value = Gia_ManAppendAnd( pNew, Gia_ObjFanin0Copy(pObj), Gia_ObjFanin1Copy(pObj) );
     // dup second AIG
     Gia_ManConst0(p2)->Value = 0;
     Gia_ManForEachCo( p, pObj, i )
         Gia_ManPi(p2, i)->Value = Gia_ObjFanin0Copy(pObj);
     Gia_ManForEachAnd( p2, pObj, i )
-        pObj->Value = Gia_ManHashAnd( pNew, Gia_ObjFanin0Copy(pObj), Gia_ObjFanin1Copy(pObj) );
+        pObj->Value = Gia_ManAppendAnd( pNew, Gia_ObjFanin0Copy(pObj), Gia_ObjFanin1Copy(pObj) );
     Gia_ManForEachCo( p2, pObj, i )
         pObj->Value = Gia_ManAppendCo( pNew, Gia_ObjFanin0Copy(pObj) );
     Gia_ManHashStop( pNew );
@@ -1465,119 +1462,6 @@ Gia_Man_t * Gia_ManChoiceMiter( Vec_Ptr_t * vGias )
     assert( nNodes == 0 );
     // finalize
     Gia_ManSetRegNum( pNew, Gia_ManRegNum(pGia0) );
-    return pNew;
-}
-
-/**Function*************************************************************
-
-  Synopsis    [Duplicates AIG while putting first PIs, then nodes, then POs.]
-
-  Description []
-               
-  SideEffects []
-
-  SeeAlso     []
-
-***********************************************************************/
-Gia_Man_t * Gia_ManDupWithConstraints( Gia_Man_t * p, Vec_Int_t * vPoTypes )
-{
-    Gia_Man_t * pNew;
-    Gia_Obj_t * pObj;
-    int i, nConstr = 0;
-    pNew = Gia_ManStart( Gia_ManObjNum(p) );
-    pNew->pName = Gia_UtilStrsav( p->pName );
-    Gia_ManConst0(p)->Value = 0;
-    Gia_ManForEachCi( p, pObj, i )
-        pObj->Value = Gia_ManAppendCi(pNew);
-    Gia_ManForEachAnd( p, pObj, i )
-        pObj->Value = Gia_ManAppendAnd( pNew, Gia_ObjFanin0Copy(pObj), Gia_ObjFanin1Copy(pObj) );
-    Gia_ManForEachPo( p, pObj, i )
-        if ( Vec_IntEntry(vPoTypes, i) == 0 ) // regular PO
-            pObj->Value = Gia_ManAppendCo( pNew, Gia_ObjFanin0Copy(pObj) );
-    Gia_ManForEachPo( p, pObj, i )
-        if ( Vec_IntEntry(vPoTypes, i) == 1 ) // constraint (should be complemented!)
-            pObj->Value = Gia_ManAppendCo( pNew, Gia_ObjFanin0Copy(pObj) ^ 1 ), nConstr++;
-    Gia_ManForEachRi( p, pObj, i )
-        pObj->Value = Gia_ManAppendCo( pNew, Gia_ObjFanin0Copy(pObj) );
-//    Gia_ManDupRemapEquiv( pNew, p );
-    Gia_ManSetRegNum( pNew, Gia_ManRegNum(p) );
-    pNew->nConstrs = nConstr;
-    assert( Gia_ManIsNormalized(pNew) );
-    return pNew;
-}
-
-/**Function*************************************************************
-
-  Synopsis    [Duplicates the AIG manager recursively.]
-
-  Description []
-               
-  SideEffects []
-
-  SeeAlso     []
-
-***********************************************************************/
-void Gia_ManDupAbstraction_rec( Gia_Man_t * pNew, Gia_Obj_t * pObj )
-{
-    if ( ~pObj->Value )
-        return;
-    Gia_ManDupAbstraction_rec( pNew, Gia_ObjFanin0(pObj) );
-    Gia_ManDupAbstraction_rec( pNew, Gia_ObjFanin1(pObj) );
-    pObj->Value = Gia_ManHashAnd( pNew, Gia_ObjFanin0Copy(pObj), Gia_ObjFanin1Copy(pObj) );
-}
-
-/**Function*************************************************************
-
-  Synopsis    [Performs abstraction of the AIG to preserve the included flops.]
-
-  Description []
-               
-  SideEffects []
-
-  SeeAlso     []
-
-***********************************************************************/
-Gia_Man_t * Gia_ManDupAbstraction( Gia_Man_t * p, Vec_Int_t * vFlopClasses )
-{ 
-    Gia_Man_t * pNew, * pTemp;
-    Gia_Obj_t * pObj;
-    int i, nFlops = 0;
-    Gia_ManFillValue( p );
-    // start the new manager
-    pNew = Gia_ManStart( 5000 );
-    pNew->pName = Gia_UtilStrsav( p->pName );
-    // create PIs
-    Gia_ManConst0(p)->Value = 0;
-    Gia_ManForEachPi( p, pObj, i )
-        pObj->Value = Gia_ManAppendCi(pNew);
-    // create additional PIs
-    Gia_ManForEachRo( p, pObj, i )
-        if ( !Vec_IntEntry(vFlopClasses, i) )
-            pObj->Value = Gia_ManAppendCi(pNew);
-    // create ROs
-    Gia_ManForEachRo( p, pObj, i )
-        if ( Vec_IntEntry(vFlopClasses, i) )
-            pObj->Value = Gia_ManAppendCi(pNew);
-    // create POs
-    Gia_ManHashAlloc( pNew );
-    Gia_ManForEachPo( p, pObj, i )
-    {
-        Gia_ManDupAbstraction_rec( pNew, Gia_ObjFanin0(pObj) );
-        Gia_ManAppendCo( pNew, Gia_ObjFanin0Copy(pObj) );
-    }
-    // create RIs
-    Gia_ManForEachRi( p, pObj, i )
-        if ( Vec_IntEntry(vFlopClasses, i) )
-        {
-            Gia_ManDupAbstraction_rec( pNew, Gia_ObjFanin0(pObj) );
-            Gia_ManAppendCo( pNew, Gia_ObjFanin0Copy(pObj) );
-            nFlops++;
-        }
-    Gia_ManHashStop( pNew );
-    Gia_ManSetRegNum( pNew, nFlops );
-    // clean up
-    pNew = Gia_ManSeqCleanup( pTemp = pNew );
-    Gia_ManStop( pTemp );
     return pNew;
 }
 

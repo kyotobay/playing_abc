@@ -1211,8 +1211,7 @@ int Gia_ManFindFailedPoCex( Gia_Man_t * pAig, Abc_Cex_t * p, int nOutputs )
     assert( iBit == p->nBits );
     // figure out the number of failed output
     RetValue = -1;
-//	for ( i = Gia_ManPoNum(pAig) - 1; i >= nOutputs; i-- )
-	for ( i = nOutputs; i < Gia_ManPoNum(pAig); i++ )
+	for ( i = Gia_ManPoNum(pAig) - 1; i >= nOutputs; i-- )
 	{
         if ( Gia_ManPo(pAig, i)->fMark0 )
         {

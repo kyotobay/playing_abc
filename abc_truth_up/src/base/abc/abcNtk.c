@@ -111,7 +111,6 @@ Abc_Ntk_t * Abc_NtkStartFrom( Abc_Ntk_t * pNtk, Abc_NtkType_t Type, Abc_NtkFunc_
     pNtkNew = Abc_NtkAlloc( Type, Func, 1 );
     pNtkNew->nConstrs = pNtk->nConstrs;
     pNtkNew->nRealPos = pNtk->nRealPos;
-    pNtkNew->vRealPos = pNtk->vRealPos ? Vec_VecDup( pNtk->vRealPos ) : NULL;
     // duplicate the name and the spec
     pNtkNew->pName = Extra_UtilStrsav(pNtk->pName);
     pNtkNew->pSpec = Extra_UtilStrsav(pNtk->pSpec);
@@ -166,7 +165,6 @@ Abc_Ntk_t * Abc_NtkStartFromNoLatches( Abc_Ntk_t * pNtk, Abc_NtkType_t Type, Abc
     pNtkNew = Abc_NtkAlloc( Type, Func, 1 );
     pNtkNew->nConstrs = pNtk->nConstrs;
     pNtkNew->nRealPos = pNtk->nRealPos;
-    pNtkNew->vRealPos = pNtk->vRealPos ? Vec_VecDup( pNtk->vRealPos ) : NULL;
     // duplicate the name and the spec
     pNtkNew->pName = Extra_UtilStrsav(pNtk->pName);
     pNtkNew->pSpec = Extra_UtilStrsav(pNtk->pSpec);
@@ -995,8 +993,8 @@ void Abc_NtkDelete( Abc_Ntk_t * pNtk )
     if ( pNtk->vLevelsR ) Vec_IntFree( pNtk->vLevelsR );
     ABC_FREE( pNtk->pModel );
     ABC_FREE( pNtk->pSeqModel );
-    if ( pNtk->vSeqModelVec )
-        Vec_PtrFreeFree( pNtk->vSeqModelVec );
+    if ( pNtk->pSeqModelVec )
+        Vec_PtrFreeFree( pNtk->pSeqModelVec );
     TotalMemory  = 0;
     TotalMemory += pNtk->pMmObj? Mem_FixedReadMemUsage(pNtk->pMmObj)  : 0;
     TotalMemory += pNtk->pMmStep? Mem_StepReadMemUsage(pNtk->pMmStep) : 0;
@@ -1047,7 +1045,6 @@ void Abc_NtkDelete( Abc_Ntk_t * pNtk )
         Vec_VecFree( (Vec_Vec_t *)pNtk->vOnehots );
     Vec_PtrFreeP( &pNtk->vLtlProperties );
     Vec_IntFreeP( &pNtk->vObjPerm );
-    Vec_VecFreeP( &pNtk->vRealPos );
     ABC_FREE( pNtk );
 }
 
