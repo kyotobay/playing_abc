@@ -338,7 +338,6 @@ bool is_functionally_dependent(bool *table, int num_inps, brick **brick_list,
 	for (int i = 0; i < size; i++)
 	{
 		rectangles[i].f_value = table[i];
-		cout << "rectangles[" << i << "].f_value = " << rectangles[i].f_value << endl;
 		rectangles[i].group_id = 0;
 	}
 
@@ -382,8 +381,8 @@ bool is_functionally_dependent(bool *table, int num_inps, brick **brick_list,
 
 void check_FD()
 {
-	cout << "It shits lol catzzzzz. She's a barbie Girl, its compiling! Let's ROCK! Schagadelic!!" << endl;
-
+//	cout << "It shits lol catzzzzz. She's a barbie Girl, its compiling! Let's ROCK! Schagadelic!!" << endl;
+	
 	const char input_file_name[] = "my_in.txt";
 	filebuf inputFileBuffer;
 	inputFileBuffer.open(input_file_name, ios::in);

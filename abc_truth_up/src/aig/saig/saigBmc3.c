@@ -567,7 +567,7 @@ Gia_ManBmc_t * Saig_Bmc3ManStart( Aig_Man_t * pAig )
     Gia_ManBmc_t * p;
     Aig_Obj_t * pObj;
     int i;
-    assert( Aig_ManRegNum(pAig) > 0 );
+//    assert( Aig_ManRegNum(pAig) > 0 );
     p = ABC_CALLOC( Gia_ManBmc_t, 1 );
     p->pAig = pAig;
     // create mapping
@@ -612,8 +612,8 @@ void Saig_Bmc3ManStop( Gia_ManBmc_t * p )
     Aig_ManCleanMarkA( p->pAig );
     if ( p->vCexes )
     {
-        assert( p->pAig->pSeqModelVec == NULL );
-        p->pAig->pSeqModelVec = p->vCexes;
+        assert( p->pAig->vSeqModelVec == NULL );
+        p->pAig->vSeqModelVec = p->vCexes;
         p->vCexes = NULL;
     }
 //    Vec_PtrFreeFree( p->vCexes );
@@ -1098,6 +1098,7 @@ int Saig_ManBmcScalable( Aig_Man_t * pAig, Saig_ParBmc_t * pPars )
     Gia_ManBmc_t * p;
     Aig_Obj_t * pObj;
     int RetValue = -1, fFirst = 1;
+    int nOutDigits = Aig_Base10Log( Saig_ManPoNum(pAig) - Saig_ManConstrNum(pAig) );
     int i, f, Lit, status, clk, clk2, clkOther = 0, clkTotal = clock();
     if ( pPars->fVerbose && Aig_ManConstrNum(pAig) > 0 )
         printf( "Performing BMC with constraints...\n" );
@@ -1119,7 +1120,21 @@ int Saig_ManBmcScalable( Aig_Man_t * pAig, Saig_ParBmc_t * pPars )
     Saig_ManBmcMarkPis( pAig, pPars->nPisAbstract );
     for ( f = 0; f < pPars->nFramesMax; f++ )
     {
-        pPars->iFrame = f;
+        // stop BMC after exploring all reachable states
+        if ( Aig_ManRegNum(pAig) < 30 && f == (1 << Aig_ManRegNum(pAig)) )
+        {
+            Saig_Bmc3ManStop( p );
+            return pPars->nFailOuts ? 0 : 1;
+        }
+        // stop BMC if all targets are solved
+        if ( pPars->fSolveAll && pPars->nFailOuts == Saig_ManPoNum(pAig) - Saig_ManConstrNum(pAig) )
+        {
+            Saig_Bmc3ManStop( p );
+            return 0;
+        }
+        // consider the next timeframe
+        if ( RetValue == -1 && pPars->nStart == 0 )
+            pPars->iFrame = f;
         // resize the array
         Vec_IntFillExtra( p->vPiVars, (f+1)*Saig_ManPiNum(p->pAig), 0 );
         // map nodes of this section
@@ -1158,8 +1173,10 @@ clkOther += clock() - clk2;
                 return 1;
             }
         }
+        if ( pPars->nStart && f < pPars->nStart )
+            continue;
         // solve SAT
-        clk = clock();
+        clk = clock(); 
         Saig_ManForEachPo( pAig, pObj, i )
         {
             if ( i >= Saig_ManPoNum(pAig) - Saig_ManConstrNum(pAig) )
@@ -1176,18 +1193,21 @@ clkOther += clock() - clk2;
             if ( Lit == 1 )
             {
                 Abc_Cex_t * pCex = Abc_CexMakeTriv( Aig_ManRegNum(pAig), Saig_ManPiNum(pAig), Saig_ManPoNum(pAig), f*Saig_ManPoNum(pAig)+i );
-                printf( "Output %d is trivially SAT in frame %d.\n", i, f );
                 if ( !pPars->fSolveAll )
                 {
+                    printf( "Output %d is trivially SAT in frame %d.\n", i, f );
                     ABC_FREE( pAig->pSeqModel );
                     pAig->pSeqModel = pCex;
                     Saig_Bmc3ManStop( p );
                     return 0;
                 }
                 pPars->nFailOuts++;
+                printf( "Output %*d was asserted in frame %2d (solved %*d out of %*d outputs).\n",  
+                    nOutDigits, i, f, nOutDigits, pPars->nFailOuts, nOutDigits, Saig_ManPoNum(pAig) - Saig_ManConstrNum(pAig) );
                 if ( p->vCexes == NULL )
                     p->vCexes = Vec_PtrStart( Saig_ManPoNum(pAig) );
                 Vec_PtrWriteEntry( p->vCexes, i, pCex );
+                RetValue = 0;
                 continue;
             }
             // solve this output
@@ -1218,11 +1238,11 @@ clkOther += clock() - clk2;
                         printf( "Conf =%7.0f. ",(double)p->pSat->stats.conflicts );
                         printf( "Imp =%10.0f. ", (double)p->pSat->stats.propagations );
                         ABC_PRT( "Time", clock() - clk );
-                        ABC_PRM( "Id2Var", (f+1)*p->nObjNums*4 );
-                        ABC_PRM( "SAT", 42 * p->pSat->size + 16 * (int)p->pSat->stats.clauses + 4 * (int)p->pSat->stats.clauses_literals );
-                        printf( "Simples = %6d. ", p->nBufNum );
+//                        ABC_PRM( "Id2Var", (f+1)*p->nObjNums*4 );
+//                        ABC_PRM( "SAT", 42 * p->pSat->size + 16 * (int)p->pSat->stats.clauses + 4 * (int)p->pSat->stats.clauses_literals );
+//                        printf( "Simples = %6d. ", p->nBufNum );
 //                        printf( "Dups = %6d. ", p->nDupNum );
-                        printf( "\n" );
+//                        printf( "\n" );
                         fflush( stdout );
                     }
                     ABC_FREE( pAig->pSeqModel );
@@ -1231,10 +1251,12 @@ clkOther += clock() - clk2;
                     return 0;
                 }
                 pPars->nFailOuts++;
-                printf( "Output %d was asserted in frame %d (use \"write_counter\" to dump a witness).\n",  i, f );
+                printf( "Output %*d was asserted in frame %2d (solved %*d out of %*d outputs).\n",  
+                    nOutDigits, i, f, nOutDigits, pPars->nFailOuts, nOutDigits, Saig_ManPoNum(pAig) - Saig_ManConstrNum(pAig) );
                 if ( p->vCexes == NULL )
                     p->vCexes = Vec_PtrStart( Saig_ManPoNum(pAig) );
                 Vec_PtrWriteEntry( p->vCexes, i, pCex );
+                RetValue = 0;
             }
             else 
             {
@@ -1273,11 +1295,11 @@ clkOther += clock() - clk2;
 //ABC_PRT( "CNF generation runtime", clkOther );
     if ( pPars->fVerbose )
     {
-    ABC_PRM( "Id2Var", (f+1)*p->nObjNums*4 );
-    ABC_PRM( "SAT", 48 * p->pSat->size + 16 * (int)p->pSat->stats.clauses + 4 * (int)p->pSat->stats.clauses_literals );
-    printf( "Simples = %6d. ", p->nBufNum );
+//    ABC_PRM( "Id2Var", (f+1)*p->nObjNums*4 );
+//    ABC_PRM( "SAT", 48 * p->pSat->size + 16 * (int)p->pSat->stats.clauses + 4 * (int)p->pSat->stats.clauses_literals );
+//    printf( "Simples = %6d. ", p->nBufNum );
 //    printf( "Dups = %6d. ", p->nDupNum );
-    printf( "\n" );
+//    printf( "\n" );
     }
     Saig_Bmc3ManStop( p );
     return RetValue;

@@ -33,6 +33,7 @@
 #include "dar.h"
 #include "mfs.h"
 #include "mfx.h"
+#include "abc_FD.h"
 #include "fra.h"
 #include "saig.h"
 #include "nwkMerge.h"
@@ -45,7 +46,6 @@
 #include "retInt.h"
 #include "cnf.h"
 #include "cec.h"
-#include "giaAbs.h"
 #include "pdr.h" 
 
 #include "tim.h"
@@ -247,11 +247,14 @@ static int Abc_CommandSeqCleanup             ( Abc_Frame_t * pAbc, int argc, cha
 static int Abc_CommandCycle                  ( Abc_Frame_t * pAbc, int argc, char ** argv );
 static int Abc_CommandXsim                   ( Abc_Frame_t * pAbc, int argc, char ** argv );
 static int Abc_CommandSim                    ( Abc_Frame_t * pAbc, int argc, char ** argv );
+static int Abc_CommandSim3                   ( Abc_Frame_t * pAbc, int argc, char ** argv );
 static int Abc_CommandDarPhase               ( Abc_Frame_t * pAbc, int argc, char ** argv );
 static int Abc_CommandSynch                  ( Abc_Frame_t * pAbc, int argc, char ** argv );
 static int Abc_CommandClockGate              ( Abc_Frame_t * pAbc, int argc, char ** argv );
 static int Abc_CommandExtWin                 ( Abc_Frame_t * pAbc, int argc, char ** argv );
 static int Abc_CommandInsWin                 ( Abc_Frame_t * pAbc, int argc, char ** argv );
+static int Abc_CommandPermute                ( Abc_Frame_t * pAbc, int argc, char ** argv );
+static int Abc_CommandUnpermute              ( Abc_Frame_t * pAbc, int argc, char ** argv );
 
 static int Abc_CommandCec                    ( Abc_Frame_t * pAbc, int argc, char ** argv );
 static int Abc_CommandDCec                   ( Abc_Frame_t * pAbc, int argc, char ** argv );
@@ -271,7 +274,6 @@ static int Abc_CommandIndcut                 ( Abc_Frame_t * pAbc, int argc, cha
 static int Abc_CommandEnlarge                ( Abc_Frame_t * pAbc, int argc, char ** argv );
 static int Abc_CommandTempor                 ( Abc_Frame_t * pAbc, int argc, char ** argv );
 static int Abc_CommandInduction              ( Abc_Frame_t * pAbc, int argc, char ** argv );
-static int Abc_CommandCegar                  ( Abc_Frame_t * pAbc, int argc, char ** argv );
 static int Abc_CommandConstr                 ( Abc_Frame_t * pAbc, int argc, char ** argv );
 static int Abc_CommandUnfold                 ( Abc_Frame_t * pAbc, int argc, char ** argv );
 static int Abc_CommandFold                   ( Abc_Frame_t * pAbc, int argc, char ** argv );
@@ -279,8 +281,7 @@ static int Abc_CommandBm                     ( Abc_Frame_t * pAbc, int argc, cha
 static int Abc_CommandTestCex                ( Abc_Frame_t * pAbc, int argc, char ** argv );
 static int Abc_CommandPdr                    ( Abc_Frame_t * pAbc, int argc, char ** argv );
 static int Abc_CommandReconcile              ( Abc_Frame_t * pAbc, int argc, char ** argv );
-static int Abc_CommandPermute                ( Abc_Frame_t * pAbc, int argc, char ** argv );
-static int Abc_CommandUnpermute              ( Abc_Frame_t * pAbc, int argc, char ** argv );
+static int Abc_CommandCexMin                 ( Abc_Frame_t * pAbc, int argc, char ** argv );
 
 static int Abc_CommandTraceStart             ( Abc_Frame_t * pAbc, int argc, char ** argv );
 static int Abc_CommandTraceCheck             ( Abc_Frame_t * pAbc, int argc, char ** argv );
@@ -338,10 +339,12 @@ static int Abc_CommandAbc9Cof                ( Abc_Frame_t * pAbc, int argc, cha
 static int Abc_CommandAbc9Trim               ( Abc_Frame_t * pAbc, int argc, char ** argv );
 static int Abc_CommandAbc9Dfs                ( Abc_Frame_t * pAbc, int argc, char ** argv );
 static int Abc_CommandAbc9Sim                ( Abc_Frame_t * pAbc, int argc, char ** argv );
+static int Abc_CommandAbc9Sim3               ( Abc_Frame_t * pAbc, int argc, char ** argv );
 static int Abc_CommandAbc9Resim              ( Abc_Frame_t * pAbc, int argc, char ** argv );
 static int Abc_CommandAbc9SpecI              ( Abc_Frame_t * pAbc, int argc, char ** argv );
 static int Abc_CommandAbc9Equiv              ( Abc_Frame_t * pAbc, int argc, char ** argv );
 static int Abc_CommandAbc9Equiv2             ( Abc_Frame_t * pAbc, int argc, char ** argv );
+static int Abc_CommandAbc9Equiv3             ( Abc_Frame_t * pAbc, int argc, char ** argv );
 static int Abc_CommandAbc9Semi               ( Abc_Frame_t * pAbc, int argc, char ** argv );
 static int Abc_CommandAbc9Times              ( Abc_Frame_t * pAbc, int argc, char ** argv );
 static int Abc_CommandAbc9Frames             ( Abc_Frame_t * pAbc, int argc, char ** argv );
@@ -371,10 +374,11 @@ static int Abc_CommandAbc9Speedup            ( Abc_Frame_t * pAbc, int argc, cha
 static int Abc_CommandAbc9Era                ( Abc_Frame_t * pAbc, int argc, char ** argv );
 static int Abc_CommandAbc9Dch                ( Abc_Frame_t * pAbc, int argc, char ** argv );
 static int Abc_CommandAbc9AbsStart           ( Abc_Frame_t * pAbc, int argc, char ** argv );
-static int Abc_CommandAbc9AbsStartNew        ( Abc_Frame_t * pAbc, int argc, char ** argv );
 static int Abc_CommandAbc9AbsDerive          ( Abc_Frame_t * pAbc, int argc, char ** argv );
 static int Abc_CommandAbc9AbsRefine          ( Abc_Frame_t * pAbc, int argc, char ** argv );
-static int Abc_CommandAbc9PbaStart           ( Abc_Frame_t * pAbc, int argc, char ** argv );
+static int Abc_CommandAbc9AbsPba             ( Abc_Frame_t * pAbc, int argc, char ** argv );
+static int Abc_CommandAbc9AbsCba             ( Abc_Frame_t * pAbc, int argc, char ** argv );
+//static int Abc_CommandAbc9PbaStart           ( Abc_Frame_t * pAbc, int argc, char ** argv );
 static int Abc_CommandAbc9Reparam            ( Abc_Frame_t * pAbc, int argc, char ** argv );
 static int Abc_CommandAbc9Posplit            ( Abc_Frame_t * pAbc, int argc, char ** argv );
 static int Abc_CommandAbc9ReachM             ( Abc_Frame_t * pAbc, int argc, char ** argv );
@@ -385,6 +389,7 @@ static int Abc_CommandAbc9Undo               ( Abc_Frame_t * pAbc, int argc, cha
 static int Abc_CommandAbc9Test               ( Abc_Frame_t * pAbc, int argc, char ** argv );
 
 static int Abc_CommandAbcTestNew             ( Abc_Frame_t * pAbc, int argc, char ** argv );
+static int Abc_CommandFD             ( Abc_Frame_t * pAbc, int argc, char ** argv );
 
 extern int Abc_CommandAbcLivenessToSafety    ( Abc_Frame_t * pAbc, int argc, char ** argv );
 extern int Abc_CommandAbcLivenessToSafetySim ( Abc_Frame_t * pAbc, int argc, char ** argv );
@@ -407,9 +412,38 @@ extern int Abc_CommandAbcLivenessToSafetyWithLTL( Abc_Frame_t * pAbc, int argc, 
 ***********************************************************************/
 void Abc_FrameReplaceCex( Abc_Frame_t * pAbc, Abc_Cex_t ** ppCex )
 {
+    // update CEX
     ABC_FREE( pAbc->pCex );
     pAbc->pCex = *ppCex;
     *ppCex = NULL;
+    // remove CEX vector
+    if ( pAbc->vCexVec )
+    {
+        Vec_PtrFreeFree( pAbc->vCexVec );
+        pAbc->vCexVec = NULL;
+    }
+}
+
+/**Function*************************************************************
+
+  Synopsis    []
+
+  Description []
+               
+  SideEffects []
+
+  SeeAlso     []
+
+***********************************************************************/
+void Abc_FrameReplaceCexVec( Abc_Frame_t * pAbc, Vec_Ptr_t ** pvCexVec )
+{
+    // update CEX vector
+    if ( pAbc->vCexVec )
+        Vec_PtrFreeFree( pAbc->vCexVec );
+    pAbc->vCexVec = *pvCexVec;
+    *pvCexVec = NULL;
+    // remove CEX
+    ABC_FREE( pAbc->pCex );
 }
 
 /**Function*************************************************************
@@ -666,11 +700,14 @@ void Abc_Init( Abc_Frame_t * pAbc )
     Cmd_CommandAdd( pAbc, "Sequential",   "cycle",         Abc_CommandCycle,            1 );
     Cmd_CommandAdd( pAbc, "Sequential",   "xsim",          Abc_CommandXsim,             0 );
     Cmd_CommandAdd( pAbc, "Sequential",   "sim",           Abc_CommandSim,              0 );
+    Cmd_CommandAdd( pAbc, "Sequential",   "sim3",          Abc_CommandSim3,             0 );
     Cmd_CommandAdd( pAbc, "Sequential",   "phase",         Abc_CommandDarPhase,         1 );
     Cmd_CommandAdd( pAbc, "Sequential",   "synch",         Abc_CommandSynch,            1 );
     Cmd_CommandAdd( pAbc, "Sequential",   "clockgate",     Abc_CommandClockGate,        1 );
     Cmd_CommandAdd( pAbc, "Sequential",   "extwin",        Abc_CommandExtWin,           1 );
     Cmd_CommandAdd( pAbc, "Sequential",   "inswin",        Abc_CommandInsWin,           1 );
+    Cmd_CommandAdd( pAbc, "Sequential",   "permute",       Abc_CommandPermute,          1 );
+    Cmd_CommandAdd( pAbc, "Sequential",   "unpermute",     Abc_CommandUnpermute,        1 );
 
     Cmd_CommandAdd( pAbc, "Verification", "cec",           Abc_CommandCec,              0 );
     Cmd_CommandAdd( pAbc, "Verification", "dcec",          Abc_CommandDCec,             0 );
@@ -695,7 +732,6 @@ void Abc_Init( Abc_Frame_t * pAbc )
     Cmd_CommandAdd( pAbc, "Verification", "enlarge",       Abc_CommandEnlarge,          1 );
     Cmd_CommandAdd( pAbc, "Verification", "tempor",        Abc_CommandTempor,           1 );
     Cmd_CommandAdd( pAbc, "Verification", "ind",           Abc_CommandInduction,        0 );
-    Cmd_CommandAdd( pAbc, "Verification", "abs",           Abc_CommandCegar,            1 );
     Cmd_CommandAdd( pAbc, "Verification", "constr",        Abc_CommandConstr,           0 );
     Cmd_CommandAdd( pAbc, "Verification", "unfold",        Abc_CommandUnfold,           1 );
     Cmd_CommandAdd( pAbc, "Verification", "fold",          Abc_CommandFold,             1 );
@@ -703,8 +739,7 @@ void Abc_Init( Abc_Frame_t * pAbc )
     Cmd_CommandAdd( pAbc, "Verification", "testcex",       Abc_CommandTestCex,          0 );
     Cmd_CommandAdd( pAbc, "Verification", "pdr",           Abc_CommandPdr,              0 );
     Cmd_CommandAdd( pAbc, "Verification", "reconcile",     Abc_CommandReconcile,        1 );
-    Cmd_CommandAdd( pAbc, "Verification", "permute",       Abc_CommandPermute,          1 );
-    Cmd_CommandAdd( pAbc, "Verification", "unpermute",     Abc_CommandUnpermute,        1 );
+    Cmd_CommandAdd( pAbc, "Verification", "cexmin",        Abc_CommandCexMin,           0 );
 
 
     Cmd_CommandAdd( pAbc, "ABC8",         "*r",            Abc_CommandAbc8Read,         0 );
@@ -757,10 +792,12 @@ void Abc_Init( Abc_Frame_t * pAbc )
     Cmd_CommandAdd( pAbc, "ABC9",         "&trim",         Abc_CommandAbc9Trim,         0 );
     Cmd_CommandAdd( pAbc, "ABC9",         "&dfs",          Abc_CommandAbc9Dfs,          0 );
     Cmd_CommandAdd( pAbc, "ABC9",         "&sim",          Abc_CommandAbc9Sim,          0 );
+    Cmd_CommandAdd( pAbc, "ABC9",         "&sim3",         Abc_CommandAbc9Sim3,         0 );
     Cmd_CommandAdd( pAbc, "ABC9",         "&resim",        Abc_CommandAbc9Resim,        0 );
     Cmd_CommandAdd( pAbc, "ABC9",         "&speci",        Abc_CommandAbc9SpecI,        0 );
     Cmd_CommandAdd( pAbc, "ABC9",         "&equiv",        Abc_CommandAbc9Equiv,        0 );
     Cmd_CommandAdd( pAbc, "ABC9",         "&equiv2",       Abc_CommandAbc9Equiv2,       0 );
+    Cmd_CommandAdd( pAbc, "ABC9",         "&equiv3",       Abc_CommandAbc9Equiv3,       0 );
     Cmd_CommandAdd( pAbc, "ABC9",         "&semi",         Abc_CommandAbc9Semi,         0 );
     Cmd_CommandAdd( pAbc, "ABC9",         "&times",        Abc_CommandAbc9Times,        0 );
     Cmd_CommandAdd( pAbc, "ABC9",         "&frames",       Abc_CommandAbc9Frames,       0 );
@@ -790,10 +827,10 @@ void Abc_Init( Abc_Frame_t * pAbc )
     Cmd_CommandAdd( pAbc, "ABC9",         "&era",          Abc_CommandAbc9Era,          0 );
     Cmd_CommandAdd( pAbc, "ABC9",         "&dch",          Abc_CommandAbc9Dch,          0 );
     Cmd_CommandAdd( pAbc, "ABC9",         "&abs_start",    Abc_CommandAbc9AbsStart,     0 );
-    Cmd_CommandAdd( pAbc, "ABC9",         "&abs_newstart", Abc_CommandAbc9AbsStartNew,  0 );
     Cmd_CommandAdd( pAbc, "ABC9",         "&abs_derive",   Abc_CommandAbc9AbsDerive,    0 );
     Cmd_CommandAdd( pAbc, "ABC9",         "&abs_refine",   Abc_CommandAbc9AbsRefine,    0 );
-    Cmd_CommandAdd( pAbc, "ABC9",         "&pba_start",    Abc_CommandAbc9PbaStart,     0 );
+    Cmd_CommandAdd( pAbc, "ABC9",         "&abs_pba",      Abc_CommandAbc9AbsPba,       0 );
+    Cmd_CommandAdd( pAbc, "ABC9",         "&abs_cba",      Abc_CommandAbc9AbsCba,       0 );
     Cmd_CommandAdd( pAbc, "ABC9",         "&reparam",      Abc_CommandAbc9Reparam,      0 );
     Cmd_CommandAdd( pAbc, "ABC9",         "&posplit",      Abc_CommandAbc9Posplit,      0 );
     Cmd_CommandAdd( pAbc, "ABC9",         "&reachm",       Abc_CommandAbc9ReachM,       0 );
@@ -808,6 +845,9 @@ void Abc_Init( Abc_Frame_t * pAbc )
 	Cmd_CommandAdd( pAbc, "Liveness",     "l3s",           Abc_CommandAbcLivenessToSafetyWithLTL,    0 );
 
     Cmd_CommandAdd( pAbc, "Various",      "testnew",       Abc_CommandAbcTestNew,       0 );
+    Cmd_CommandAdd( pAbc, "Functional Dependency",      "check_fd",       Abc_CommandFD,       0 );
+
+
 
 //    Cmd_CommandAdd( pAbc, "Verification", "trace_start",   Abc_CommandTraceStart,       0 );
 //    Cmd_CommandAdd( pAbc, "Verification", "trace_check",   Abc_CommandTraceCheck,       0 );
@@ -2665,6 +2705,7 @@ usage:
     return 1;
 }
 
+
 /**Function*************************************************************
 
   Synopsis    []
@@ -2679,19 +2720,19 @@ usage:
 int Abc_CommandStrash( Abc_Frame_t * pAbc, int argc, char ** argv )
 {
     Abc_Ntk_t * pNtk, * pNtkRes;
-    Abc_Obj_t * pObj, * pNode, * pNodeR;
-    int c;
+    Abc_Obj_t * pObj;
+    int c, i, j, k;
     int fAllNodes;
     int fRecord;
     int fCleanup;
     int fComplOuts;
-    int i, j; 
-    int numObjs;
-    int numInputs;
-    Abc_Obj_t *myNodes[numObjs];
-    ms *myStrs[numObjs];
-    ms *myVars[numInputs];
-	
+    int count = 0;
+    int nbVars;
+    FILE *fichier, *fichier_o;
+    char filename[32], num_out[8];
+    char filename_o[32], num_out_o[8];
+    char myLine[32];
+    int numOuts;
     pNtk = Abc_FrameReadNtk(pAbc);
     // set defaults
     fAllNodes = 0;
@@ -2733,77 +2774,69 @@ int Abc_CommandStrash( Abc_Frame_t * pAbc, int argc, char ** argv )
     if ( pNtkRes == NULL )
     {
         Abc_Print( -1, "Strashing has failed.\n" );
-        return 1; 
-}
-
-numObjs = Abc_NtkObjNum( pNtkRes ); 
-numInputs = pNtkRes->vPis->nSize;
-
-int myCpt = 0, nV = 0;
-	Abc_NtkForEachObj ( pNtkRes, pNode, i )
-	{
-		myNodes[myCpt] = pNode;
-		myStrs[myCpt] = malloc(sizeof(ms));
-		myStrs[myCpt]->pNode = pNode;
-		myStrs[myCpt]->c0pN = Abc_ObjFanin0(pNode);
-		myStrs[myCpt]->c1pN = Abc_ObjFanin1(pNode);
-		myStrs[myCpt]->icc0 = Abc_ObjFaninC0(pNode);
-		myStrs[myCpt]->icc1 = Abc_ObjFaninC1(pNode);
-		myStrs[myCpt]->c0 = NULL;
-		myStrs[myCpt]->c1 = NULL;
-		myStrs[myCpt]->isleaf = 0;
-		myStrs[myCpt]->isroot = 0;
-		if(Abc_ObjIsCi(pNode)) {
-			myStrs[myCpt]->isleaf = 1;
-			myVars[nV] = myStrs[myCpt];
-			nV++;
-		}
-		if(Abc_ObjIsPo(pNode)) {
-			myStrs[myCpt]->isroot = 1;
-		}
-		myCpt++;
-	}
-	for(i = 0; i < numObjs; i++) {
-		for(j = 0; j < numObjs; j++) {
-			if(i != j) {
-				if((myStrs[j]->pNode == myStrs[i]->c0pN) && (myStrs[i]->c0pN != NULL))
-					myStrs[i]->c0 = myStrs[j];
-				if((myStrs[j]->pNode == myStrs[i]->c1pN) && (myStrs[i]->c1pN != NULL) )
-					myStrs[i]->c1 = myStrs[j];
-			}
-		}
-	}
-	printf("##################\n");
-	for(i = 0; i < numObjs; i++)
-	{
-		printf("%s", Abc_ObjName(myStrs[i]->pNode));
-		printf("\t is root node : %d\n", (int)myStrs[i]->isroot);
-	
-		if(myStrs[i]->c0 != NULL)
-		{
-			printf("/tc0 : %s", Abc_ObjName(myStrs[i]->c0pN));
-			printf("\t is complemented: %d\n", (int)myStrs[i]->icc0);
-			}
-		if(myStrs[i]->c1 != NULL)
-		{	
-		printf("/tc1 : %s", Abc_ObjName(myStrs[i]->c1pN));
-		printf("\t is complemented: %d", (int)myStrs[i]->icc1);
-		printf("\n");	
-		}
-	}
-	printf("##################\n");
-	Abc_NtkForEachObj ( pNtkRes, pNode, i )
-	{
-		//printf("Output %d :\n", i);
-	//	Abc_AigMkVarsNode(pNode, pNtkRes);
-	//	Abc_AigPrintNode(pNode);
-//		Abc_AigBrowseNode(pNode);
-		Abc_VarAssignment( myStrs, myVars, pNtkRes);
-	}
+        return 1;
+    }
     if ( fComplOuts )
     Abc_NtkForEachPo( pNtkRes, pObj, c )
         Abc_ObjXorFaninC( pObj, 0 );
+
+//Abc_NtkForEachObj(pNtkRes, pObj, c)
+  //            Abc_AigPrintNode(pObj);
+        Abc_NtkForEachPo(pNtkRes, pObj, c)
+        {
+                nbVars = pNtkRes->vPis->nSize;
+    //            printf("nb vars : %d\n", nbVars);
+                Abc_VarAttribution(pObj, nbVars, pNtkRes, count);
+		count++;
+        }
+	count = 0;
+	numOuts = Abc_NtkPoNum( pNtkRes ); 
+        Abc_NtkForEachPo(pNtkRes, pObj, c)
+        {
+		sprintf(num_out_o, "%d", count);
+		strcpy(filename_o, "my_in");
+		strcat(filename_o, num_out_o);
+		strcat(filename_o, ".txt");
+		fichier_o = fopen(filename_o, "a");
+                nbVars = pNtkRes->vPis->nSize;
+		for(i = count; i < count + nbVars; i++)
+		{
+			j = (i >= nbVars) ? i - nbVars : i;
+			if(j - count == 0)
+			{
+				fprintf(fichier_o,"%d\n", nbVars);
+				fprintf(fichier_o,"%d\n", (numOuts-1));
+				fprintf(fichier_o,"\n");	
+			}
+			else 
+			{
+				fprintf(fichier_o,"\n");
+				fprintf(fichier_o, "%d ", nbVars);
+				for(k = 0; k < nbVars; k++)
+				{
+					fprintf(fichier_o, "%d ", k);
+				}
+				fprintf(fichier_o, "\n");
+			}
+
+			sprintf(num_out, "%d", j);
+			strcpy(filename, "table");
+			strcat(filename, num_out);
+			strcat(filename, ".txt");
+			fichier = fopen(filename, "r");
+			while(fgets(myLine, 32, fichier) != NULL)
+			{
+				fprintf(fichier_o, myLine);
+			}
+			fprintf(fichier_o, "\n");
+			fclose(fichier);
+		}
+		fclose(fichier_o);
+		count++;
+	}
+
     // replace the current network
+
     Abc_FrameReplaceCurrentNetwork( pAbc, pNtkRes );
     return 0;
 
@@ -2818,6 +2851,65 @@ usage:
     return 1;
 }
 
+/**Function*************************************************************
+
+  Synopsis    [FD]
+
+  Description []
+               
+  SideEffects []/
+
+  SeeAlso     [\n]
+
+***********************************************************************/
+int Abc_CommandFD( Abc_Frame_t * pAbc, int argc, char ** argv )
+{
+
+FILE *f;
+int n = 0, numFiles = 0;
+char filename[32], num[8];
+
+	sprintf(num, "%d", n);
+	strcpy(filename, "my_in");
+	strcat(filename, num);
+	strcat(filename, ".txt");
+	f = fopen(filename, "r");
+
+	while(f != NULL)
+	{
+		numFiles++;
+		printf("To numFiles einai: %d\n", numFiles);
+	}
+
+/*
+sprintf(num, "%d", n);
+strcpy(filename, "my_in");
+strcat(filename, num);
+strcat(filename, ".txt");
+f = fopen(filename, "r");*/
+while(f != NULL)
+	{	
+	printf("\n");
+	printf("Functional Dependency Checking Code\n");	
+	printf("\n");	
+
+	check_FD();
+	
+	n++;
+	printf("ti paizei edw me to n se ka8e epanalhpsh: %d\n", n);
+	while(n < numFiles)
+	{
+	sprintf(num, "%d", n);
+	strcpy(filename, "my_in");
+	strcat(filename, num);
+	strcat(filename, ".txt");
+	f = fopen(filename, "r");
+	fclose(f);
+	}
+	}
+fclose(f);
+return 0;
+}
 /**Function*************************************************************
 
   Synopsis    []
@@ -5590,6 +5682,8 @@ int Abc_CommandDemiter( Abc_Frame_t * pAbc, int argc, char ** argv )
     extern int Abc_NtkDarDemiter( Abc_Ntk_t * pNtk );
     extern int Abc_NtkDarDemiterDual( Abc_Ntk_t * pNtk, int fVerbose );
 
+    extern int Abc_NtkDarDemiterNew( Abc_Ntk_t * pNtk );
+
     // set defaults
     fDual = 0;
     fSeq = 1;
@@ -5611,7 +5705,7 @@ int Abc_CommandDemiter( Abc_Frame_t * pAbc, int argc, char ** argv )
         default:
             goto usage;
         }
-    }
+    } 
 
     if ( pNtk == NULL )
     {
@@ -5625,14 +5719,16 @@ int Abc_CommandDemiter( Abc_Frame_t * pAbc, int argc, char ** argv )
         return 1;
     }
 
-    if ( (Abc_NtkPoNum(pNtk) & 1) )
-    {
-        Abc_Print( -1, "The number of POs should be even.\n" );
-        return 0;
-    }
+//    Abc_NtkDarDemiterNew( pNtk );
+//    return 0;
 
     if ( fDual )
     {
+        if ( (Abc_NtkPoNum(pNtk) & 1) )
+        {
+            Abc_Print( -1, "The number of POs should be even.\n" );
+            return 0;
+        }
         if ( !Abc_NtkDarDemiterDual( pNtk, fVerbose ) )
         {
             Abc_Print( -1, "Demitering has failed.\n" );
@@ -8689,11 +8785,13 @@ int Abc_CommandTest( Abc_Frame_t * pAbc, int argc, char ** argv )
     int nLeafMax     = 10;
     int nDivMax      = 50;
     int nDecMax      =  3;
+    int fNewAlgo     =  0;
+    int fNewOrder    =  0;
     int fVerbose     =  0;
     int fVeryVerbose =  0;
     int c;
     Extra_UtilGetoptReset();
-    while ( ( c = Extra_UtilGetopt( argc, argv, "CKDNvwh" ) ) != EOF )
+    while ( ( c = Extra_UtilGetopt( argc, argv, "CKDNaovwh" ) ) != EOF )
     {
         switch ( c )
         {
@@ -8740,6 +8838,12 @@ int Abc_CommandTest( Abc_Frame_t * pAbc, int argc, char ** argv )
             globalUtilOptind++;
             if ( nDecMax < 0 ) 
                 goto usage;
+            break;
+        case 'a':
+            fNewAlgo ^= 1;
+            break;
+        case 'o':
+            fNewOrder ^= 1;
             break;
         case 'v':
             fVerbose ^= 1;
@@ -8826,29 +8930,30 @@ int Abc_CommandTest( Abc_Frame_t * pAbc, int argc, char ** argv )
     Aig_ManStop( pAig );
 }
 */
-/*
+
 {
     extern Aig_Man_t * Abc_NtkToDar( Abc_Ntk_t * pNtk, int fExors, int fRegisters );
-    extern Abc_Cex_t * Saig_PhaseTranslateCex( Aig_Man_t * p, Abc_Cex_t * pCex );
     if ( pAbc->pCex && pNtk )
     {
         Abc_Cex_t * pNew;
         Aig_Man_t * pAig = Abc_NtkToDar( pNtk, 0, 1 );
-        pNew = Saig_PhaseTranslateCex( pAig, pAbc->pCex );
+        pNew = Saig_ManCbaFindCexCareBits( pAig, pAbc->pCex, 0, fNewOrder, fVerbose );
         Aig_ManStop( pAig );
         Abc_FrameReplaceCex( pAbc, &pNew );
     }
 }
-*/
+
 
     return 0;
 usage:
-    Abc_Print( -2, "usage: test [-CKDN] [-vwh] <file_name>\n" );
+    Abc_Print( -2, "usage: test [-CKDN] [-aovwh] <file_name>\n" );
     Abc_Print( -2, "\t         testbench for new procedures\n" );
     Abc_Print( -2, "\t-C num : the max number of cuts [default = %d]\n", nCutMax );
     Abc_Print( -2, "\t-K num : the max number of leaves [default = %d]\n", nLeafMax );
     Abc_Print( -2, "\t-D num : the max number of divisors [default = %d]\n", nDivMax );
     Abc_Print( -2, "\t-N num : the max number of node inputs [default = %d]\n", nDecMax );
+    Abc_Print( -2, "\t-a     : toggle using new algorithm [default = %s]\n", fNewAlgo? "yes": "no" );
+    Abc_Print( -2, "\t-o     : toggle using new ordering [default = %s]\n", fNewOrder? "yes": "no" );
     Abc_Print( -2, "\t-v     : toggle printing verbose information [default = %s]\n", fVerbose? "yes": "no" );
     Abc_Print( -2, "\t-w     : toggle printing very verbose information [default = %s]\n", fVeryVerbose? "yes": "no" );
     Abc_Print( -2, "\t-h     : print the command usage\n");
@@ -15831,6 +15936,150 @@ usage:
     return 1;
 }
 
+
+/**Function*************************************************************
+
+  Synopsis    []
+
+  Description []
+               
+  SideEffects []
+
+  SeeAlso     []
+
+***********************************************************************/
+int Abc_CommandSim3( Abc_Frame_t * pAbc, int argc, char ** argv )
+{
+    Abc_Ntk_t * pNtk = Abc_FrameReadNtk(pAbc);
+    int c;
+    int nFrames;
+    int nWords;
+    int nBinSize;
+    int nRounds;
+    int nRandSeed;
+    int TimeOut;
+    int fVerbose;
+    extern int Abc_NtkDarSeqSim3( Abc_Ntk_t * pNtk, int nFrames, int nWords, int nBinSize, int nRounds, int nRandSeed, int TimeOut, int fVerbose );
+    // set defaults
+    nFrames    =  20;
+    nWords     =  50;
+    nBinSize   =   8;
+    nRounds    =  80;
+    nRandSeed  =   0;
+    TimeOut    =   0;
+    fVerbose   =   0;
+    // parse command line
+    Extra_UtilGetoptReset();
+    while ( ( c = Extra_UtilGetopt( argc, argv, "FWBRNTvh" ) ) != EOF )
+    {
+        switch ( c )
+        {
+        case 'F':
+            if ( globalUtilOptind >= argc )
+            {
+                Abc_Print( -1, "Command line switch \"-F\" should be followed by an integer.\n" );
+                goto usage;
+            }
+            nFrames = atoi(argv[globalUtilOptind]);
+            globalUtilOptind++;
+            if ( nFrames < 0 ) 
+                goto usage;
+            break;
+        case 'W':
+            if ( globalUtilOptind >= argc )
+            {
+                Abc_Print( -1, "Command line switch \"-W\" should be followed by an integer.\n" );
+                goto usage;
+            }
+            nWords = atoi(argv[globalUtilOptind]);
+            globalUtilOptind++;
+            if ( nWords < 0 ) 
+                goto usage;
+            break;
+        case 'B':
+            if ( globalUtilOptind >= argc )
+            {
+                Abc_Print( -1, "Command line switch \"-B\" should be followed by an integer.\n" );
+                goto usage;
+            }
+            nBinSize = atoi(argv[globalUtilOptind]);
+            globalUtilOptind++;
+            if ( nBinSize < 0 ) 
+                goto usage;
+            break;
+        case 'R':
+            if ( globalUtilOptind >= argc )
+            {
+                Abc_Print( -1, "Command line switch \"-R\" should be followed by an integer.\n" );
+                goto usage;
+            }
+            nRounds = atoi(argv[globalUtilOptind]);
+            globalUtilOptind++;
+            if ( nRounds < 0 ) 
+                goto usage;
+            break;
+        case 'N':
+            if ( globalUtilOptind >= argc )
+            {
+                Abc_Print( -1, "Command line switch \"-N\" should be followed by an integer.\n" );
+                goto usage;
+            }
+            nRandSeed = atoi(argv[globalUtilOptind]);
+            globalUtilOptind++;
+            if ( nRandSeed < 0 ) 
+                goto usage;
+            break;
+        case 'T':
+            if ( globalUtilOptind >= argc )
+            {
+                Abc_Print( -1, "Command line switch \"-T\" should be followed by an integer.\n" );
+                goto usage;
+            }
+            TimeOut = atoi(argv[globalUtilOptind]);
+            globalUtilOptind++;
+            if ( TimeOut < 0 ) 
+                goto usage;
+            break;
+        case 'v':
+            fVerbose ^= 1;
+            break;
+        case 'h':
+            goto usage;
+        default:
+            goto usage;
+        }
+    }
+    if ( pNtk == NULL )
+    {
+        Abc_Print( -1, "Empty network.\n" );
+        return 1;
+    }
+    if ( !Abc_NtkIsStrash(pNtk) )
+    {
+        Abc_Print( -1, "Only works for strashed networks.\n" );
+        return 1;
+    }
+    ABC_FREE( pNtk->pSeqModel );
+    pAbc->Status = Abc_NtkDarSeqSim3( pNtk, nFrames, nWords, nBinSize, nRounds, nRandSeed, TimeOut, fVerbose );  
+//    pAbc->nFrames = pAbc->pCex->iFrame;
+    Abc_FrameReplaceCex( pAbc, &pNtk->pSeqModel );
+    return 0;
+
+usage:
+    Abc_Print( -2, "usage: sim3 [-FWBRNT num] [-vh]\n" );
+    Abc_Print( -2, "\t         performs random simulation of the sequential miter\n" );
+    Abc_Print( -2, "\t-F num : the number of frames to simulate [default = %d]\n", nFrames );
+    Abc_Print( -2, "\t-W num : the number of words to simulate [default = %d]\n",  nWords );
+    Abc_Print( -2, "\t-B num : the number of flops in one bin [default = %d]\n",   nBinSize );
+    Abc_Print( -2, "\t-R num : the number of simulation rounds [default = %d]\n",  nRounds );
+    Abc_Print( -2, "\t-N num : random number seed (1 <= num <= 1000) [default = %d]\n", nRandSeed );
+    Abc_Print( -2, "\t-T num : approximate runtime limit in seconds [default = %d]\n", TimeOut );
+    Abc_Print( -2, "\t-v     : toggle printing verbose information [default = %s]\n", fVerbose? "yes": "no" );
+    Abc_Print( -2, "\t-h     : print the command usage\n");
+    return 1;
+}
+
+
 /**Function*************************************************************
 
   Synopsis    []
@@ -16429,6 +16678,120 @@ usage:
     Abc_Print( -2, "\tfile   : file with the AIG to be inserted\n");
     return 1;
 }
+
+
+/**Function*************************************************************
+
+  Synopsis    []
+
+  Description []
+               
+  SideEffects []
+
+  SeeAlso     []
+
+***********************************************************************/
+int Abc_CommandPermute( Abc_Frame_t * pAbc, int argc, char ** argv )
+{	
+    Abc_Ntk_t * pNtk = pAbc->pNtkCur, * pNtkRes = NULL;
+    int fInputs = 1;
+    int fOutputs = 1;
+    int c, fFlops = 1;
+	Extra_UtilGetoptReset();
+    while ( ( c = Extra_UtilGetopt( argc, argv, "iofh" ) ) != EOF )
+    {
+        switch ( c )
+        {
+        case 'i':
+            fInputs ^= 1;
+            break;
+        case 'o':
+            fOutputs ^= 1;
+            break;
+        case 'f':
+            fFlops ^= 1;
+            break;
+		case 'h':
+			goto usage;
+        default:
+			Abc_Print( -2, "Unknown switch.\n");
+            goto usage;
+        }
+    }
+    if ( pNtk == NULL )
+    {
+        Abc_Print( -1, "Empty network.\n" );
+        return 1;
+    }
+    pNtkRes = Abc_NtkDup( pNtk );
+    if ( pNtkRes == NULL )
+    {
+        Abc_Print( -1, "Command \"permute\" has failed.\n" );
+        return 1;
+    }
+    Abc_NtkPermute( pNtkRes, fInputs, fOutputs, fFlops );
+    Abc_FrameReplaceCurrentNetwork( pAbc, pNtkRes );
+    return 0;
+
+usage:
+    Abc_Print( -2, "usage: permute [-iofh]\n" );
+    Abc_Print( -2, "\t        performs random permutation of inputs/outputs/flops\n" );
+    Abc_Print( -2, "\t-i    : toggle permuting primary inputs [default = %s]\n", fInputs? "yes": "no" );
+    Abc_Print( -2, "\t-o    : toggle permuting primary outputs [default = %s]\n", fOutputs? "yes": "no" );
+    Abc_Print( -2, "\t-f    : toggle permuting flip-flops [default = %s]\n", fFlops? "yes": "no" );
+    Abc_Print( -2, "\t-h    : print the command usage\n");
+    return 1;
+}
+
+/**Function*************************************************************
+
+  Synopsis    []
+
+  Description []
+               
+  SideEffects []
+
+  SeeAlso     []
+
+***********************************************************************/
+int Abc_CommandUnpermute( Abc_Frame_t * pAbc, int argc, char ** argv )
+{	
+    Abc_Ntk_t * pNtk = pAbc->pNtkCur, * pNtkRes = NULL;
+    int c;
+	Extra_UtilGetoptReset();
+    while ( ( c = Extra_UtilGetopt( argc, argv, "h" ) ) != EOF )
+    {
+        switch ( c )
+        {
+		case 'h':
+			goto usage;
+        default:
+			Abc_Print( -2, "Unknown switch.\n");
+            goto usage;
+        }
+    }
+    if ( pNtk == NULL )
+    {
+        Abc_Print( -1, "Empty network.\n" );
+        return 1;
+    }
+    pNtkRes = Abc_NtkDup( pNtk );
+    if ( pNtkRes == NULL )
+    {
+        Abc_Print( -1, "Command \"unpermute\" has failed.\n" );
+        return 1;
+    }
+    Abc_NtkUnpermute( pNtkRes );
+    Abc_FrameReplaceCurrentNetwork( pAbc, pNtkRes );
+    return 0;
+
+usage:
+    Abc_Print( -2, "usage: unpermute [-h]\n" );
+    Abc_Print( -2, "\t        restores inputs/outputs/flops before the last permutation\n" );
+    Abc_Print( -2, "\t-h    : print the command usage\n");
+    return 1;
+}
+
 
 /**Function*************************************************************
 
@@ -18809,14 +19172,14 @@ int Abc_CommandBmc3( Abc_Frame_t * pAbc, int argc, char ** argv )
         Abc_NtkWriteLogFile( pLogFileName, pAbc->pCex, pAbc->Status, pAbc->nFrames, "bmc3" );
     if ( pPars->fSolveAll && pPars->fDropSatOuts )
     {
-        if ( pNtk->pSeqModelVec == NULL )
+        if ( pNtk->vSeqModelVec == NULL )
             printf( "The array of counter-examples is not available.\n" );
-        else if ( Vec_PtrSize(pNtk->pSeqModelVec) != Abc_NtkPoNum(pNtk) )
+        else if ( Vec_PtrSize(pNtk->vSeqModelVec) != Abc_NtkPoNum(pNtk) )
             printf( "The array size does not match the number of outputs.\n" );
         else
         {
             extern void Abc_NtkDropSatOutputs( Abc_Ntk_t * pNtk, Vec_Ptr_t * vCexes, int fVerbose );
-            Abc_NtkDropSatOutputs( pNtk, pNtk->pSeqModelVec, pPars->fVerbose );
+            Abc_NtkDropSatOutputs( pNtk, pNtk->vSeqModelVec, pPars->fVerbose );
             pNtkRes = Abc_NtkDarLatchSweep( pNtk, 1, 1, 1, 0 );
             if ( pNtkRes == NULL )
             {
@@ -18826,6 +19189,8 @@ int Abc_CommandBmc3( Abc_Frame_t * pAbc, int argc, char ** argv )
             Abc_FrameReplaceCurrentNetwork( pAbc, pNtkRes );
         }
     }
+    if ( pNtk->vSeqModelVec )
+        Abc_FrameReplaceCexVec( pAbc, &pNtk->vSeqModelVec );
     return 0;
 
 usage:
@@ -19456,19 +19821,21 @@ int Abc_CommandInduction( Abc_Frame_t * pAbc, int argc, char ** argv )
     int nConfMax;
     int fUnique;
     int fUniqueAll;
+    int fGetCex;
     int fVerbose;
     int fVeryVerbose;
     int c;
-    extern int Abc_NtkDarInduction( Abc_Ntk_t * pNtk, int nFramesMax, int nConfMax, int fUnique, int fUniqueAll, int fVerbose, int fVeryVerbose );
+    extern int Abc_NtkDarInduction( Abc_Ntk_t * pNtk, int nFramesMax, int nConfMax, int fUnique, int fUniqueAll, int fGetCex, int fVerbose, int fVeryVerbose );
     // set defaults
     nFramesMax   =   100;
     nConfMax     =  1000;
     fUnique      =     0;
     fUniqueAll   =     0;
+    fGetCex      =     0;
     fVerbose     =     0;
     fVeryVerbose =     0;
     Extra_UtilGetoptReset();
-    while ( ( c = Extra_UtilGetopt( argc, argv, "FCuavwh" ) ) != EOF )
+    while ( ( c = Extra_UtilGetopt( argc, argv, "FCuaxvwh" ) ) != EOF )
     {
         switch ( c )
         {
@@ -19499,6 +19866,9 @@ int Abc_CommandInduction( Abc_Frame_t * pAbc, int argc, char ** argv )
             break;
         case 'a':
             fUniqueAll ^= 1;
+            break;
+        case 'x':
+            fGetCex ^= 1;
             break;
         case 'v':
             fVerbose ^= 1;
@@ -19539,145 +19909,23 @@ int Abc_CommandInduction( Abc_Frame_t * pAbc, int argc, char ** argv )
     }
 
     // modify the current network
-    pAbc->Status = Abc_NtkDarInduction( pNtk, nFramesMax, nConfMax, fUnique, fUniqueAll, fVerbose, fVeryVerbose );
+    pAbc->Status = Abc_NtkDarInduction( pNtk, nFramesMax, nConfMax, fUnique, fUniqueAll, fGetCex, fVerbose, fVeryVerbose );
+    if ( fGetCex )
+    {
+        Abc_FrameReplaceCex( pAbc, &pNtk->pSeqModel );
+        printf( "The current CEX in ABC is set to be the CEX to induction.\n" );
+    }
     return 0;
 usage:
-    Abc_Print( -2, "usage: ind [-FC num] [-uavwh]\n" );
+    Abc_Print( -2, "usage: ind [-FC num] [-uaxvwh]\n" );
     Abc_Print( -2, "\t         runs the inductive case of the K-step induction\n" );
     Abc_Print( -2, "\t-F num : the max number of timeframes [default = %d]\n", nFramesMax );
     Abc_Print( -2, "\t-C num : the max number of conflicts by SAT solver [default = %d]\n", nConfMax );
     Abc_Print( -2, "\t-u     : toggle adding uniqueness constraints on demand [default = %s]\n", fUnique? "yes": "no" );
     Abc_Print( -2, "\t-a     : toggle adding uniqueness constraints always [default = %s]\n", fUniqueAll? "yes": "no" );
+    Abc_Print( -2, "\t-x     : toggle returning CEX to induction for the top frame [default = %s]\n", fGetCex? "yes": "no" );
     Abc_Print( -2, "\t-v     : toggle printing verbose information [default = %s]\n", fVerbose? "yes": "no" );
     Abc_Print( -2, "\t-w     : toggle printing additional verbose information [default = %s]\n", fVeryVerbose? "yes": "no" );
-    Abc_Print( -2, "\t-h     : print the command usage\n");
-    return 1;
-}
- 
-/**Function*************************************************************
-
-  Synopsis    []
-
-  Description []
-               
-  SideEffects []
-
-  SeeAlso     []
-
-***********************************************************************/
-int Abc_CommandCegar( Abc_Frame_t * pAbc, int argc, char ** argv )
-{
-    Gia_ParAbs_t Pars, * pPars = &Pars;
-    Abc_Ntk_t * pNtk, * pNtkRes;
-    int c;
-    extern Abc_Ntk_t * Abc_NtkDarCegar( Abc_Ntk_t * pNtk, Gia_ParAbs_t * pPars );
-
-    pNtk = Abc_FrameReadNtk(pAbc);
-    // set defaults
-    Gia_ManAbsSetDefaultParams( pPars );
-    Extra_UtilGetoptReset();
-    while ( ( c = Extra_UtilGetopt( argc, argv, "FCRcrpfvh" ) ) != EOF )
-    {
-        switch ( c )
-        {
-        case 'F':
-            if ( globalUtilOptind >= argc )
-            {
-                Abc_Print( -1, "Command line switch \"-F\" should be followed by an integer.\n" );
-                goto usage;
-            }
-            pPars->nFramesBmc = atoi(argv[globalUtilOptind]);
-            globalUtilOptind++;
-            if ( pPars->nFramesBmc < 0 ) 
-                goto usage;
-            break;
-        case 'C':
-            if ( globalUtilOptind >= argc )
-            {
-                Abc_Print( -1, "Command line switch \"-C\" should be followed by an integer.\n" );
-                goto usage;
-            }
-            pPars->nConfMaxBmc = atoi(argv[globalUtilOptind]);
-            globalUtilOptind++;
-            if ( pPars->nConfMaxBmc < 0 ) 
-                goto usage;
-            break;
-        case 'R':
-            if ( globalUtilOptind >= argc )
-            {
-                Abc_Print( -1, "Command line switch \"-R\" should be followed by an integer.\n" );
-                goto usage;
-            }
-            pPars->nRatio = atoi(argv[globalUtilOptind]);
-            globalUtilOptind++;
-            if ( pPars->nRatio < 0 ) 
-                goto usage;
-            break;
-        case 'c':
-            pPars->fConstr ^= 1;
-            break;
-        case 'r':
-            pPars->fUseBdds ^= 1;
-            break;
-        case 'p':
-            pPars->fUseDprove ^= 1;
-            break;
-        case 'f':
-            pPars->fUseStart ^= 1;
-            break;
-        case 'v':
-            pPars->fVerbose ^= 1;
-            break;
-        case 'h':
-            goto usage;
-        default:
-            goto usage;
-        }
-    }
-    if ( pNtk == NULL )
-    {
-        Abc_Print( -1, "Empty network.\n" );
-        return 1;
-    }
-    if ( Abc_NtkIsComb(pNtk) )
-    {
-        Abc_Print( -1, "The network is combinational.\n" );
-        return 0;
-    }
-    if ( !Abc_NtkIsStrash(pNtk) )
-    {
-        Abc_Print( -1, "Currently only works for structurally hashed circuits.\n" );
-        return 0;
-    }
-    if ( !(0 <= pPars->nRatio && pPars->nRatio <= 100) )
-    {
-        Abc_Print( -1, "Wrong value of parameter \"-R <num>\".\n" );
-        return 0;
-    }
-
-    // modify the current network
-    pNtkRes = Abc_NtkDarCegar( pNtk, pPars );
-    if ( pNtkRes == NULL )
-    {
-        if ( pNtk->pSeqModel == NULL )
-            Abc_Print( -1, "Abstraction has failed.\n" );
-        return 0;
-    }
-    // replace the current network
-    Abc_FrameReplaceCurrentNetwork( pAbc, pNtkRes );
-    return 0;
-usage:
-    Abc_Print( -2, "usage: abs [-FCR num] [-crpfvh]\n" );
-    Abc_Print( -2, "\t         performs counter-example-based abstraction\n" );
-    Abc_Print( -2, "\t-F num : the max number of timeframes for BMC [default = %d]\n", pPars->nFramesBmc );
-    Abc_Print( -2, "\t-C num : the max number of conflicts by SAT solver for BMC [default = %d]\n", pPars->nConfMaxBmc );
-    Abc_Print( -2, "\t-R num : the %% of abstracted flops when refinement stops (0<=num<=100) [default = %d]\n", pPars->nRatio );
-    Abc_Print( -2, "\t-c     : toggle dynamic addition of constraints [default = %s]\n", pPars->fConstr? "yes": "no" );
-    Abc_Print( -2, "\t-r     : toggle using BDD-based reachability for filtering [default = %s]\n", pPars->fUseBdds? "yes": "no" );
-//    Abc_Print( -2, "\t-p     : toggle using \"dprove\" for filtering [default = %s]\n", pPars->fUseDprove? "yes": "no" );
-    Abc_Print( -2, "\t-p     : toggle using \"pdr\" for filtering [default = %s]\n", pPars->fUseDprove? "yes": "no" );
-    Abc_Print( -2, "\t-f     : toggle starting BMC from a later frame [default = %s]\n", pPars->fUseStart? "yes": "no" );
-    Abc_Print( -2, "\t-v     : toggle printing verbose information [default = %s]\n", pPars->fVerbose? "yes": "no" );
     Abc_Print( -2, "\t-h     : print the command usage\n");
     return 1;
 }
@@ -20220,7 +20468,10 @@ int Abc_CommandTestCex( Abc_Frame_t * pAbc, int argc, char ** argv )
 			int iPoOld = pAbc->pCex->iPo;
 			pAbc->pCex->iPo = Gia_ManFindFailedPoCex( pGia, pAbc->pCex, nOutputs );
 			if ( pAbc->pCex->iPo == -1 )
+            {
+                pAbc->pCex->iPo = iPoOld;
     			Abc_Print( 1, "Main AIG: The cex does not fail any outputs.\n" );
+            }
 			else if ( iPoOld != pAbc->pCex->iPo )
 				Abc_Print( 1, "Main AIG: The cex refined PO %d instead of PO %d.\n", pAbc->pCex->iPo, iPoOld );
 			else 
@@ -20246,7 +20497,10 @@ int Abc_CommandTestCex( Abc_Frame_t * pAbc, int argc, char ** argv )
 			int iPoOld = pAbc->pCex->iPo;
 			pAbc->pCex->iPo = Gia_ManFindFailedPoCex( pAbc->pGia, pAbc->pCex, nOutputs );
 			if ( pAbc->pCex->iPo == -1 )
+            {
+                pAbc->pCex->iPo = iPoOld;
     			Abc_Print( 1, "And  AIG: The cex does not fail any outputs.\n" );
+            }
 			else if ( iPoOld != pAbc->pCex->iPo )
 				Abc_Print( 1, "And  AIG: The cex refined PO %d instead of PO %d.\n", pAbc->pCex->iPo, iPoOld );
 			else 
@@ -20524,78 +20778,44 @@ usage:
   SeeAlso     []
 
 ***********************************************************************/
-int Abc_CommandPermute( Abc_Frame_t * pAbc, int argc, char ** argv )
+int Abc_CommandCexMin( Abc_Frame_t * pAbc, int argc, char ** argv )
 {	
-    Abc_Ntk_t * pNtk = pAbc->pNtkCur, * pNtkRes = NULL;
-    int fInputs = 1;
-    int fOutputs = 1;
-    int c, fFlops = 1;
-	Extra_UtilGetoptReset();
-    while ( ( c = Extra_UtilGetopt( argc, argv, "iofh" ) ) != EOF )
-    {
-        switch ( c )
-        {
-        case 'i':
-            fInputs ^= 1;
-            break;
-        case 'o':
-            fOutputs ^= 1;
-            break;
-        case 'f':
-            fFlops ^= 1;
-            break;
-		case 'h':
-			goto usage;
-        default:
-			Abc_Print( -2, "Unknown switch.\n");
-            goto usage;
-        }
-    }
-    if ( pNtk == NULL )
-    {
-        Abc_Print( -1, "Empty network.\n" );
-        return 1;
-    }
-    pNtkRes = Abc_NtkDup( pNtk );
-    if ( pNtkRes == NULL )
-    {
-        Abc_Print( -1, "Command \"permute\" has failed.\n" );
-        return 1;
-    }
-    Abc_NtkPermute( pNtkRes, fInputs, fOutputs, fFlops );
-    Abc_FrameReplaceCurrentNetwork( pAbc, pNtkRes );
-    return 0;
-
-usage:
-    Abc_Print( -2, "usage: permute [-iofh]\n" );
-    Abc_Print( -2, "\t        performs random permutation of inputs/outputs/flops\n" );
-    Abc_Print( -2, "\t-i    : toggle permuting primary inputs [default = %s]\n", fInputs? "yes": "no" );
-    Abc_Print( -2, "\t-o    : toggle permuting primary outputs [default = %s]\n", fOutputs? "yes": "no" );
-    Abc_Print( -2, "\t-f    : toggle permuting flip-flops [default = %s]\n", fFlops? "yes": "no" );
-    Abc_Print( -2, "\t-h    : print the command usage\n");
-    return 1;
-}
-
-/**Function*************************************************************
-
-  Synopsis    []
-
-  Description []
-               
-  SideEffects []
-
-  SeeAlso     []
-
-***********************************************************************/
-int Abc_CommandUnpermute( Abc_Frame_t * pAbc, int argc, char ** argv )
-{	
-    Abc_Ntk_t * pNtk = pAbc->pNtkCur, * pNtkRes = NULL;
+ 	Abc_Ntk_t * pNtk;
+    Abc_Cex_t * vCexNew = NULL;
     int c;
+    int nConfLimit = 1000;
+	int nRounds    =    1;
+    int fVerbose   =    0;
 	Extra_UtilGetoptReset();
-    while ( ( c = Extra_UtilGetopt( argc, argv, "h" ) ) != EOF )
+    while ( ( c = Extra_UtilGetopt( argc, argv, "CRvh" ) ) != EOF )
     {
         switch ( c )
         {
+        case 'C':
+            if ( globalUtilOptind >= argc )
+            {
+                Abc_Print( -1, "Command line switch \"-C\" should be followed by an integer.\n" );
+                goto usage;
+            }
+            nConfLimit = atoi(argv[globalUtilOptind]);
+            globalUtilOptind++;
+            if ( nConfLimit < 0 ) 
+                goto usage;
+            break;
+        case 'R':
+            if ( globalUtilOptind >= argc )
+            {
+                Abc_Print( -1, "Command line switch \"-R\" should be followed by an integer.\n" );
+                goto usage;
+            }
+            nRounds = atoi(argv[globalUtilOptind]);
+            globalUtilOptind++;
+            if ( nRounds < 0 ) 
+                goto usage;
+            break;
+        case 'v':
+            fVerbose ^= 1;
+            break;
 		case 'h':
 			goto usage;
         default:
@@ -20603,25 +20823,59 @@ int Abc_CommandUnpermute( Abc_Frame_t * pAbc, int argc, char ** argv )
             goto usage;
         }
     }
-    if ( pNtk == NULL )
+
+    if ( pAbc->pCex == NULL )
     {
-        Abc_Print( -1, "Empty network.\n" );
-        return 1;
+		Abc_Print( 1, "There is no current cex.\n");
+        return 0;
     }
-    pNtkRes = Abc_NtkDup( pNtk );
-    if ( pNtkRes == NULL )
-    {
-        Abc_Print( -1, "Command \"unpermute\" has failed.\n" );
-        return 1;
-    }
-    Abc_NtkUnpermute( pNtkRes );
-    Abc_FrameReplaceCurrentNetwork( pAbc, pNtkRes );
+
+	// check the main AIG
+	pNtk = Abc_FrameReadNtk(pAbc);
+	if ( pNtk == NULL )
+		Abc_Print( 1, "Main AIG: There is no current network.\n");
+	else if ( !Abc_NtkIsStrash(pNtk) )
+		Abc_Print( 1, "Main AIG: The current network is not an AIG.\n");
+	else if ( Abc_NtkPiNum(pNtk) != pAbc->pCex->nPis )
+		Abc_Print( 1, "Main AIG: The number of PIs (%d) is different from cex (%d).\n", Abc_NtkPiNum(pNtk), pAbc->pCex->nPis );
+//		else if ( Abc_NtkLatchNum(pNtk) != pAbc->pCex->nRegs )
+//			Abc_Print( 1, "Main AIG: The number of registers (%d) is different from cex (%d).\n", Abc_NtkLatchNum(pNtk), pAbc->pCex->nRegs );
+//		else if ( Abc_NtkPoNum(pNtk) <= pAbc->pCex->iPo )
+//			Abc_Print( 1, "Main AIG: The number of POs (%d) is less than the PO index in cex (%d).\n", Abc_NtkPoNum(pNtk), pAbc->pCex->iPo );
+	else 
+	{
+		extern Aig_Man_t * Abc_NtkToDar( Abc_Ntk_t * pNtk, int fExors, int fRegisters );
+		Aig_Man_t * pAig = Abc_NtkToDar( pNtk, 0, 1 );
+		Gia_Man_t * pGia = Gia_ManFromAigSimple( pAig );
+//        if ( !Gia_ManVerifyCex( pGia, pAbc->pCex, 0 ) )
+		int iPoOld = pAbc->pCex->iPo;
+		pAbc->pCex->iPo = Gia_ManFindFailedPoCex( pGia, pAbc->pCex, 0 );
+		Gia_ManStop( pGia );
+		if ( pAbc->pCex->iPo == -1 )
+        {
+            pAbc->pCex->iPo = iPoOld;
+    		Abc_Print( -1, "Main AIG: The cex does not fail any outputs.\n" );
+            return 0;
+        }
+		else if ( iPoOld != pAbc->pCex->iPo )
+			Abc_Print( 0, "Main AIG: The cex refined PO %d instead of PO %d.\n", pAbc->pCex->iPo, iPoOld );
+        // perform minimization
+        vCexNew = Saig_ManCexMinPerform( pAig, pAbc->pCex );
+		Aig_ManStop( pAig );
+        Abc_CexFree( vCexNew );
+//        Abc_FrameReplaceCex( pAbc, &vCexNew );
+
+//        printf( "Implementation of this command is not finished.\n" );
+	}
     return 0;
 
 usage:
-    Abc_Print( -2, "usage: unpermute [-h]\n" );
-    Abc_Print( -2, "\t        restores inputs/outputs/flops before the last permutation\n" );
-    Abc_Print( -2, "\t-h    : print the command usage\n");
+    Abc_Print( -2, "usage: cexmin [-CR num] [-vh]\n" );
+    Abc_Print( -2, "\t         reduces the length of the counter-example\n" );
+    Abc_Print( -2, "\t-C num : the maximum number of conflicts [default = %d]\n", nConfLimit );
+    Abc_Print( -2, "\t-R num : the number of minimization rounds [default = %d]\n", nRounds );
+    Abc_Print( -2, "\t-v     : toggle printing optimization summary [default = %s]\n", fVerbose? "yes": "no" );
+    Abc_Print( -2, "\t-h     : print the command usage\n");
     return 1;
 }
 
@@ -24699,21 +24953,10 @@ int Abc_CommandAbc9Sim( Abc_Frame_t * pAbc, int argc, char ** argv )
     int c;
     Gia_ManSimSetDefaultParams( pPars );
     Extra_UtilGetoptReset();
-    while ( ( c = Extra_UtilGetopt( argc, argv, "WFRTmvh" ) ) != EOF )
+    while ( ( c = Extra_UtilGetopt( argc, argv, "FWNTmvh" ) ) != EOF )
     {
         switch ( c )
         {
-        case 'W':
-            if ( globalUtilOptind >= argc )
-            {
-                Abc_Print( -1, "Command line switch \"-W\" should be followed by an integer.\n" );
-                goto usage;
-            }
-            pPars->nWords = atoi(argv[globalUtilOptind]);
-            globalUtilOptind++;
-            if ( pPars->nWords < 0 ) 
-                goto usage;
-            break;
         case 'F':
             if ( globalUtilOptind >= argc )
             {
@@ -24725,10 +24968,21 @@ int Abc_CommandAbc9Sim( Abc_Frame_t * pAbc, int argc, char ** argv )
             if ( pPars->nIters < 0 ) 
                 goto usage;
             break;
-        case 'R':
+        case 'W':
             if ( globalUtilOptind >= argc )
             {
-                Abc_Print( -1, "Command line switch \"-R\" should be followed by an integer.\n" );
+                Abc_Print( -1, "Command line switch \"-W\" should be followed by an integer.\n" );
+                goto usage;
+            }
+            pPars->nWords = atoi(argv[globalUtilOptind]);
+            globalUtilOptind++;
+            if ( pPars->nWords < 0 ) 
+                goto usage;
+            break;
+        case 'N':
+            if ( globalUtilOptind >= argc )
+            {
+                Abc_Print( -1, "Command line switch \"-N\" should be followed by an integer.\n" );
                 goto usage;
             }
             pPars->RandSeed = atoi(argv[globalUtilOptind]);
@@ -24780,18 +25034,154 @@ int Abc_CommandAbc9Sim( Abc_Frame_t * pAbc, int argc, char ** argv )
     return 0;
 
 usage:
-    Abc_Print( -2, "usage: &sim [-WFRT num] [-mvh]\n" );
+    Abc_Print( -2, "usage: &sim [-FWNT num] [-mvh]\n" );
     Abc_Print( -2, "\t         performs random simulation of the sequential miter\n" );
     Abc_Print( -2, "\t         (if candidate equivalences are defined, performs refinement)\n" );
-    Abc_Print( -2, "\t-W num : the number of words to simulate [default = %d]\n", pPars->nWords );
     Abc_Print( -2, "\t-F num : the number of frames to simulate [default = %d]\n", pPars->nIters );
-    Abc_Print( -2, "\t-R num : random number seed (1 <= num <= 10000) [default = %d]\n", pPars->RandSeed );
+    Abc_Print( -2, "\t-W num : the number of words to simulate [default = %d]\n", pPars->nWords );
+    Abc_Print( -2, "\t-N num : random number seed (1 <= num <= 1000) [default = %d]\n", pPars->RandSeed );
     Abc_Print( -2, "\t-T num : approximate runtime limit in seconds [default = %d]\n", pPars->TimeLimit );
     Abc_Print( -2, "\t-m     : toggle miter vs. any circuit [default = %s]\n", pPars->fCheckMiter? "miter": "circuit" );
     Abc_Print( -2, "\t-v     : toggle printing verbose information [default = %s]\n", pPars->fVerbose? "yes": "no" );
     Abc_Print( -2, "\t-h     : print the command usage\n");
     return 1;
 }
+
+/**Function*************************************************************
+
+  Synopsis    []
+
+  Description []
+               
+  SideEffects []
+
+  SeeAlso     []
+
+***********************************************************************/
+int Abc_CommandAbc9Sim3( Abc_Frame_t * pAbc, int argc, char ** argv )
+{
+    int c;
+    int nFrames;
+    int nWords;
+    int nBinSize;
+    int nRounds;
+    int nRandSeed;
+    int TimeOut;
+    int fVerbose;
+    extern int Ssw_RarSimulateGia( Gia_Man_t * p, int nFrames, int nWords, int nBinSize, int nRounds, int nRandSeed, int TimeOut, int fVerbose );
+    // set defaults
+    nFrames    =  20;
+    nWords     =  50;
+    nBinSize   =   8;
+    nRounds    =  80;
+    nRandSeed  =   0;
+    TimeOut    =   0;
+    fVerbose   =   0;
+    // parse command line
+    Extra_UtilGetoptReset();
+    while ( ( c = Extra_UtilGetopt( argc, argv, "FWBRNTvh" ) ) != EOF )
+    {
+        switch ( c )
+        {
+        case 'F':
+            if ( globalUtilOptind >= argc )
+            {
+                Abc_Print( -1, "Command line switch \"-F\" should be followed by an integer.\n" );
+                goto usage;
+            }
+            nFrames = atoi(argv[globalUtilOptind]);
+            globalUtilOptind++;
+            if ( nFrames < 0 ) 
+                goto usage;
+            break;
+        case 'W':
+            if ( globalUtilOptind >= argc )
+            {
+                Abc_Print( -1, "Command line switch \"-W\" should be followed by an integer.\n" );
+                goto usage;
+            }
+            nWords = atoi(argv[globalUtilOptind]);
+            globalUtilOptind++;
+            if ( nWords < 0 ) 
+                goto usage;
+            break;
+        case 'B':
+            if ( globalUtilOptind >= argc )
+            {
+                Abc_Print( -1, "Command line switch \"-B\" should be followed by an integer.\n" );
+                goto usage;
+            }
+            nBinSize = atoi(argv[globalUtilOptind]);
+            globalUtilOptind++;
+            if ( nBinSize < 0 ) 
+                goto usage;
+            break;
+        case 'R':
+            if ( globalUtilOptind >= argc )
+            {
+                Abc_Print( -1, "Command line switch \"-R\" should be followed by an integer.\n" );
+                goto usage;
+            }
+            nRounds = atoi(argv[globalUtilOptind]);
+            globalUtilOptind++;
+            if ( nRounds < 0 ) 
+                goto usage;
+            break;
+        case 'N':
+            if ( globalUtilOptind >= argc )
+            {
+                Abc_Print( -1, "Command line switch \"-N\" should be followed by an integer.\n" );
+                goto usage;
+            }
+            nRandSeed = atoi(argv[globalUtilOptind]);
+            globalUtilOptind++;
+            if ( nRandSeed < 0 ) 
+                goto usage;
+            break;
+        case 'T':
+            if ( globalUtilOptind >= argc )
+            {
+                Abc_Print( -1, "Command line switch \"-T\" should be followed by an integer.\n" );
+                goto usage;
+            }
+            TimeOut = atoi(argv[globalUtilOptind]);
+            globalUtilOptind++;
+            if ( TimeOut < 0 ) 
+                goto usage;
+            break;
+        case 'v':
+            fVerbose ^= 1;
+            break;
+        case 'h':
+            goto usage;
+        default:
+            goto usage;
+        }
+    }
+    if ( pAbc->pGia == NULL )
+    {
+        Abc_Print( -1, "Abc_CommandAbc9Sim3(): There is no AIG.\n" );
+        return 1;
+    }
+    pAbc->Status = Ssw_RarSimulateGia( pAbc->pGia, nFrames, nWords, nBinSize, nRounds, nRandSeed, TimeOut, fVerbose );  
+//    pAbc->nFrames = pAbc->pGia->pCexSeq->iFrame;
+    Abc_FrameReplaceCex( pAbc, &pAbc->pGia->pCexSeq );
+    return 0;
+
+usage:
+    Abc_Print( -2, "usage: &sim3 [-FWBRNT num] [-vh]\n" );
+    Abc_Print( -2, "\t         performs random simulation of the sequential miter\n" );
+    Abc_Print( -2, "\t-F num : the number of frames to simulate [default = %d]\n", nFrames );
+    Abc_Print( -2, "\t-W num : the number of words to simulate [default = %d]\n",  nWords );
+    Abc_Print( -2, "\t-B num : the number of flops in one bin [default = %d]\n",   nBinSize );
+    Abc_Print( -2, "\t-R num : the number of simulation rounds [default = %d]\n",  nRounds );
+    Abc_Print( -2, "\t-N num : random number seed (1 <= num <= 1000) [default = %d]\n", nRandSeed );
+    Abc_Print( -2, "\t-T num : approximate runtime limit in seconds [default = %d]\n", TimeOut );
+    Abc_Print( -2, "\t-v     : toggle printing verbose information [default = %s]\n", fVerbose? "yes": "no" );
+    Abc_Print( -2, "\t-h     : print the command usage\n");
+    return 1;
+}
+
 
 /**Function*************************************************************
 
@@ -25157,7 +25547,7 @@ int Abc_CommandAbc9Equiv2( Abc_Frame_t * pAbc, int argc, char ** argv )
         default:
             goto usage;
         }
-    } 
+    }
     if ( pAbc->pGia == NULL )
     {
         Abc_Print( -1, "Abc_CommandAbc9Equiv2(): There is no AIG.\n" );
@@ -25170,6 +25560,11 @@ int Abc_CommandAbc9Equiv2( Abc_Frame_t * pAbc, int argc, char ** argv )
     }
     if ( fUseCex )
     {
+        if ( pAbc->pCex == NULL )
+        {
+            Abc_Print( 0, "Abc_CommandAbc9Equiv2(): Counter-example is not available.\n" );
+            return 0;
+        }
         if ( pAbc->pCex->nPis != Gia_ManPiNum(pAbc->pGia) )
         {
             Abc_Print( -1, "Abc_CommandAbc9Equiv2(): The number of PIs differs in cex (%d) and in AIG (%d).\n", 
@@ -25197,6 +25592,182 @@ usage:
     Abc_Print( -2, "\t-h     : print the command usage\n");
     return 1;
 }
+
+/**Function*************************************************************
+
+  Synopsis    []
+
+  Description []
+               
+  SideEffects []
+
+  SeeAlso     []
+
+***********************************************************************/
+int Abc_CommandAbc9Equiv3( Abc_Frame_t * pAbc, int argc, char ** argv )
+{
+//    extern int Ssw_RarSignalFilterGia2( Gia_Man_t * p, int nFrames, int nWords, int nBinSize, int nRounds, int TimeOut, Abc_Cex_t * pCex, int fLatchOnly, int fVerbose );
+    extern int Ssw_RarSignalFilterGia( Gia_Man_t * p, int nFrames, int nWords, int nBinSize, int nRounds, int nRandSeed, int TimeOut, int fMiter, Abc_Cex_t * pCex, int fLatchOnly, int fVerbose );
+    int c;
+    int nFrames    =   20;
+    int nWords     =   50;
+    int nBinSize   =    8;
+    int nRounds    =   80;
+    int nRandSeed  =    0;
+    int TimeOut    =    0;
+    int fMiter     =    0;
+    int fUseCex    =    0;
+    int fLatchOnly =    0;
+    int fNewAlgo   =    1;
+    int fVerbose   =    0;
+    Extra_UtilGetoptReset();
+    while ( ( c = Extra_UtilGetopt( argc, argv, "FWBRNTmxlavh" ) ) != EOF )
+    {
+        switch ( c )
+        {
+        case 'F':
+            if ( globalUtilOptind >= argc )
+            {
+                Abc_Print( -1, "Command line switch \"-F\" should be followed by an integer.\n" );
+                goto usage;
+            }
+            nFrames = atoi(argv[globalUtilOptind]);
+            globalUtilOptind++;
+            if ( nFrames < 0 ) 
+                goto usage;
+            break;
+        case 'W':
+            if ( globalUtilOptind >= argc )
+            {
+                Abc_Print( -1, "Command line switch \"-W\" should be followed by an integer.\n" );
+                goto usage;
+            }
+            nWords = atoi(argv[globalUtilOptind]);
+            globalUtilOptind++;
+            if ( nWords < 0 ) 
+                goto usage;
+            break;
+        case 'B':
+            if ( globalUtilOptind >= argc )
+            {
+                Abc_Print( -1, "Command line switch \"-B\" should be followed by an integer.\n" );
+                goto usage;
+            }
+            nBinSize = atoi(argv[globalUtilOptind]);
+            globalUtilOptind++;
+            if ( nBinSize < 0 ) 
+                goto usage;
+            break;
+        case 'R':
+            if ( globalUtilOptind >= argc )
+            {
+                Abc_Print( -1, "Command line switch \"-R\" should be followed by an integer.\n" );
+                goto usage;
+            }
+            nRounds = atoi(argv[globalUtilOptind]);
+            globalUtilOptind++;
+            if ( nRounds < 0 ) 
+                goto usage;
+            break;
+        case 'N':
+            if ( globalUtilOptind >= argc )
+            {
+                Abc_Print( -1, "Command line switch \"-N\" should be followed by an integer.\n" );
+                goto usage;
+            }
+            nRandSeed = atoi(argv[globalUtilOptind]);
+            globalUtilOptind++;
+            if ( nRandSeed < 0 ) 
+                goto usage;
+            break;
+        case 'T':
+            if ( globalUtilOptind >= argc )
+            {
+                Abc_Print( -1, "Command line switch \"-T\" should be followed by an integer.\n" );
+                goto usage;
+            }
+            TimeOut = atoi(argv[globalUtilOptind]);
+            globalUtilOptind++;
+            if ( TimeOut < 0 ) 
+                goto usage;
+            break;
+        case 'm':
+            fMiter ^= 1;
+            break;
+        case 'x':
+            fUseCex ^= 1;
+            break;
+        case 'l':
+            fLatchOnly ^= 1;
+            break;
+        case 'a':
+            fNewAlgo ^= 1;
+            break;
+        case 'v':
+            fVerbose ^= 1;
+            break;
+        case 'h':
+            goto usage;
+        default:
+            goto usage;
+        }
+    } 
+    if ( pAbc->pGia == NULL )
+    {
+        Abc_Print( -1, "Abc_CommandAbc9Equiv3(): There is no AIG.\n" );
+        return 1;
+    } 
+    if ( Gia_ManRegNum(pAbc->pGia) == 0 )
+    {
+        Abc_Print( 0, "Abc_CommandAbc9Equiv3(): There is no flops. Nothing is done.\n" );
+        return 0;
+    }
+    if ( fUseCex )
+    {
+        if ( fMiter )
+        {
+            Abc_Print( 0, "Abc_CommandAbc9Equiv3(): Considering the miter as a circuit because the CEX is given.\n" );
+            fMiter = 0;
+        }
+        if ( pAbc->pCex == NULL )
+        {
+            Abc_Print( 0, "Abc_CommandAbc9Equiv3(): Counter-example is not available.\n" );
+            return 0;
+        }
+        if ( pAbc->pCex->nPis != Gia_ManPiNum(pAbc->pGia) )
+        {
+            Abc_Print( -1, "Abc_CommandAbc9Equiv3(): The number of PIs differs in cex (%d) and in AIG (%d).\n", 
+                pAbc->pCex->nPis, Gia_ManPiNum(pAbc->pGia) );
+            return 1;
+        }
+    }
+//    if ( fNewAlgo )
+        pAbc->Status = Ssw_RarSignalFilterGia( pAbc->pGia, nFrames, nWords, nBinSize, nRounds, nRandSeed, TimeOut, fMiter, fUseCex? pAbc->pCex: NULL, fLatchOnly, fVerbose );
+//    else
+//        pAbc->Status = Ssw_RarSignalFilterGia2( pAbc->pGia, nFrames, nWords, nBinSize, nRounds, TimeOut, fUseCex? pAbc->pCex: NULL, fLatchOnly, fVerbose );
+//    pAbc->nFrames = pAbc->pGia->pCexSeq->iFrame;
+    if ( pAbc->pGia->pCexSeq )
+        Abc_FrameReplaceCex( pAbc, &pAbc->pGia->pCexSeq );
+    return 0;
+
+usage:
+    Abc_Print( -2, "usage: &equiv3 [-FWRNT num] [-mxlvh]\n" );
+    Abc_Print( -2, "\t         computes candidate equivalence classes\n" );
+    Abc_Print( -2, "\t-F num : the max number of frames for BMC [default = %d]\n",    nFrames );
+    Abc_Print( -2, "\t-W num : the number of words to simulate [default = %d]\n",     nWords );
+//    Abc_Print( -2, "\t-B num : the number of flops in one bin [default = %d]\n",      nBinSize );
+    Abc_Print( -2, "\t-R num : the max number of simulation rounds [default = %d]\n", nRounds );
+    Abc_Print( -2, "\t-N num : random number seed (1 <= num <= 1000) [default = %d]\n", nRandSeed );
+    Abc_Print( -2, "\t-T num : runtime limit in seconds for all rounds [default = %d]\n", TimeOut );
+    Abc_Print( -2, "\t-m     : toggle miter vs. any circuit [default = %s]\n",        fMiter? "miter": "circuit" );
+    Abc_Print( -2, "\t-x     : toggle using the current CEX to perform refinement [default = %s]\n", fUseCex? "yes": "no" );
+    Abc_Print( -2, "\t-l     : toggle considering only latch output equivalences [default = %s]\n", fLatchOnly? "yes": "no" );
+    Abc_Print( -2, "\t-a     : toggle using a new algorithm [default = %s]\n",        fNewAlgo? "yes": "no" );
+    Abc_Print( -2, "\t-v     : toggle printing verbose information [default = %s]\n", fVerbose? "yes": "no" );
+    Abc_Print( -2, "\t-h     : print the command usage\n");
+    return 1;
+}
+
 
 /**Function*************************************************************
 
@@ -27712,8 +28283,6 @@ int Abc_CommandAbc9AbsStart( Abc_Frame_t * pAbc, int argc, char ** argv )
 {
     Gia_ParAbs_t Pars, * pPars = &Pars;
     int c;
-    extern void Gia_ManCexAbstractionStart( Gia_Man_t * pGia, Gia_ParAbs_t * pPars );
-
     // set defaults
     Gia_ManAbsSetDefaultParams( pPars );
     Extra_UtilGetoptReset();
@@ -27832,277 +28401,10 @@ usage:
   SeeAlso     []
 
 ***********************************************************************/
-int Abc_CommandAbc9AbsStartNew( Abc_Frame_t * pAbc, int argc, char ** argv )
-{
-    Gia_ParAbs_t Pars, * pPars = &Pars;
-    int c;
-    extern void Gia_ManCexAbstractionStartNew( Gia_Man_t * pGia, Gia_ParAbs_t * pPars );
-
-    // set defaults
-    Gia_ManAbsSetDefaultParams( pPars );
-    Extra_UtilGetoptReset();
-    while ( ( c = Extra_UtilGetopt( argc, argv, "AFSCRBTVrpfvwh" ) ) != EOF )
-    {
-        switch ( c )
-        {
-        case 'A':
-            if ( globalUtilOptind >= argc )
-            {
-                Abc_Print( -1, "Command line switch \"-F\" should be followed by an integer.\n" );
-                goto usage;
-            }
-            pPars->Algo = atoi(argv[globalUtilOptind]);
-            globalUtilOptind++;
-            if ( pPars->Algo < 0 ) 
-                goto usage;
-            break;
-        case 'F':
-            if ( globalUtilOptind >= argc )
-            {
-                Abc_Print( -1, "Command line switch \"-F\" should be followed by an integer.\n" );
-                goto usage;
-            }
-            pPars->nFramesBmc = atoi(argv[globalUtilOptind]);
-            globalUtilOptind++;
-            if ( pPars->nFramesBmc < 0 ) 
-                goto usage;
-            break;
-        case 'S':
-            if ( globalUtilOptind >= argc )
-            {
-                Abc_Print( -1, "Command line switch \"-S\" should be followed by an integer.\n" );
-                goto usage;
-            }
-            pPars->nStableMax = atoi(argv[globalUtilOptind]);
-            globalUtilOptind++;
-            if ( pPars->nStableMax < 0 ) 
-                goto usage;
-            break;
-        case 'C':
-            if ( globalUtilOptind >= argc )
-            {
-                Abc_Print( -1, "Command line switch \"-C\" should be followed by an integer.\n" );
-                goto usage;
-            }
-            pPars->nConfMaxBmc = atoi(argv[globalUtilOptind]);
-            globalUtilOptind++;
-            if ( pPars->nConfMaxBmc < 0 ) 
-                goto usage;
-            break;
-        case 'R':
-            if ( globalUtilOptind >= argc )
-            {
-                Abc_Print( -1, "Command line switch \"-R\" should be followed by an integer.\n" );
-                goto usage;
-            }
-            pPars->nRatio = atoi(argv[globalUtilOptind]);
-            globalUtilOptind++;
-            if ( pPars->nRatio < 0 ) 
-                goto usage;
-            break;
-        case 'B':
-            if ( globalUtilOptind >= argc )
-            {
-                Abc_Print( -1, "Command line switch \"-B\" should be followed by an integer.\n" );
-                goto usage;
-            }
-            pPars->nBobPar = atoi(argv[globalUtilOptind]);
-            globalUtilOptind++;
-            if ( pPars->nBobPar < 0 ) 
-                goto usage;
-            break;
-        case 'T':
-            if ( globalUtilOptind >= argc )
-            {
-                Abc_Print( -1, "Command line switch \"-T\" should be followed by an integer.\n" );
-                goto usage;
-            }
-            pPars->TimeOut = atoi(argv[globalUtilOptind]);
-            globalUtilOptind++;
-            if ( pPars->TimeOut < 0 ) 
-                goto usage;
-            break;
-        case 'V':
-            if ( globalUtilOptind >= argc )
-            {
-                Abc_Print( -1, "Command line switch \"-V\" should be followed by an integer.\n" );
-                goto usage;
-            }
-            pPars->TimeOutVT = atoi(argv[globalUtilOptind]);
-            globalUtilOptind++;
-            if ( pPars->TimeOutVT < 0 ) 
-                goto usage;
-            break;
-        case 'r':
-            pPars->fUseBdds ^= 1;
-            break;
-        case 'p':
-            pPars->fUseDprove ^= 1;
-            break;
-        case 'f':
-            pPars->fUseStart ^= 1;
-            break;
-        case 'v':
-            pPars->fVerbose ^= 1;
-            break;
-        case 'w':
-            pPars->fVeryVerbose ^= 1;
-            break;
-        case 'h':
-            goto usage; 
-        default:
-            goto usage;
-        }
-    }
-    if ( pAbc->pGia == NULL )
-    {
-        Abc_Print( -1, "Abc_CommandAbc9AbsStartNew(): There is no AIG.\n" );
-        return 1;
-    }
-    if ( Gia_ManRegNum(pAbc->pGia) == 0 )
-    {
-        Abc_Print( -1, "Abc_CommandAbc9AbsStartNew(): The AIG is combinational.\n" );
-        return 0;
-    }
-    if ( !(0 <= pPars->nRatio && pPars->nRatio <= 100) )
-    {
-        Abc_Print( -1, "Abc_CommandAbc9AbsStartNew(): Wrong value of parameter \"-R <num>\".\n" );
-        return 0;
-    }
-    Gia_ManCexAbstractionStartNew( pAbc->pGia, pPars );
-    pAbc->Status  = pPars->Status;
-    pAbc->nFrames = pPars->nFramesDone;
-    Abc_FrameReplaceCex( pAbc, &pAbc->pGia->pCexSeq );
-    if ( pPars->fVerbose )
-        printf( "Updating ABC solving status to be %d and bmc_frames_done to be %d.\n", pPars->Status, pAbc->nFrames );
-    return 0;
-usage:
-    Abc_Print( -2, "usage: &abs_newstart [-AFSCBTV num] [-vwh]\n" );
-    Abc_Print( -2, "\t         initializes flop map using cex-based abstraction (by Niklas Een)\n" );
-    Abc_Print( -2, "\t-A num : selects the algorithm to use [default = %d]\n", pPars->Algo );
-    Abc_Print( -2, "\t         0 = cba\n" );
-    Abc_Print( -2, "\t         1 = pba\n" );
-    Abc_Print( -2, "\t         2 = cba-then-pba\n" );
-    Abc_Print( -2, "\t         3 = cba-with-pba\n" );
-    Abc_Print( -2, "\t-F num : the max number of timeframes for BMC [default = %d]\n", pPars->nFramesBmc );
-    Abc_Print( -2, "\t-S num : the max number of stable frames for BMC [default = %d]\n", pPars->nStableMax );
-    Abc_Print( -2, "\t-C num : the max number of conflicts by SAT solver for BMC [default = %d]\n", pPars->nConfMaxBmc );
-    Abc_Print( -2, "\t-B num : the max number of frames to wait before trying to quit [default = %d]\n", pPars->nBobPar );
-    Abc_Print( -2, "\t-T num : approximate time limit in seconds (0=infinite) [default = %d]\n", pPars->TimeOut );
-    Abc_Print( -2, "\t-V num : approximate \"virtual time\" limit in seconds (0=infinite) [default = %d]\n", pPars->TimeOutVT );
-    Abc_Print( -2, "\t-v     : toggle printing verbose information [default = %s]\n", pPars->fVerbose? "yes": "no" );
-    Abc_Print( -2, "\t-w     : toggle printing additional information [default = %s]\n", pPars->fVeryVerbose? "yes": "no" );
-    Abc_Print( -2, "\t-h     : print the command usage\n");
-    return 1;
-}
-
-/**Function*************************************************************
-
-  Synopsis    []
-
-  Description []
-               
-  SideEffects []
-
-  SeeAlso     []
-
-***********************************************************************/
-int Abc_CommandAbc9PbaStart( Abc_Frame_t * pAbc, int argc, char ** argv )
-{
-    Gia_ParAbs_t Pars, * pPars = &Pars;
-    int c;
-    extern void Gia_ManProofAbstractionStart( Gia_Man_t * pGia, Gia_ParAbs_t * pPars );
-
-    // set defaults
-    Gia_ManAbsSetDefaultParams( pPars );
-    Extra_UtilGetoptReset();
-    while ( ( c = Extra_UtilGetopt( argc, argv, "FCdvh" ) ) != EOF )
-    {
-        switch ( c )
-        {
-        case 'F':
-            if ( globalUtilOptind >= argc )
-            {
-                Abc_Print( -1, "Command line switch \"-F\" should be followed by an integer.\n" );
-                goto usage;
-            }
-            pPars->nFramesMax = atoi(argv[globalUtilOptind]);
-            globalUtilOptind++;
-            if ( pPars->nFramesMax < 0 ) 
-                goto usage;
-            break;
-        case 'C':
-            if ( globalUtilOptind >= argc )
-            {
-                Abc_Print( -1, "Command line switch \"-C\" should be followed by an integer.\n" );
-                goto usage;
-            }
-            pPars->nConfMax = atoi(argv[globalUtilOptind]);
-            globalUtilOptind++;
-            if ( pPars->nConfMax < 0 ) 
-                goto usage;
-            break;
-        case 'd':
-            pPars->fDynamic ^= 1;
-            break;
-        case 'v':
-            pPars->fVerbose ^= 1;
-            break;
-        case 'h':
-            goto usage;
-        default:
-            goto usage;
-        }
-    }
-    if ( pAbc->pGia == NULL )
-    {
-        Abc_Print( -1, "Abc_CommandAbc9PbaStart(): There is no AIG.\n" );
-        return 1;
-    }
-    if ( Gia_ManRegNum(pAbc->pGia) == 0 )
-    {
-        Abc_Print( -1, "Abc_CommandAbc9PbaStart(): The AIG is combinational.\n" );
-        return 0;
-    } 
-    Gia_ManProofAbstractionStart( pAbc->pGia, pPars );
-    pAbc->Status = pPars->Status;
-    Abc_FrameReplaceCex( pAbc, &pAbc->pGia->pCexSeq );
-    return 0;
-usage:
-    Abc_Print( -2, "usage: &pba_start [-FC num] [-dvh]\n" );
-    Abc_Print( -2, "\t         computes initial flop map using proof-based abstraction\n" );
-    Abc_Print( -2, "\t-F num : the max number of timeframes for PBA [default = %d]\n", pPars->nFramesMax );
-    Abc_Print( -2, "\t-C num : the max number of conflicts by SAT solver for PBA [default = %d]\n", pPars->nConfMax );
-//    Abc_Print( -2, "\t-G num : the max number of timeframes for BMC [default = %d]\n", pPars->nFramesBmc );
-//    Abc_Print( -2, "\t-D num : the max number of conflicts by SAT solver for BMC [default = %d]\n", pPars->nConfMaxBmc );
-//    Abc_Print( -2, "\t-R num : the %% of abstracted flops when refinement stops (0<=num<=100) [default = %d]\n", pPars->nRatio );
-    Abc_Print( -2, "\t-d     : toggle dynamic unrolling of timeframes [default = %s]\n", pPars->fDynamic? "yes": "no" );
-//    Abc_Print( -2, "\t-e     : toggle extending abstraction using COI of flops [default = %s]\n", pPars->fExtend? "yes": "no" );
-//    Abc_Print( -2, "\t-s     : toggle skipping proof-based abstraction [default = %s]\n", pPars->fSkipProof? "yes": "no" );
-//    Abc_Print( -2, "\t-r     : toggle using BDD-based reachability for filtering [default = %s]\n", pPars->fUseBdds? "yes": "no" );
-//    Abc_Print( -2, "\t-p     : toggle using \"dprove\" for filtering [default = %s]\n", pPars->fUseDprove? "yes": "no" );
-//    Abc_Print( -2, "\t-f     : toggle starting BMC from a later frame [default = %s]\n", pPars->fUseStart? "yes": "no" );
-    Abc_Print( -2, "\t-v     : toggle printing verbose information [default = %s]\n", pPars->fVerbose? "yes": "no" );
-    Abc_Print( -2, "\t-h     : print the command usage\n");
-    return 1;
-}
-
-/**Function*************************************************************
-
-  Synopsis    []
-
-  Description []
-               
-  SideEffects []
-
-  SeeAlso     []
-
-***********************************************************************/
 int Abc_CommandAbc9AbsDerive( Abc_Frame_t * pAbc, int argc, char ** argv )
 {
     Gia_Man_t * pTemp = NULL;
     int c, fVerbose = 0;
-    extern Gia_Man_t * Gia_ManCexAbstractionDerive( Gia_Man_t * pGia );
     Extra_UtilGetoptReset();
     while ( ( c = Extra_UtilGetopt( argc, argv, "vh" ) ) != EOF )
     {
@@ -28127,13 +28429,18 @@ int Abc_CommandAbc9AbsDerive( Abc_Frame_t * pAbc, int argc, char ** argv )
         Abc_Print( -1, "The network is combinational.\n" );
         return 0;
     }
-    pTemp = Gia_ManCexAbstractionDerive( pAbc->pGia );
+    if ( pAbc->pGia->vFlopClasses == NULL )
+    {
+        Abc_Print( -1, "Abstraction flop map is missing.\n" );
+        return 0;
+    }
+    pTemp = Gia_ManDupAbstraction( pAbc->pGia, pAbc->pGia->vFlopClasses );
     Abc_CommandUpdate9( pAbc, pTemp );
     return 0;
 
 usage:
     Abc_Print( -2, "usage: &abs_derive [-vh]\n" );
-    Abc_Print( -2, "\t        performs abstraction using the pre-computed flop map\n" );
+    Abc_Print( -2, "\t        derives abstracted model using the pre-computed flop map\n" );
     Abc_Print( -2, "\t-v    : toggle printing verbose information [default = %s]\n", fVerbose? "yes": "no" );
     Abc_Print( -2, "\t-h    : print the command usage\n");
     return 1;
@@ -28158,7 +28465,6 @@ int Abc_CommandAbc9AbsRefine( Abc_Frame_t * pAbc, int argc, char ** argv )
     int fSensePath = 0;
     int fVerbose   = 0;
 
-    extern int Gia_ManCexAbstractionRefine( Gia_Man_t * pGia, Abc_Cex_t * pCex, int fTryFour, int fSensePath, int fVerbose );
     Extra_UtilGetoptReset();
     while ( ( c = Extra_UtilGetopt( argc, argv, "tsvh" ) ) != EOF )
     {
@@ -28205,6 +28511,192 @@ usage:
     Abc_Print( -2, "\t-s    : toggle using the path sensitization algorithm [default = %s]\n", fSensePath? "yes": "no" );
     Abc_Print( -2, "\t-v    : toggle printing verbose information [default = %s]\n", fVerbose? "yes": "no" );
     Abc_Print( -2, "\t-h    : print the command usage\n");
+    return 1;
+} 
+
+/**Function*************************************************************
+
+  Synopsis    []
+
+  Description []
+               
+  SideEffects []
+
+  SeeAlso     []
+
+***********************************************************************/
+int Abc_CommandAbc9AbsPba( Abc_Frame_t * pAbc, int argc, char ** argv )
+{
+    int nFramesMax = (pAbc->nFrames >= 0) ? pAbc->nFrames : 20;
+    int nConfMax   = 100000;
+    int fVerbose   =      0;
+    int c;
+
+    Extra_UtilGetoptReset();
+    while ( ( c = Extra_UtilGetopt( argc, argv, "FCvh" ) ) != EOF )
+    {
+        switch ( c )
+        {
+        case 'F':
+            if ( globalUtilOptind >= argc )
+            {
+                Abc_Print( -1, "Command line switch \"-F\" should be followed by an integer.\n" );
+                goto usage;
+            }
+            nFramesMax = atoi(argv[globalUtilOptind]);
+            globalUtilOptind++;
+            if ( nFramesMax < 0 ) 
+                goto usage;
+            break;
+        case 'C':
+            if ( globalUtilOptind >= argc )
+            {
+                Abc_Print( -1, "Command line switch \"-C\" should be followed by an integer.\n" );
+                goto usage;
+            }
+            nConfMax = atoi(argv[globalUtilOptind]);
+            globalUtilOptind++;
+            if ( nConfMax < 0 ) 
+                goto usage;
+            break;
+        case 'v':
+            fVerbose ^= 1;
+            break;
+        case 'h':
+            goto usage;
+        default:
+            goto usage;
+        }
+    }
+    if ( pAbc->pGia == NULL )
+    {
+        Abc_Print( -1, "Abc_CommandAbc9AbsRefine(): There is no AIG.\n" );
+        return 1;
+    } 
+    if ( Gia_ManRegNum(pAbc->pGia) == 0 )
+    {
+        Abc_Print( -1, "The network is combinational.\n" );
+        return 0;
+    }
+    if ( pAbc->pGia->vFlopClasses == NULL )
+    {
+        Abc_Print( -1, "The flop map is not given.\n" );
+        return 0;
+    }
+    Gia_ManPbaPerform( pAbc->pGia, nFramesMax, nConfMax, fVerbose );
+//    Abc_FrameReplaceCex( pAbc, &pAbc->pGia->pCexSeq );
+    return 0;
+
+usage:
+    Abc_Print( -2, "usage: &abs_pba [-FC num] [-vh]\n" );
+    Abc_Print( -2, "\t         refines abstracted flop map with proof-based abstraction\n" );
+    Abc_Print( -2, "\t-F num : the max number of timeframes to unroll [default = %d]\n", nFramesMax );
+    Abc_Print( -2, "\t-C num : the max number of SAT solver conflicts [default = %d]\n", nConfMax );
+    Abc_Print( -2, "\t-v     : toggle printing verbose information [default = %s]\n", fVerbose? "yes": "no" );
+    Abc_Print( -2, "\t-h     : print the command usage\n");
+    return 1;
+} 
+
+/**Function*************************************************************
+
+  Synopsis    []
+
+  Description []
+               
+  SideEffects []
+
+  SeeAlso     []
+
+***********************************************************************/
+int Abc_CommandAbc9AbsCba( Abc_Frame_t * pAbc, int argc, char ** argv )
+{
+    Saig_ParBmc_t Pars, * pPars = &Pars;
+    int c;
+    Saig_ParBmcSetDefaultParams( pPars );
+    pPars->nStart     = (pAbc->nFrames >= 0) ? pAbc->nFrames : 0;
+    pPars->nFramesMax = pPars->nStart + 10;
+    Extra_UtilGetoptReset();
+    while ( ( c = Extra_UtilGetopt( argc, argv, "SFCTvh" ) ) != EOF )
+    {
+        switch ( c )
+        {
+        case 'S':
+            if ( globalUtilOptind >= argc )
+            {
+                Abc_Print( -1, "Command line switch \"-S\" should be followed by an integer.\n" );
+                goto usage;
+            }
+            pPars->nStart = atoi(argv[globalUtilOptind]);
+            globalUtilOptind++;
+            if ( pPars->nStart < 0 ) 
+                goto usage;
+            break;
+        case 'F':
+            if ( globalUtilOptind >= argc )
+            {
+                Abc_Print( -1, "Command line switch \"-F\" should be followed by an integer.\n" );
+                goto usage;
+            }
+            pPars->nFramesMax = atoi(argv[globalUtilOptind]);
+            globalUtilOptind++;
+            if ( pPars->nFramesMax < 0 ) 
+                goto usage;
+            break;
+        case 'C':
+            if ( globalUtilOptind >= argc )
+            {
+                Abc_Print( -1, "Command line switch \"-C\" should be followed by an integer.\n" );
+                goto usage;
+            }
+            pPars->nConfLimit = atoi(argv[globalUtilOptind]);
+            globalUtilOptind++;
+            if ( pPars->nConfLimit < 0 ) 
+                goto usage;
+            break;
+        case 'T':
+            if ( globalUtilOptind >= argc )
+            {
+                Abc_Print( -1, "Command line switch \"-T\" should be followed by an integer.\n" );
+                goto usage;
+            }
+            pPars->nTimeOut = atoi(argv[globalUtilOptind]);
+            globalUtilOptind++;
+            if ( pPars->nTimeOut < 0 ) 
+                goto usage;
+            break;
+        case 'v':
+            pPars->fVerbose ^= 1;
+            break;
+        case 'h':
+            goto usage;
+        default:
+            goto usage;
+        }
+    }
+    if ( pAbc->pGia == NULL )
+    {
+        Abc_Print( -1, "Abc_CommandAbc9AbsCba(): There is no AIG.\n" );
+        return 1;
+    } 
+    if ( Gia_ManRegNum(pAbc->pGia) == 0 )
+    {
+        Abc_Print( -1, "The network is combinational.\n" );
+        return 0;
+    }
+    pAbc->Status = Gia_ManCbaPerform( pAbc->pGia, pPars );
+    pAbc->nFrames = pPars->iFrame;
+    Abc_FrameReplaceCex( pAbc, &pAbc->pGia->pCexSeq );
+    return 0;
+
+usage:
+    Abc_Print( -2, "usage: &abs_cba [-SFCT num] [-vh]\n" );
+    Abc_Print( -2, "\t         refines abstracted flop map with proof-based abstraction\n" );
+    Abc_Print( -2, "\t-S num : the starting time frame [default = %d]\n", pPars->nStart );
+    Abc_Print( -2, "\t-F num : the max number of timeframes to unroll [default = %d]\n", pPars->nFramesMax );
+    Abc_Print( -2, "\t-C num : the max number of SAT solver conflicts [default = %d]\n", pPars->nConfLimit );
+    Abc_Print( -2, "\t-T num : the time out in seconds [default = %d]\n", pPars->nTimeOut );
+    Abc_Print( -2, "\t-v     : toggle printing verbose information [default = %s]\n", pPars->fVerbose? "yes": "no" );
+    Abc_Print( -2, "\t-h     : print the command usage\n");
     return 1;
 } 
 

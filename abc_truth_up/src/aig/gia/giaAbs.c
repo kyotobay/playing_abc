@@ -20,23 +20,13 @@
  
 #include "gia.h"
 #include "giaAig.h"
-#include "giaAbs.h"
 #include "saig.h"
 
-#ifndef _WIN32
-#include <unistd.h>
-#endif
-
 ABC_NAMESPACE_IMPL_START
-
 
 ////////////////////////////////////////////////////////////////////////
 ///                        DECLARATIONS                              ///
 ////////////////////////////////////////////////////////////////////////
-
-extern Vec_Int_t * Saig_ManProofAbstractionFlops( Aig_Man_t * p, Gia_ParAbs_t * pPars );
-extern Vec_Int_t * Saig_ManCexAbstractionFlops( Aig_Man_t * p, Gia_ParAbs_t * pPars );
-extern int         Saig_ManCexRefineStep( Aig_Man_t * p, Vec_Int_t * vFlops, Abc_Cex_t * pCex, int fTryFour, int fSensePath, int fVerbose );
 
 ////////////////////////////////////////////////////////////////////////
 ///                     FUNCTION DEFINITIONS                         ///
@@ -130,12 +120,12 @@ Vec_Int_t * Gia_ManClasses2Flops( Vec_Int_t * vFlopClasses )
   SeeAlso     []
 
 ***********************************************************************/
-Gia_Man_t * Gia_ManCexAbstraction( Gia_Man_t * p, Vec_Int_t * vFlops )
+Gia_Man_t * Gia_ManDupAbstractionAig( Gia_Man_t * p, Vec_Int_t * vFlops )
 {
     Gia_Man_t * pGia;
     Aig_Man_t * pNew, * pTemp;
     pNew = Gia_ManToAig( p, 0 );
-    pNew = Saig_ManDeriveAbstraction( pTemp = pNew, vFlops );
+    pNew = Saig_ManDupAbstraction( pTemp = pNew, vFlops );
     Aig_ManStop( pTemp );
     pGia = Gia_ManFromAig( pNew );
 //    pGia->vCiNumsOrig = pNew->vCiNumsOrig; 
@@ -143,50 +133,6 @@ Gia_Man_t * Gia_ManCexAbstraction( Gia_Man_t * p, Vec_Int_t * vFlops )
     Aig_ManStop( pNew );
     return pGia;
 
-}
-
-/**Function*************************************************************
-
-  Synopsis    [Computes abstracted flops for the manager.]
-
-  Description []
-               
-  SideEffects []
-
-  SeeAlso     []
-
-***********************************************************************/
-Vec_Int_t * Gia_ManCexAbstractionFlops( Gia_Man_t * p, Gia_ParAbs_t * pPars )
-{
-    Vec_Int_t * vFlops;
-    Aig_Man_t * pNew;
-    pNew = Gia_ManToAig( p, 0 );
-    vFlops = Saig_ManCexAbstractionFlops( pNew, pPars );
-    p->pCexSeq = pNew->pSeqModel; pNew->pSeqModel = NULL;
-    Aig_ManStop( pNew );
-    return vFlops;
-}
-
-/**Function*************************************************************
-
-  Synopsis    [Computes abstracted flops for the manager.]
-
-  Description []
-               
-  SideEffects []
-
-  SeeAlso     []
-
-***********************************************************************/
-Vec_Int_t * Gia_ManProofAbstractionFlops( Gia_Man_t * p, Gia_ParAbs_t * pPars )
-{
-    Vec_Int_t * vFlops;
-    Aig_Man_t * pNew;
-    pNew = Gia_ManToAig( p, 0 );
-    vFlops = Saig_ManProofAbstractionFlops( pNew, pPars );
-    p->pCexSeq = pNew->pSeqModel; pNew->pSeqModel = NULL;
-    Aig_ManStop( pNew );
-    return vFlops;
 }
 
 /**Function*************************************************************
@@ -200,46 +146,24 @@ Vec_Int_t * Gia_ManProofAbstractionFlops( Gia_Man_t * p, Gia_ParAbs_t * pPars )
   SeeAlso     []
 
 ***********************************************************************/
-void Gia_ManCexAbstractionStart( Gia_Man_t * p, Gia_ParAbs_t * pPars )
+void Gia_ManCexAbstractionStart( Gia_Man_t * pGia, Gia_ParAbs_t * pPars )
 {
     Vec_Int_t * vFlops;
-    if ( p->vFlopClasses != NULL )
+    Aig_Man_t * pNew;
+    if ( pGia->vFlopClasses != NULL )
     {
         printf( "Gia_ManCexAbstractionStart(): Abstraction latch map is present but will be rederived.\n" );
-        Vec_IntFreeP( &p->vFlopClasses );
+        Vec_IntFreeP( &pGia->vFlopClasses );
     }
-    vFlops = Gia_ManCexAbstractionFlops( p, pPars );
+    pNew = Gia_ManToAig( pGia, 0 );
+    vFlops = Saig_ManCexAbstractionFlops( pNew, pPars );
+    pGia->pCexSeq = pNew->pSeqModel; pNew->pSeqModel = NULL;
+    Aig_ManStop( pNew );
     if ( vFlops )
     {
-        p->vFlopClasses = Gia_ManFlops2Classes( p, vFlops );
+        pGia->vFlopClasses = Gia_ManFlops2Classes( pGia, vFlops );
         Vec_IntFree( vFlops );
     }
-}
-
-/**Function*************************************************************
-
-  Synopsis    [Derives abstraction using the latch map.]
-
-  Description []
-               
-  SideEffects []
-
-  SeeAlso     []
-
-***********************************************************************/
-Gia_Man_t * Gia_ManCexAbstractionDerive( Gia_Man_t * pGia )
-{
-    Vec_Int_t * vFlops;
-    Gia_Man_t * pAbs = NULL;
-    if ( pGia->vFlopClasses == NULL )
-    {
-        printf( "Gia_ManCexAbstractionDerive(): Abstraction latch map is missing.\n" );
-        return NULL;
-    }
-    vFlops = Gia_ManClasses2Flops( pGia->vFlopClasses );
-    pAbs = Gia_ManCexAbstraction( pGia, vFlops );
-    Vec_IntFree( vFlops );
-    return pAbs;
 }
 
 /**Function*************************************************************
@@ -278,9 +202,11 @@ int Gia_ManCexAbstractionRefine( Gia_Man_t * pGia, Abc_Cex_t * pCex, int fTryFou
     return -1;
 }
 
+
+
 /**Function*************************************************************
 
-  Synopsis    [Starts abstraction by computing latch map.]
+  Synopsis    [Transform flop list into flop map.]
 
   Description []
                
@@ -289,56 +215,51 @@ int Gia_ManCexAbstractionRefine( Gia_Man_t * pGia, Abc_Cex_t * pCex, int fTryFou
   SeeAlso     []
 
 ***********************************************************************/
-void Gia_ManProofAbstractionStart( Gia_Man_t * pGia, Gia_ParAbs_t * pPars )
+Vec_Int_t * Gia_ManFlopsSelect( Vec_Int_t * vFlops, Vec_Int_t * vFlopsNew )
 {
-    Vec_Int_t * vFlops;
-    if ( pGia->vFlopClasses != NULL )
-    {
-        printf( "Gia_ManProofAbstractionStart(): Abstraction latch map is present but will be rederived.\n" );
-        Vec_IntFreeP( &pGia->vFlopClasses );
-    }
-    vFlops = Gia_ManProofAbstractionFlops( pGia, pPars );
-    if ( vFlops )
-    {
-        pGia->vFlopClasses = Gia_ManFlops2Classes( pGia, vFlops );
-        Vec_IntFree( vFlops );
-    }
-}
-
-
-/**Function*************************************************************
-
-  Synopsis    [Read flop map.]
-
-  Description []
-               
-  SideEffects []
-
-  SeeAlso     []
-
-***********************************************************************/
-Vec_Str_t * Gia_ManReadFile( char * pFileName )
-{
-    FILE * pFile;
-    Vec_Str_t * vStr;
-    int c;
-    pFile = fopen( pFileName, "r" );
-    if ( pFile == NULL )
-    {
-        printf( "Cannot open file \"%s\".\n", pFileName );
-        return NULL;
-    }
-    vStr = Vec_StrAlloc( 100 );
-    while ( (c = fgetc(pFile)) != EOF )
-        Vec_StrPush( vStr, (char)c );
-    Vec_StrPush( vStr, '\0' );
-    fclose( pFile );
-    return vStr;
+    Vec_Int_t * vSelected;
+    int i, Entry;
+    vSelected = Vec_IntAlloc( Vec_IntSize(vFlopsNew) );
+    Vec_IntForEachEntry( vFlopsNew, Entry, i )
+        Vec_IntPush( vSelected, Vec_IntEntry(vFlops, Entry) );
+    return vSelected;
 }
 
 /**Function*************************************************************
 
-  Synopsis    [Read flop map.]
+  Synopsis    [Adds flops that should be present in the abstraction.]
+
+  Description [The second argument (vAbsFfsToAdd) is the array of numbers
+  of previously abstrated flops (flops replaced by PIs in the abstracted model)
+  that should be present in the abstraction as real flops.]
+               
+  SideEffects []
+
+  SeeAlso     []
+
+***********************************************************************/
+void Gia_ManFlopsAddToClasses( Vec_Int_t * vFlopClasses, Vec_Int_t * vAbsFfsToAdd )
+{
+    Vec_Int_t * vMapEntries;
+    int i, Entry, iFlopNum;
+    // map previously abstracted flops into their original numbers
+    vMapEntries = Vec_IntAlloc( Vec_IntSize(vFlopClasses) );
+    Vec_IntForEachEntry( vFlopClasses, Entry, i )
+        if ( Entry == 0 )
+            Vec_IntPush( vMapEntries, i );
+    // add these flops as real flops
+    Vec_IntForEachEntry( vAbsFfsToAdd, Entry, i )
+    {
+        iFlopNum = Vec_IntEntry( vMapEntries, Entry );
+        assert( Vec_IntEntry( vFlopClasses, iFlopNum ) == 0 );
+        Vec_IntWriteEntry( vFlopClasses, iFlopNum, 1 );
+    }
+    Vec_IntFree( vMapEntries );
+}
+
+/**Function*************************************************************
+
+  Synopsis    [Derive unrolled timeframes.]
 
   Description []
                
@@ -347,202 +268,113 @@ Vec_Str_t * Gia_ManReadFile( char * pFileName )
   SeeAlso     []
 
 ***********************************************************************/
-Vec_Int_t * Gia_ManReadBinary( char * pFileName, char * pToken )
+int Gia_ManCbaPerform( Gia_Man_t * pGia, void * p )
 {
-    Vec_Int_t * vMap = NULL;
-    Vec_Str_t * vStr;
-    char * pStr;
-    int i, Length;
-    vStr = Gia_ManReadFile( pFileName );
-    if ( vStr == NULL )
-        return NULL;
-    pStr = Vec_StrArray( vStr );
-    pStr = strstr( pStr, pToken );
-    if ( pStr != NULL )
+    Gia_Man_t * pAbs;
+    Aig_Man_t * pAig, * pOrig;
+    Vec_Int_t * vAbsFfsToAdd;
+    // check if flop classes are given
+    if ( pGia->vFlopClasses == NULL )
     {
-        pStr  += strlen( pToken );
-        vMap   = Vec_IntAlloc( 100 );
-        Length = strlen( pStr );
-        for ( i = 0; i < Length; i++ )
+        Abc_Print( 0, "Initial flop map is not given. Trivial abstraction is assumed.\n" );
+        pGia->vFlopClasses = Vec_IntStart( Gia_ManRegNum(pGia) );
+    }
+    // derive abstraction
+    pAbs = Gia_ManDupAbstraction( pGia, pGia->vFlopClasses );
+    pAig = Gia_ManToAigSimple( pAbs );
+    Gia_ManStop( pAbs );
+    // refine abstraction using CBA
+    vAbsFfsToAdd = Saig_ManCbaPerform( pAig, Gia_ManPiNum(pGia), p );
+    if ( vAbsFfsToAdd == NULL ) // found true CEX
+    {
+        assert( pAig->pSeqModel != NULL );
+        printf( "Refinement did not happen. Discovered a true counter-example.\n" );
+        printf( "Remapping counter-example from %d to %d primary inputs.\n", Aig_ManPiNum(pAig), Gia_ManPiNum(pGia) );
+        // derive new counter-example
+        pOrig = Gia_ManToAigSimple( pGia );
+        pGia->pCexSeq = Saig_ManCexRemap( pOrig, pAig, pAig->pSeqModel );
+        Aig_ManStop( pOrig );
+        Aig_ManStop( pAig );
+        return 0;
+    }
+    Aig_ManStop( pAig );
+    // update flop classes
+    Gia_ManFlopsAddToClasses( pGia->vFlopClasses, vAbsFfsToAdd );
+    Vec_IntFree( vAbsFfsToAdd );
+    return -1;
+}
+
+/**Function*************************************************************
+
+  Synopsis    [Derive unrolled timeframes.]
+
+  Description []
+               
+  SideEffects []
+
+  SeeAlso     []
+
+***********************************************************************/
+int Gia_ManPbaPerform( Gia_Man_t * pGia, int nFrames, int nConfLimit, int fVerbose )
+{
+    Gia_Man_t * pAbs;
+    Aig_Man_t * pAig, * pOrig;
+    Vec_Int_t * vFlops, * vFlopsNew, * vSelected;
+    int RetValue;
+    if ( pGia->vFlopClasses == NULL )
+    {
+        printf( "Gia_ManPbaPerform(): Abstraction flop map is missing.\n" );
+        return 0;
+    }
+    // derive abstraction
+    pAbs = Gia_ManDupAbstraction( pGia, pGia->vFlopClasses );
+    // refine abstraction using PBA
+    pAig = Gia_ManToAigSimple( pAbs );
+    Gia_ManStop( pAbs );
+    vFlopsNew = Saig_ManPbaDerive( pAig, Gia_ManPiNum(pGia), nFrames, nConfLimit, fVerbose );
+    // derive new classes
+    if ( pAig->pSeqModel == NULL )
+    {
+        // check if there is no timeout
+        if ( vFlopsNew != NULL )
         {
-            if ( pStr[i] == '0' )
-                Vec_IntPush( vMap, 0 );
-            else if ( pStr[i] == '1' )
-                Vec_IntPush( vMap, 1 );
-            if ( ('a' <= pStr[i] && pStr[i] <= 'z') || 
-                 ('A' <= pStr[i] && pStr[i] <= 'Z') )
-                break;
+            // the problem is UNSAT
+            vFlops = Gia_ManClasses2Flops( pGia->vFlopClasses );
+            vSelected = Gia_ManFlopsSelect( vFlops, vFlopsNew );
+            Vec_IntFree( pGia->vFlopClasses );
+            pGia->vFlopClasses = Saig_ManFlops2Classes( Gia_ManRegNum(pGia), vSelected );
+            Vec_IntFree( vSelected );
+
+            Vec_IntFree( vFlopsNew );
+            Vec_IntFree( vFlops );
         }
+        RetValue = -1;
     }
-    Vec_StrFree( vStr );
-    return vMap;
-}
-
-/**Function*************************************************************
-
-  Synopsis    [Read flop map.]
-
-  Description []
-               
-  SideEffects []
-
-  SeeAlso     []
-
-***********************************************************************/
-int Gia_ManReadInteger( char * pFileName, char * pToken )
-{
-    int Result = -1;
-    Vec_Str_t * vStr;
-    char * pStr;
-    vStr = Gia_ManReadFile( pFileName );
-    if ( vStr == NULL )
-        return -1;
-    pStr = Vec_StrArray( vStr );
-    pStr = strstr( pStr, pToken );
-    if ( pStr != NULL )
-        Result = atoi( pStr + strlen(pToken) );
-    Vec_StrFree( vStr );
-    return Result;
-}
-
-
-/**Function*************************************************************
-
-  Synopsis    [Starts abstraction by computing latch map.]
-
-  Description []
-               
-  SideEffects []
-
-  SeeAlso     []
-
-***********************************************************************/
-void Gia_ManCexAbstractionStartNew( Gia_Man_t * pGia, Gia_ParAbs_t * pPars )
-{
-    char BufTimeOut[100];
-    char BufTimeOutVT[100];
-    char Command[1000];
-    char * pFileNameIn  = "cex_abstr_in_.aig";
-    char * pFileNameOut = "cex_abstr_out_.txt";
-    FILE * pFile;
-    Vec_Int_t * vCex;
-    int RetValue, clk; 
-    if ( pGia->vFlopClasses != NULL )
+    else if ( vFlopsNew == NULL )
     {
-        printf( "Gia_ManCexAbstractionStartNew(): Abstraction latch map is present but will be rederived.\n" );
-        Vec_IntFreeP( &pGia->vFlopClasses );
-    }
-    Gia_WriteAiger( pGia, pFileNameIn, 0, 0 );
-    sprintf( BufTimeOut, "-timeout=%d", pPars->TimeOut );
-    sprintf( BufTimeOutVT, "-vt=%d", pPars->TimeOutVT );
-//ABC switch  =>  cex_abstr switch
-//-cba   =>  <input> <output>
-//-pba   =>  ,bmc -pba-soft <input> <output>
-//-cba-then-pba  =>  -pba-soft <input> <output>
-//-cba-with-pba  =>  -pba <input> <output>
-    if ( pPars->Algo == 0 )
-    {
-        sprintf( Command, "cex_abstr %s %s -depth=%d -stable=%d -confl=%d -bob=%d %s %s %s %s", 
-            pPars->fVerbose? "":"-quiet", 
-            pPars->fVeryVerbose? "-sat-verbosity=1":"", 
-            pPars->nFramesBmc, pPars->nStableMax, pPars->nConfMaxBmc, pPars->nBobPar,
-            pPars->TimeOut? BufTimeOut : "", 
-            pPars->TimeOutVT? BufTimeOutVT : "", 
-            pFileNameIn, pFileNameOut );
-    }
-    else if ( pPars->Algo == 1 )
-    {
-        sprintf( Command, "cex_abstr %s %s -depth=%d -confl=%d -bob=%d ,bmc -pba-soft %s %s %s %s", 
-            pPars->fVerbose? "":"-quiet", 
-            pPars->fVeryVerbose? "-sat-verbosity=1":"", 
-            pPars->nFramesBmc, pPars->nConfMaxBmc, pPars->nBobPar,
-            pPars->TimeOut? BufTimeOut : "", 
-            pPars->TimeOutVT? BufTimeOutVT : "", 
-            pFileNameIn, pFileNameOut );
-    }
-    else if ( pPars->Algo == 2 )
-    {
-        sprintf( Command, "cex_abstr %s %s -depth=%d -stable=%d -confl=%d -bob=%d -pba-soft %s %s %s %s", 
-            pPars->fVerbose? "":"-quiet", 
-            pPars->fVeryVerbose? "-sat-verbosity=1":"", 
-            pPars->nFramesBmc, pPars->nStableMax, pPars->nConfMaxBmc, pPars->nBobPar,
-            pPars->TimeOut? BufTimeOut : "", 
-            pPars->TimeOutVT? BufTimeOutVT : "", 
-            pFileNameIn, pFileNameOut );
-    }
-    else if ( pPars->Algo == 3 )
-    {
-        sprintf( Command, "cex_abstr %s %s -depth=%d -stable=%d -confl=%d -bob=%d -pba %s %s %s %s", 
-            pPars->fVerbose? "":"-quiet", 
-            pPars->fVeryVerbose? "-sat-verbosity=1":"", 
-            pPars->nFramesBmc, pPars->nStableMax, pPars->nConfMaxBmc, pPars->nBobPar,
-            pPars->TimeOut? BufTimeOut : "", 
-            pPars->TimeOutVT? BufTimeOutVT : "", 
-            pFileNameIn, pFileNameOut );
+        // found real counter-example
+        assert( pAig->pSeqModel != NULL );
+        printf( "Refinement did not happen. Discovered a true counter-example.\n" );
+        printf( "Remapping counter-example from %d to %d primary inputs.\n", Aig_ManPiNum(pAig), Gia_ManPiNum(pGia) );
+        // derive new counter-example
+        pOrig = Gia_ManToAigSimple( pGia );
+        pGia->pCexSeq = Saig_ManCexRemap( pOrig, pAig, pAig->pSeqModel );
+        Aig_ManStop( pOrig );
+        RetValue = 0;
     }
     else
     {
-        printf( "Unnknown option (algo=%d). CBA (algo=0) is assumed.\n", pPars->Algo );
-        sprintf( Command, "cex_abstr %s %s -depth=%d -stable=%d -confl=%d -bob=%d %s %s %s %s", 
-            pPars->fVerbose? "":"-quiet", 
-            pPars->fVeryVerbose? "-sat-verbosity=1":"", 
-            pPars->nFramesBmc, pPars->nStableMax, pPars->nConfMaxBmc, pPars->nBobPar,
-            pPars->TimeOut? BufTimeOut : "", 
-            pPars->TimeOutVT? BufTimeOutVT : "", 
-            pFileNameIn, pFileNameOut );
+        // found counter-eample for the abstracted model
+        // update flop classes
+        Vec_Int_t * vAbsFfsToAdd = vFlopsNew;
+        Gia_ManFlopsAddToClasses( pGia->vFlopClasses, vAbsFfsToAdd );
+        Vec_IntFree( vAbsFfsToAdd );
+        RetValue = -1;
     }
-    // run the command
-    printf( "Executing command line \"%s\"\n", Command );
-    clk = clock();
-    RetValue = system( Command );
-    clk = clock() - clk;
-#ifdef WIN32
-    _unlink( pFileNameIn );
-#else
-    unlink( pFileNameIn );
-#endif
-    if ( RetValue == -1 )
-    {
-        fprintf( stdout, "Command \"%s\" did not succeed.\n", Command );
-        return;
-    }
-    // check that the input PostScript file is okay
-    if ( (pFile = fopen( pFileNameOut, "r" )) == NULL )
-    {
-        fprintf( stdout, "Cannot open intermediate file \"%s\".\n", pFileNameOut );
-        return;
-    }
-    fclose( pFile ); 
-    pPars->nFramesDone = Gia_ManReadInteger( pFileNameOut, "depth:" );
-    if ( pPars->nFramesDone == -1 )
-        printf( "Gia_ManCexAbstractionStartNew(): Cannot read the number of frames covered by BMC.\n" );
-    pGia->vFlopClasses = Gia_ManReadBinary( pFileNameOut, "abstraction:" );
-    vCex = Gia_ManReadBinary( pFileNameOut, "counter-example:" );
-    if ( vCex )
-    {
-        int nFrames = (Vec_IntSize(vCex) - Gia_ManRegNum(pGia)) / Gia_ManPiNum(pGia);
-        int nRemain = (Vec_IntSize(vCex) - Gia_ManRegNum(pGia)) % Gia_ManPiNum(pGia);
-        if ( nRemain != 0 )
-        {
-            printf( "Counter example has a wrong length.\n" );
-        }
-        else
-        {
-            printf( "Problem is satisfiable. Found counter-example in frame %d.  ", nFrames-1 );
-            Abc_PrintTime( 1, "Time", clk );
-            pGia->pCexSeq = Abc_CexCreate( Gia_ManRegNum(pGia), Gia_ManPiNum(pGia), Vec_IntArray(vCex), nFrames-1, 0, 0 );
-            if ( !Gia_ManVerifyCex( pGia, pGia->pCexSeq, 0 ) )
-                Abc_Print( 1, "Generated counter-example is INVALID.\n" );
-            pPars->Status = 0;
-        }
-        Vec_IntFreeP( &vCex );
-    }
-#ifdef WIN32
-    _unlink( pFileNameOut );
-#else
-    unlink( pFileNameOut );
-#endif
+    Aig_ManStop( pAig );
+    return RetValue;
 }
+
 
 ////////////////////////////////////////////////////////////////////////
 ///                       END OF FILE                                ///

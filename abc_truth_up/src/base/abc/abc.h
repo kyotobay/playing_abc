@@ -55,189 +55,182 @@ typedef enum {
     ABC_NTK_NETLIST,    // 1:  network with PIs/POs, latches, nodes, and nets
     ABC_NTK_LOGIC,      // 2:  network with PIs/POs, latches, and nodes
     ABC_NTK_STRASH,     // 3:  structurally hashed AIG (two input AND gates with c-attributes on edges)
-	    ABC_NTK_OTHER       // 4:  unused
-	} Abc_NtkType_t;
+    ABC_NTK_OTHER       // 4:  unused
+} Abc_NtkType_t;
 
-	// network functionality
-	typedef enum { 
-	    ABC_FUNC_NONE = 0,  // 0:  unknown
-	    ABC_FUNC_SOP,       // 1:  sum-of-products
-	    ABC_FUNC_BDD,       // 2:  binary decision diagrams
-	    ABC_FUNC_AIG,       // 3:  and-inverter graphs
-	    ABC_FUNC_MAP,       // 4:  standard cell library
-	    ABC_FUNC_BLIFMV,    // 5:  BLIF-MV node functions
-	    ABC_FUNC_BLACKBOX,  // 6:  black box about which nothing is known
-	    ABC_FUNC_OTHER      // 7:  unused
-	} Abc_NtkFunc_t;
+// network functionality
+typedef enum { 
+    ABC_FUNC_NONE = 0,  // 0:  unknown
+    ABC_FUNC_SOP,       // 1:  sum-of-products
+    ABC_FUNC_BDD,       // 2:  binary decision diagrams
+    ABC_FUNC_AIG,       // 3:  and-inverter graphs
+    ABC_FUNC_MAP,       // 4:  standard cell library
+    ABC_FUNC_BLIFMV,    // 5:  BLIF-MV node functions
+    ABC_FUNC_BLACKBOX,  // 6:  black box about which nothing is known
+    ABC_FUNC_OTHER      // 7:  unused
+} Abc_NtkFunc_t;
 
-	// Supported type/functionality combinations:
-	/*------------------------------------------|
-	|           |  SOP  |  BDD  |  AIG  |  Map  |
-	|-----------|-------|-------|-------|-------|
-	|  Netlist  |   x   |       |   x   |   x   |
-	|-----------|-------|-------|-------|-------|
-	|  Logic    |   x   |   x   |   x   |   x   |
-	|-----------|-------|-------|-------|-------|
-	|  Strash   |       |       |   x   |       |
-	--------------------------------------------|*/
+// Supported type/functionality combinations:
+/*------------------------------------------|
+|           |  SOP  |  BDD  |  AIG  |  Map  |
+|-----------|-------|-------|-------|-------|
+|  Netlist  |   x   |       |   x   |   x   |
+|-----------|-------|-------|-------|-------|
+|  Logic    |   x   |   x   |   x   |   x   |
+|-----------|-------|-------|-------|-------|
+|  Strash   |       |       |   x   |       |
+--------------------------------------------|*/
 
-	// object types
-	typedef enum { 
-	    ABC_OBJ_NONE = 0,   //  0:  unknown
-	    ABC_OBJ_CONST1,     //  1:  constant 1 node (AIG only)
-	    ABC_OBJ_PI,         //  2:  primary input terminal
-	    ABC_OBJ_PO,         //  3:  primary output terminal
-	    ABC_OBJ_BI,         //  4:  box input terminal
-	    ABC_OBJ_BO,         //  5:  box output terminal
-	    ABC_OBJ_NET,        //  6:  net
-	    ABC_OBJ_NODE,       //  7:  node
-	    ABC_OBJ_LATCH,      //  8:  latch
-	    ABC_OBJ_WHITEBOX,   //  9:  box with known contents
-	    ABC_OBJ_BLACKBOX,   // 10:  box with unknown contents
-	    ABC_OBJ_NUMBER      // 11:  unused
-	} Abc_ObjType_t;
+// object types
+typedef enum { 
+    ABC_OBJ_NONE = 0,   //  0:  unknown
+    ABC_OBJ_CONST1,     //  1:  constant 1 node (AIG only)
+    ABC_OBJ_PI,         //  2:  primary input terminal
+    ABC_OBJ_PO,         //  3:  primary output terminal
+    ABC_OBJ_BI,         //  4:  box input terminal
+    ABC_OBJ_BO,         //  5:  box output terminal
+    ABC_OBJ_NET,        //  6:  net
+    ABC_OBJ_NODE,       //  7:  node
+    ABC_OBJ_LATCH,      //  8:  latch
+    ABC_OBJ_WHITEBOX,   //  9:  box with known contents
+    ABC_OBJ_BLACKBOX,   // 10:  box with unknown contents
+    ABC_OBJ_NUMBER      // 11:  unused
+} Abc_ObjType_t;
 
-	// latch initial values
-	typedef enum { 
-	    ABC_INIT_NONE = 0,  // 0:  unknown
-	    ABC_INIT_ZERO,      // 1:  zero
-	    ABC_INIT_ONE,       // 2:  one
-	    ABC_INIT_DC,        // 3:  don't-care
-	    ABC_INIT_OTHER      // 4:  unused
-	} Abc_InitType_t;
+// latch initial values
+typedef enum { 
+    ABC_INIT_NONE = 0,  // 0:  unknown
+    ABC_INIT_ZERO,      // 1:  zero
+    ABC_INIT_ONE,       // 2:  one
+    ABC_INIT_DC,        // 3:  don't-care
+    ABC_INIT_OTHER      // 4:  unused
+} Abc_InitType_t;
 
-	////////////////////////////////////////////////////////////////////////
-	///                         BASIC TYPES                              ///
-	////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+///                         BASIC TYPES                              ///
+////////////////////////////////////////////////////////////////////////
 
-	typedef struct Abc_Lib_t_       Abc_Lib_t;
-	typedef struct Abc_Ntk_t_       Abc_Ntk_t;
-//	struct Abc_Obj_t_;
-	typedef struct Abc_Obj_t_       Abc_Obj_t;
-	typedef struct Abc_Aig_t_       Abc_Aig_t;
-	typedef struct Abc_ManTime_t_   Abc_ManTime_t;
-	typedef struct Abc_ManCut_t_    Abc_ManCut_t;
-	typedef struct Abc_Time_t_      Abc_Time_t;
-//pataki
-	typedef struct MyStruct		ms;
+typedef struct Abc_Lib_t_       Abc_Lib_t;
+typedef struct Abc_Ntk_t_       Abc_Ntk_t;
+struct Abc_Obj_t_;
+typedef struct Abc_Obj_t_       Abc_Obj_t;
+typedef struct Abc_Aig_t_       Abc_Aig_t;
+typedef struct Abc_ManTime_t_   Abc_ManTime_t;
+typedef struct Abc_ManCut_t_    Abc_ManCut_t;
+typedef struct Abc_Time_t_      Abc_Time_t;
 
-	struct MyStruct
-	{
-		Abc_Obj_t *pNode, *c0pN, *c1pN;
-		bool icc0, icc1, isleaf, isroot, value;
-		ms *c0, *c1;
-	};
-//pataki
-	struct Abc_Time_t_
-	{
-	    float             Rise;
-	    float             Fall;
-	    float             Worst;
-	};
+struct Abc_Time_t_
+{
+    float             Rise;
+    float             Fall;
+    float             Worst;
+};
 
-	struct Abc_Obj_t_ // 12 words
-	{
-	    // high-level information
-	    Abc_Ntk_t *       pNtk;          // the host network
-	    int               Id;            // the object ID
-	    int               TravId;        // the traversal ID (if changed, update Abc_NtkIncrementTravId)
-	    // internal information
-	    unsigned          Type    :  4;  // the object type
-	    unsigned          fMarkA  :  1;  // the multipurpose mark
-	    unsigned          fMarkB  :  1;  // the multipurpose mark
-	    unsigned          fMarkC  :  1;  // the multipurpose mark
-	    unsigned          fPhase  :  1;  // the flag to mark the phase of equivalent node
-	    unsigned          fExor   :  1;  // marks AIG node that is a root of EXOR
-	    unsigned          fPersist:  1;  // marks the persistant AIG node
-	    unsigned          fCompl0 :  1;  // complemented attribute of the first fanin in the AIG
-	    unsigned          fCompl1 :  1;  // complemented attribute of the second fanin in the AIG 
-	    unsigned          Level   : 20;  // the level of the node
-	    // connectivity
-	    Vec_Int_t         vFanins;       // the array of fanins
-	    Vec_Int_t         vFanouts;      // the array of fanouts
-	    // miscellaneous
-	    union {
-		void *        pData;         // the network specific data (SOP, BDD, gate, equiv class, etc)
-		int           iData;
-	    };
-	    Abc_Obj_t *       pNext;         // the next pointer in the hash table
-	    union {                          // temporary store for user's data
-		Abc_Obj_t *   pCopy;         // the copy of this object
-		void *        pTemp;
-		int           iTemp;
-		float         dTemp;
-	    };
-	//    Hop_Obj_t *       pEquiv;        // pointer to the HAIG node
-	};
+struct Abc_Obj_t_ // 12 words
+{
+    // high-level information
+    Abc_Ntk_t *       pNtk;          // the host network
+    int               Id;            // the object ID
+    int               TravId;        // the traversal ID (if changed, update Abc_NtkIncrementTravId)
+    // internal information
+    bool value;
+    unsigned          Type    :  4;  // the object type
+    unsigned          fMarkA  :  1;  // the multipurpose mark
+    unsigned          fMarkB  :  1;  // the multipurpose mark
+    unsigned          fMarkC  :  1;  // the multipurpose mark
+    unsigned          fPhase  :  1;  // the flag to mark the phase of equivalent node
+    unsigned          fExor   :  1;  // marks AIG node that is a root of EXOR
+    unsigned          fPersist:  1;  // marks the persistant AIG node
+    unsigned          fCompl0 :  1;  // complemented attribute of the first fanin in the AIG
+    unsigned          fCompl1 :  1;  // complemented attribute of the second fanin in the AIG 
+    unsigned          Level   : 20;  // the level of the node
+    // connectivity
+    Vec_Int_t         vFanins;       // the array of fanins
+    Vec_Int_t         vFanouts;      // the array of fanouts
+    // miscellaneous
+    union {
+        void *        pData;         // the network specific data (SOP, BDD, gate, equiv class, etc)
+        int           iData;
+    };
+    Abc_Obj_t *       pNext;         // the next pointer in the hash table
+    union {                          // temporary store for user's data
+        Abc_Obj_t *   pCopy;         // the copy of this object
+        void *        pTemp;
+        int           iTemp;
+        float         dTemp;
+    };
+//    Hop_Obj_t *       pEquiv;        // pointer to the HAIG node
+};
 
-	struct Abc_Ntk_t_ 
-	{
-	    // general information 
-	    Abc_NtkType_t     ntkType;       // type of the network
-	    Abc_NtkFunc_t     ntkFunc;       // functionality of the network
-	    char *            pName;         // the network name
-	    char *            pSpec;         // the name of the spec file if present
-	    Nm_Man_t *        pManName;      // name manager (stores names of objects)
-	    // components of the network
-	    Vec_Ptr_t *       vObjs;         // the array of all objects (net, nodes, latches, etc)
-	    Vec_Ptr_t *       vPis;          // the array of primary inputs
-	    Vec_Ptr_t *       vPos;          // the array of primary outputs
-	    Vec_Ptr_t *       vCis;          // the array of combinational inputs  (PIs, latches)
-	    Vec_Ptr_t *       vCos;          // the array of combinational outputs (POs, asserts, latches)
-	    Vec_Ptr_t *       vPios;         // the array of PIOs
-	    Vec_Ptr_t *       vBoxes;        // the array of boxes
-		Vec_Ptr_t *       vLtlProperties;
-	    // the number of living objects
-	    int nObjCounts[ABC_OBJ_NUMBER];  // the number of objects by type
-	    int               nObjs;         // the number of live objs
-	    int               nConstrs;      // the number of constraints
-	    int               nRealPos;      // the number of real POs
-	    // the backup network and the step number
-	    Abc_Ntk_t *       pNetBackup;    // the pointer to the previous backup network
-	    int               iStep;         // the generation number for the given network
-	    // hierarchy
-	    Abc_Lib_t *       pDesign;
-	    short             fHieVisited;   // flag to mark the visited network
-	    short             fHiePath;      // flag to mark the network on the path
-	    // miscellaneous data members
-	    int               nTravIds;      // the unique traversal IDs of nodes
-	    Mem_Fixed_t *     pMmObj;        // memory manager for objects
-	    Mem_Step_t *      pMmStep;       // memory manager for arrays
-	    void *            pManFunc;      // functionality manager (AIG manager, BDD manager, or memory manager for SOPs)
-	//    Abc_Lib_t *       pVerLib;       // for structural verilog designs
-	    Abc_ManTime_t *   pManTime;      // the timing manager (for mapped networks) stores arrival/required times for all nodes
-	    void *            pManCut;       // the cut manager (for AIGs) stores information about the cuts computed for the nodes
-	    int               LevelMax;      // maximum number of levels
-	    Vec_Int_t *       vLevelsR;      // level in the reverse topological order (for AIGs)
-	    Vec_Ptr_t *       vSupps;        // CO support information
-	    int *             pModel;        // counter-example (for miters)
-	    Abc_Cex_t *       pSeqModel;     // counter-example (for sequential miters)
-	    Vec_Ptr_t *       pSeqModelVec;  // vector of counter-examples (for sequential miters)
-	    Abc_Ntk_t *       pExdc;         // the EXDC network (if given)
-	    void *            pExcare;       // the EXDC network (if given)
-	    void *            pData;         // misc
-	    Abc_Ntk_t *       pCopy;         // copy of this network
-	    void *            pHaig;         // history AIG
-	    float *           pLutTimes;     // arrivals/requireds/slacks using LUT-delay model
-	    Vec_Ptr_t *       vOnehots;      // names of one-hot-encoded registers
-	    Vec_Int_t *       vObjPerm;      // permutation saved
-	    // node attributes
-	    Vec_Ptr_t *       vAttrs;        // managers of various node attributes (node functionality, global BDDs, etc)
-	};
+struct Abc_Ntk_t_ 
+{
+    // general information 
+    Abc_NtkType_t     ntkType;       // type of the network
+    Abc_NtkFunc_t     ntkFunc;       // functionality of the network
+    char *            pName;         // the network name
+    char *            pSpec;         // the name of the spec file if present
+    Nm_Man_t *        pManName;      // name manager (stores names of objects)
+    // components of the network
+    Vec_Ptr_t *       vObjs;         // the array of all objects (net, nodes, latches, etc)
+    Vec_Ptr_t *       vPis;          // the array of primary inputs
+    Vec_Ptr_t *       vPos;          // the array of primary outputs
+    Vec_Ptr_t *       vCis;          // the array of combinational inputs  (PIs, latches)
+    Vec_Ptr_t *       vCos;          // the array of combinational outputs (POs, asserts, latches)
+    Vec_Ptr_t *       vPios;         // the array of PIOs
+    Vec_Ptr_t *       vBoxes;        // the array of boxes
+	Vec_Ptr_t *       vLtlProperties;
+    // the number of living objects
+    int nObjCounts[ABC_OBJ_NUMBER];  // the number of objects by type
+    int               nObjs;         // the number of live objs
+    int               nConstrs;      // the number of constraints
+    int               nRealPos;      // the number of real POs
+    // the backup network and the step number
+    Abc_Ntk_t *       pNetBackup;    // the pointer to the previous backup network
+    int               iStep;         // the generation number for the given network
+    // hierarchy
+    Abc_Lib_t *       pDesign;
+    short             fHieVisited;   // flag to mark the visited network
+    short             fHiePath;      // flag to mark the network on the path
+    // miscellaneous data members
+    int               nTravIds;      // the unique traversal IDs of nodes
+    Mem_Fixed_t *     pMmObj;        // memory manager for objects
+    Mem_Step_t *      pMmStep;       // memory manager for arrays
+    void *            pManFunc;      // functionality manager (AIG manager, BDD manager, or memory manager for SOPs)
+//    Abc_Lib_t *       pVerLib;       // for structural verilog designs
+    Abc_ManTime_t *   pManTime;      // the timing manager (for mapped networks) stores arrival/required times for all nodes
+    void *            pManCut;       // the cut manager (for AIGs) stores information about the cuts computed for the nodes
+    int               LevelMax;      // maximum number of levels
+    Vec_Int_t *       vLevelsR;      // level in the reverse topological order (for AIGs)
+    Vec_Ptr_t *       vSupps;        // CO support information
+    int *             pModel;        // counter-example (for miters)
+    Abc_Cex_t *       pSeqModel;     // counter-example (for sequential miters)
+    Vec_Ptr_t *       vSeqModelVec;  // vector of counter-examples (for sequential miters)
+    Abc_Ntk_t *       pExdc;         // the EXDC network (if given)
+    void *            pExcare;       // the EXDC network (if given)
+    void *            pData;         // misc
+    Abc_Ntk_t *       pCopy;         // copy of this network
+    void *            pHaig;         // history AIG
+    float *           pLutTimes;     // arrivals/requireds/slacks using LUT-delay model
+    Vec_Ptr_t *       vOnehots;      // names of one-hot-encoded registers
+    Vec_Int_t *       vObjPerm;      // permutation saved
+    Vec_Vec_t *       vRealPos;      // additional PO info
+    // node attributes
+    Vec_Ptr_t *       vAttrs;        // managers of various node attributes (node functionality, global BDDs, etc)
+};
 
-	struct Abc_Lib_t_ 
-	{
-	    char *            pName;         // the name of the library
-	    void *            pManFunc;      // functionality manager for the nodes
-	    Vec_Ptr_t *       vTops;         // the array of top-level modules
-	    Vec_Ptr_t *       vModules;      // the array of modules
-	    st_table *        tModules;      // the table hashing module names into their networks
-	    Abc_Lib_t *       pLibrary;      // the library used to map this design
-	    void *            pGenlib;       // the genlib library used to map this design
-	};
+struct Abc_Lib_t_ 
+{
+    char *            pName;         // the name of the library
+    void *            pManFunc;      // functionality manager for the nodes
+    Vec_Ptr_t *       vTops;         // the array of top-level modules
+    Vec_Ptr_t *       vModules;      // the array of modules
+    st_table *        tModules;      // the table hashing module names into their networks
+    Abc_Lib_t *       pLibrary;      // the library used to map this design
+    void *            pGenlib;       // the genlib library used to map this design
+};
 
-	////////////////////////////////////////////////////////////////////////
-	///                      MACRO DEFINITIONS                           ///
+////////////////////////////////////////////////////////////////////////
+///                      MACRO DEFINITIONS                           ///
 ////////////////////////////////////////////////////////////////////////
 
 // transforming floats into ints and back
@@ -389,30 +382,8 @@ static inline int         Abc_ObjFanoutEdgeNum( Abc_Obj_t * pObj, Abc_Obj_t * pF
 static inline Abc_Obj_t * Abc_ObjFanout( Abc_Obj_t * pObj, int i )   { return (Abc_Obj_t *)pObj->pNtk->vObjs->pArray[ pObj->vFanouts.pArray[i] ];  }
 static inline Abc_Obj_t * Abc_ObjFanout0( Abc_Obj_t * pObj )         { return (Abc_Obj_t *)pObj->pNtk->vObjs->pArray[ pObj->vFanouts.pArray[0] ];  }
 static inline Abc_Obj_t * Abc_ObjFanin( Abc_Obj_t * pObj, int i )    { return (Abc_Obj_t *)pObj->pNtk->vObjs->pArray[ pObj->vFanins.pArray[i] ];   }
-//static inline Abc_Obj_t * Abc_ObjFanin0( Abc_Obj_t * pObj )          { return (Abc_Obj_t *)pObj->pNtk->vObjs->pArray[ pObj->vFanins.pArray[0] ];   }
-static inline Abc_Obj_t * Abc_ObjFanin0( Abc_Obj_t * pObj )
-{
-	if(pObj->vFanins.pArray == NULL)
-	{
-		return NULL;
-	}
-	else
-	{
-		return (Abc_Obj_t *)pObj->pNtk->vObjs->pArray[ pObj->vFanins.pArray[0] ];
-	}
-}
-//static inline Abc_Obj_t * Abc_ObjFanin1( Abc_Obj_t * pObj )          { return (Abc_Obj_t *)pObj->pNtk->vObjs->pArray[ pObj->vFanins.pArray[1] ];   }
-static inline Abc_Obj_t * Abc_ObjFanin1( Abc_Obj_t * pObj )
-{
-	if(pObj->vFanins.pArray == NULL)
-	{
-		return NULL;
-	}
-	else
-	{
-		return (Abc_Obj_t *)pObj->pNtk->vObjs->pArray[ pObj->vFanins.pArray[1] ];
-	}
-}
+static inline Abc_Obj_t * Abc_ObjFanin0( Abc_Obj_t * pObj )          { return (Abc_Obj_t *)pObj->pNtk->vObjs->pArray[ pObj->vFanins.pArray[0] ];   }
+static inline Abc_Obj_t * Abc_ObjFanin1( Abc_Obj_t * pObj )          { return (Abc_Obj_t *)pObj->pNtk->vObjs->pArray[ pObj->vFanins.pArray[1] ];   }
 static inline Abc_Obj_t * Abc_ObjFanin0Ntk( Abc_Obj_t * pObj )       { return (Abc_NtkIsNetlist(pObj->pNtk)? Abc_ObjFanin0(pObj)  : pObj);  }
 static inline Abc_Obj_t * Abc_ObjFanout0Ntk( Abc_Obj_t * pObj )      { return (Abc_NtkIsNetlist(pObj->pNtk)? Abc_ObjFanout0(pObj) : pObj);  }
 static inline int         Abc_ObjFaninC0( Abc_Obj_t * pObj )         { return pObj->fCompl0;                                                }
@@ -481,7 +452,7 @@ static inline void        Abc_ObjSetMvVar( Abc_Obj_t * pObj, void * pV) { Vec_At
 #define Abc_NtkForEachObj( pNtk, pObj, i )                                                         \
     for ( i = 0; (i < Vec_PtrSize((pNtk)->vObjs)) && (((pObj) = Abc_NtkObj(pNtk, i)), 1); i++ )    \
         if ( (pObj) == NULL ) {} else
-#define Abc_NtkForEachObjVec( pNtk, vIds, pObj, i )                                                \
+#define Abc_NtkForEachObjVec( vIds, pNtk, pObj, i )                                                \
     for ( i = 0; i < Vec_IntSize(vIds) && (((pObj) = Abc_NtkObj(pNtk, Vec_IntEntry(vIds,i))), 1); i++ ) \
         if ( (pObj) == NULL ) {} else
 #define Abc_NtkForEachNet( pNtk, pNet, i )                                                         \

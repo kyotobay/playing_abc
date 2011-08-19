@@ -568,8 +568,8 @@ Gia_Man_t * Gia_ReadAiger2( char * pFileName, int fCheck )
 ***********************************************************************/
 Gia_Man_t * Gia_ReadAigerFromMemory( char * pContents, int nFileSize, int fCheck )
 {
-    Gia_Man_t * pNew;
-    Vec_Int_t * vLits = NULL;
+    Gia_Man_t * pNew, * pTemp;
+    Vec_Int_t * vLits = NULL, * vPoTypes = NULL;
     Vec_Int_t * vNodes, * vDrivers;//, * vTerms;
     int iObj, iNode0, iNode1;
     int nTotal, nInputs, nOutputs, nLatches, nAnds, i;//, iTerm, nDigits;
@@ -625,6 +625,7 @@ Gia_Man_t * Gia_ReadAigerFromMemory( char * pContents, int nFileSize, int fCheck
     }
 
     // create the AND gates
+    Gia_ManHashAlloc( pNew );
     for ( i = 0; i < nAnds; i++ )
     {
         uLit = ((i + 1 + nInputs + nLatches) << 1);
@@ -635,8 +636,9 @@ Gia_Man_t * Gia_ReadAigerFromMemory( char * pContents, int nFileSize, int fCheck
         iNode1 = Gia_LitNotCond( Vec_IntEntry(vNodes, uLit1 >> 1), uLit1 & 1 );
         assert( Vec_IntSize(vNodes) == i + 1 + nInputs + nLatches );
 //        Vec_IntPush( vNodes, Gia_And(pNew, iNode0, iNode1) );
-        Vec_IntPush( vNodes, Gia_ManAppendAnd(pNew, iNode0, iNode1) );
+        Vec_IntPush( vNodes, Gia_ManHashAnd(pNew, iNode0, iNode1) );
     }
+    Gia_ManHashStop( pNew );
 
     // remember the place where symbols begin
     pSymbols = pCur;
@@ -689,6 +691,7 @@ Gia_Man_t * Gia_ReadAigerFromMemory( char * pContents, int nFileSize, int fCheck
 
     // create the latches
     Gia_ManSetRegNum( pNew, nLatches );
+
 
     // check if there are other types of information to read
     pCur = pSymbols;
@@ -746,9 +749,10 @@ Gia_Man_t * Gia_ReadAigerFromMemory( char * pContents, int nFileSize, int fCheck
     if ( *pCur != 'c' )
     {
         int fBreakUsed = 0;
-        pNew->vUserPiIds = Vec_IntStartFull( Gia_ManPiNum(pNew) );
-        pNew->vUserPoIds = Vec_IntStartFull( Gia_ManPoNum(pNew) );
-        pNew->vUserFfIds = Vec_IntStartFull( Gia_ManRegNum(pNew) );
+        char * pCurOld = pCur;
+        pNew->vUserPiIds = Vec_IntStartFull( nInputs );
+        pNew->vUserPoIds = Vec_IntStartFull( nOutputs );
+        pNew->vUserFfIds = Vec_IntStartFull( nLatches );
         while ( (char *)pCur < pContents + nFileSize && *pCur != 'c' )
         {
             int iTerm;
@@ -792,12 +796,87 @@ Gia_Man_t * Gia_ReadAigerFromMemory( char * pContents, int nFileSize, int fCheck
         // in case of abnormal termination, remove the arrays
         if ( fBreakUsed )
         {
+            char * pName;
+            int Entry, nInvars, nConstr, iTerm;
+
+            Vec_Int_t * vPoNames = Vec_IntStartFull( nOutputs );
+
             Vec_IntFreeP( &pNew->vUserPiIds );
             Vec_IntFreeP( &pNew->vUserPoIds );
             Vec_IntFreeP( &pNew->vUserFfIds );
+
+            // try to figure out signal names
+            fBreakUsed = 0;
+            pCur = pCurOld;
+            while ( pCur < pContents + nFileSize && *pCur != 'c' )
+            {
+                // get the terminal type
+                if ( *pCur == 'i' || *pCur == 'l' )
+                {
+                    // skip till the end of the line
+                    while ( *pCur++ != '\n' );
+                    *(pCur-1) = 0;
+                    continue;
+                }
+                if ( *pCur != 'o' )
+                {
+//                    fprintf( stdout, "Wrong terminal type.\n" );
+                    fBreakUsed = 1;
+                    break;
+                }
+                // get the terminal number
+                iTerm = atoi( ++pCur );  while ( *pCur++ != ' ' );
+                // get the node
+                if ( iTerm < 0 || iTerm >= nOutputs )
+                {
+                    fprintf( stdout, "The output number (%d) is out of range.\n", iTerm );
+                    fBreakUsed = 1;
+                    break;
+                }
+                if ( Vec_IntEntry(vPoNames, iTerm) != ~0 )
+                {
+                    fprintf( stdout, "The output number (%d) is listed twice.\n", iTerm );
+                    fBreakUsed = 1;
+                    break;
+                }
+
+                // get the name
+                pName = pCur;          while ( *pCur++ != '\n' );
+                *(pCur-1) = 0;
+                // assign the name
+                Vec_IntWriteEntry( vPoNames, iTerm, pName - pContents );
+            } 
+
+            // check that all names are assigned
+            if ( !fBreakUsed )
+            {
+                nInvars = nConstr = 0;
+                vPoTypes = Vec_IntStart( Gia_ManPoNum(pNew) );
+                Vec_IntForEachEntry( vPoNames, Entry, i )
+                {
+                    if ( Entry == ~0 )
+                        continue;
+                    if ( strncmp( pContents+Entry, "constraint:", 11 ) == 0 )
+                    {
+                        Vec_IntWriteEntry( vPoTypes, i, 1 );
+                        nConstr++;
+                    }
+                    if ( strncmp( pContents+Entry, "invariant:", 10 ) == 0 )
+                    {
+                        Vec_IntWriteEntry( vPoTypes, i, 2 );
+                        nInvars++;
+                    }
+                }
+                if ( nConstr )
+                    fprintf( stdout, "Recognized and added %d constraints.\n", nConstr );
+                if ( nInvars )
+                    fprintf( stdout, "Recognized and skipped %d invariants.\n", nInvars );
+                if ( nConstr == 0 && nInvars == 0 )
+                    Vec_IntFreeP( &vPoTypes );
+            }
+            Vec_IntFree( vPoNames );
         }
     }
-
 
     // skipping the comments
     Vec_IntFree( vNodes );
@@ -810,6 +889,21 @@ Gia_Man_t * Gia_ReadAigerFromMemory( char * pContents, int nFileSize, int fCheck
         return NULL;
     }
 */
+    // clean the PO drivers
+    if ( vPoTypes )
+    {
+        pNew = Gia_ManDupWithConstraints( pTemp = pNew, vPoTypes );
+        Gia_ManStop( pTemp );
+        Vec_IntFreeP( &vPoTypes );
+    }
+
+    {
+        Vec_Int_t * vFlopMap;
+        vFlopMap = pNew->vFlopClasses; pNew->vFlopClasses = NULL;
+        pNew = Gia_ManCleanup( pTemp = pNew );
+        Gia_ManStop( pTemp );
+        pNew->vFlopClasses = vFlopMap;
+    }
     return pNew;
 }
 

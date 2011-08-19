@@ -105,6 +105,7 @@ static inline int          Saig_ObjIsLo( Aig_Man_t * p, Aig_Obj_t * pObj )    { 
 static inline int          Saig_ObjIsLi( Aig_Man_t * p, Aig_Obj_t * pObj )    { return Aig_ObjIsPo(pObj) && Aig_ObjPioNum(pObj) >= Saig_ManPoNum(p); }
 static inline Aig_Obj_t *  Saig_ObjLoToLi( Aig_Man_t * p, Aig_Obj_t * pObj )  { assert(Saig_ObjIsLo(p, pObj)); return (Aig_Obj_t *)Vec_PtrEntry(p->vPos, Saig_ManPoNum(p)+Aig_ObjPioNum(pObj)-Saig_ManPiNum(p));   }
 static inline Aig_Obj_t *  Saig_ObjLiToLo( Aig_Man_t * p, Aig_Obj_t * pObj )  { assert(Saig_ObjIsLi(p, pObj)); return (Aig_Obj_t *)Vec_PtrEntry(p->vPis, Saig_ManPiNum(p)+Aig_ObjPioNum(pObj)-Saig_ManPoNum(p));   }
+static inline int          Saig_ObjRegId( Aig_Man_t * p, Aig_Obj_t * pObj )   { if ( Saig_ObjIsLo(p, pObj) ) return Aig_ObjPioNum(pObj)-Saig_ManPiNum(p); if ( Saig_ObjIsLi(p, pObj) ) return Aig_ObjPioNum(pObj)-Saig_ManPoNum(p); else assert(0);  return -1; }
 
 // iterator over the primary inputs/outputs
 #define Saig_ManForEachPi( p, pObj, i )                                           \
@@ -124,19 +125,28 @@ static inline Aig_Obj_t *  Saig_ObjLiToLo( Aig_Man_t * p, Aig_Obj_t * pObj )  { 
 ////////////////////////////////////////////////////////////////////////
 ///                    FUNCTION DECLARATIONS                         ///
 ////////////////////////////////////////////////////////////////////////
- 
+
 /*=== sswAbs.c ==========================================================*/
-extern Aig_Man_t *       Saig_ManCexAbstraction( Aig_Man_t * p, Gia_ParAbs_t * pPars );
-/*=== sswAbs2.c ==========================================================*/
-extern Aig_Man_t *       Saig_ManConCexAbstraction( Aig_Man_t * p, Gia_ParAbs_t * pPars );
-/*=== sswPba.c ==========================================================*/
-extern Aig_Man_t *       Saig_ManProofAbstraction( Aig_Man_t * p, Gia_ParAbs_t * pPars );
+extern Vec_Int_t *       Saig_ManClasses2Flops( Vec_Int_t * vFlopClasses );
+extern Vec_Int_t *       Saig_ManFlops2Classes( int nRegs, Vec_Int_t * vFlops );
+extern Abc_Cex_t *       Saig_ManCexRemap( Aig_Man_t * p, Aig_Man_t * pAbs, Abc_Cex_t * pCexAbs );
+/*=== sswAbsCba.c ==========================================================*/
+extern Abc_Cex_t *       Saig_ManCbaFindCexCareBits( Aig_Man_t * pAig, Abc_Cex_t * pCex, int nInputs, int fNewOrder, int fVerbose );
+extern Vec_Int_t *       Saig_ManCbaFilterInputs( Aig_Man_t * pAig, int iFirstFlopPi, Abc_Cex_t * pCex, int fVerbose );
+extern Vec_Int_t *       Saig_ManCbaPerform( Aig_Man_t * pAig, int nInputs, Saig_ParBmc_t * pPars );
+/*=== sswAbsPba.c ==========================================================*/
+extern Vec_Int_t *       Saig_ManPbaDerive( Aig_Man_t * pAig, int nInputs, int nFrames, int nConfLimit, int fVerbose );
+/*=== sswAbsStart.c ==========================================================*/
+extern int               Saig_ManCexRefineStep( Aig_Man_t * p, Vec_Int_t * vFlops, Abc_Cex_t * pCex, int fTryFour, int fSensePath, int fVerbose );
+extern Vec_Int_t *       Saig_ManCexAbstractionFlops( Aig_Man_t * p, Gia_ParAbs_t * pPars );
 /*=== saigBmc.c ==========================================================*/
 extern int               Saig_ManBmcSimple( Aig_Man_t * pAig, int nFrames, int nSizeMax, int nBTLimit, int fRewrite, int fVerbose, int * piFrame, int nCofFanLit );
 extern int               Saig_BmcPerform( Aig_Man_t * pAig, int nStart, int nFramesMax, int nNodesMax, int nTimeOut, int nConfMaxOne, int nConfMaxAll, int fVerbose, int fVerbOverwrite, int * piFrames );
 /*=== saigBmc3.c ==========================================================*/
 extern void              Saig_ParBmcSetDefaultParams( Saig_ParBmc_t * p );
 extern int               Saig_ManBmcScalable( Aig_Man_t * pAig, Saig_ParBmc_t * pPars );
+/*=== saigCexMin.c ==========================================================*/
+extern Abc_Cex_t *       Saig_ManCexMinPerform( Aig_Man_t * pAig, Abc_Cex_t * pCex );
 /*=== saigCone.c ==========================================================*/
 extern void              Saig_ManPrintCones( Aig_Man_t * p );
 /*=== saigConstr.c ==========================================================*/
@@ -150,13 +160,13 @@ extern Aig_Man_t *       Saig_ManDupUnfoldConstrsFunc( Aig_Man_t * pAig, int nFr
 /*=== saigDup.c ==========================================================*/
 extern Aig_Man_t *       Saig_ManDupOrpos( Aig_Man_t * p );
 extern Aig_Man_t *       Saig_ManCreateEquivMiter( Aig_Man_t * pAig, Vec_Int_t * vPairs );
-extern Aig_Man_t *       Saig_ManDeriveAbstraction( Aig_Man_t * pAig, Vec_Int_t * vFlops );
+extern Aig_Man_t *       Saig_ManDupAbstraction( Aig_Man_t * pAig, Vec_Int_t * vFlops );
 extern int               Saig_ManVerifyCex( Aig_Man_t * pAig, Abc_Cex_t * p );
 extern int               Saig_ManFindFailedPoCex( Aig_Man_t * pAig, Abc_Cex_t * p );
 /*=== saigHaig.c ==========================================================*/
 extern Aig_Man_t *       Saig_ManHaigRecord( Aig_Man_t * p, int nIters, int nSteps, int fRetimingOnly, int fAddBugs, int fUseCnf, int fVerbose );
 /*=== saigInd.c ==========================================================*/
-extern int               Saig_ManInduction( Aig_Man_t * p, int nFramesMax, int nConfMax, int fUnique, int fUniqueAll, int fVerbose, int fVeryVerbose );
+extern int               Saig_ManInduction( Aig_Man_t * p, int nFramesMax, int nConfMax, int fUnique, int fUniqueAll, int fGetCex, int fVerbose, int fVeryVerbose );
 /*=== saigIoa.c ==========================================================*/
 extern void              Saig_ManDumpBlif( Aig_Man_t * p, char * pFileName );
 extern Aig_Man_t *       Saig_ManReadBlif( char * pFileName );
@@ -170,10 +180,13 @@ extern int               Saig_ManDemiterSimple( Aig_Man_t * p, Aig_Man_t ** ppAi
 extern int               Saig_ManDemiterSimpleDiff( Aig_Man_t * p, Aig_Man_t ** ppAig0, Aig_Man_t ** ppAig1 );
 extern int               Saig_ManDemiterDual( Aig_Man_t * p, Aig_Man_t ** ppAig0, Aig_Man_t ** ppAig1 );
 extern int               Ssw_SecSpecialMiter( Aig_Man_t * p0, Aig_Man_t * p1, int nFrames, int fVerbose );
+extern int               Saig_ManDemiterNew( Aig_Man_t * pMan );
 /*=== saigOutdec.c ==========================================================*/
 extern Aig_Man_t *       Saig_ManDecPropertyOutput( Aig_Man_t * pAig, int nLits, int fVerbose );
 /*=== saigPhase.c ==========================================================*/
 extern Aig_Man_t *       Saig_ManPhaseAbstract( Aig_Man_t * p, Vec_Int_t * vInits, int nFrames, int nPref, int fIgnore, int fPrint, int fVerbose );
+/*=== saigRefSat.c ==========================================================*/
+extern Vec_Int_t *       Saig_ManExtendCounterExampleTest3( Aig_Man_t * pAig, int iFirstFlopPi, Abc_Cex_t * pCex, int fVerbose );
 /*=== saigRetFwd.c ==========================================================*/
 extern void              Saig_ManMarkAutonomous( Aig_Man_t * p );
 extern Aig_Man_t *       Saig_ManRetimeForward( Aig_Man_t * p, int nMaxIters, int fVerbose );
