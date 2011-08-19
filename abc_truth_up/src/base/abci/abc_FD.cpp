@@ -1,4 +1,5 @@
 #include <iostream>
+#include <sstream>
 #include <stdint.h>
 #include <vector>
 #include <fstream>
@@ -379,11 +380,12 @@ bool is_functionally_dependent(bool *table, int num_inps, brick **brick_list,
 
 //--------------------------------------------------------------------------
 
-void check_FD()
+bool check_FD( int n)
 {
-//	cout << "It shits lol catzzzzz. She's a barbie Girl, its compiling! Let's ROCK! Schagadelic!!" << endl;
-	
-	const char input_file_name[] = "my_in.txt";
+	bool fd;
+	ostringstream oss;
+	oss << "my_in" << n << ".txt";
+	const char * input_file_name = oss.str().c_str();
 	filebuf inputFileBuffer;
 	inputFileBuffer.open(input_file_name, ios::in);
 	if (!inputFileBuffer.is_open())
@@ -415,9 +417,16 @@ void check_FD()
 				pos_group, neg_group);
 
 		if (res)
+		{
 			std::cout << "functional dependency exist" << std::endl;
+			fd = true;
+		}
 		else
+		{
 			std::cout << "functional dependency does not exist" << std::endl;
+			fd = false;
+		}
 		inputFileBuffer.close();
 	}
+	return fd;
 }

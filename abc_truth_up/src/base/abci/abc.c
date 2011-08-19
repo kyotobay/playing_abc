@@ -2864,51 +2864,38 @@ usage:
 ***********************************************************************/
 int Abc_CommandFD( Abc_Frame_t * pAbc, int argc, char ** argv )
 {
+	FILE *f;
+	char filename[32], num[4];
+	int n = 0, i;
+	bool flag = 0, *results;
 
-FILE *f;
-int n = 0, numFiles = 0;
-char filename[32], num[8];
-
-	sprintf(num, "%d", n);
-	strcpy(filename, "my_in");
-	strcat(filename, num);
-	strcat(filename, ".txt");
-	f = fopen(filename, "r");
-
-	while(f != NULL)
+	while( flag == 0)
 	{
-		numFiles++;
-		printf("To numFiles einai: %d\n", numFiles);
-	}
+		sprintf(num, "%d", n);
+		strcpy(filename, "my_in");
+		strcat(filename, num);
+		strcat(filename, ".txt");
+		f = fopen(filename, "r");
 
-/*
-sprintf(num, "%d", n);
-strcpy(filename, "my_in");
-strcat(filename, num);
-strcat(filename, ".txt");
-f = fopen(filename, "r");*/
-while(f != NULL)
-	{	
+		if( f != NULL)
+		{
+			n++;
+			fclose(f);
+		}
+		else
+			flag = 1;
+	}
+	printf("Nombre de fichiers: %d\n", n);
+	results = malloc(n * sizeof(bool));
+
+	for(i = 0; i < n; i++)
+	{
+		results[i] = check_FD( i );
+	}
+	printf("results :\n");
+	for(i = 0; i < n; i++)
+		printf("%d\t", results[i]);
 	printf("\n");
-	printf("Functional Dependency Checking Code\n");	
-	printf("\n");	
-
-	check_FD();
-	
-	n++;
-	printf("ti paizei edw me to n se ka8e epanalhpsh: %d\n", n);
-	while(n < numFiles)
-	{
-	sprintf(num, "%d", n);
-	strcpy(filename, "my_in");
-	strcat(filename, num);
-	strcat(filename, ".txt");
-	f = fopen(filename, "r");
-	fclose(f);
-	}
-	}
-fclose(f);
-return 0;
 }
 /**Function*************************************************************
 
