@@ -2721,7 +2721,7 @@ int Abc_CommandStrash( Abc_Frame_t * pAbc, int argc, char ** argv )
 {
     Abc_Ntk_t * pNtk, * pNtkRes;
     Abc_Obj_t * pObj;
-    int c, i, j, k;
+    int c, i, j, k, nTbl;
     int fAllNodes;
     int fRecord;
     int fCleanup;
@@ -2785,55 +2785,57 @@ int Abc_CommandStrash( Abc_Frame_t * pAbc, int argc, char ** argv )
         Abc_NtkForEachPo(pNtkRes, pObj, c)
         {
                 nbVars = pNtkRes->vPis->nSize;
-    //            printf("nb vars : %d\n", nbVars);
-                Abc_VarAttribution(pObj, nbVars, pNtkRes, count);
-		count++;
-        }
-	count = 0;
-	numOuts = Abc_NtkPoNum( pNtkRes ); 
-        Abc_NtkForEachPo(pNtkRes, pObj, c)
-        {
-		sprintf(num_out_o, "%d", count);
-		strcpy(filename_o, "my_in");
-		strcat(filename_o, num_out_o);
-		strcat(filename_o, ".txt");
-		fichier_o = fopen(filename_o, "a");
-                nbVars = pNtkRes->vPis->nSize;
-		for(i = count; i < count + nbVars; i++)
+				//debug
+				Abc_VarAttribution(pObj, nbVars, pNtkRes, count);
+				count++;
+		}
+		count = 0;
+		numOuts = Abc_NtkPoNum( pNtkRes ); 
+		Abc_NtkForEachPo(pNtkRes, pObj, c)
 		{
-			j = (i >= nbVars) ? i - nbVars : i;
-			if(j - count == 0)
+			sprintf(num_out_o, "%d", count);
+			strcpy(filename_o, "my_in");
+			strcat(filename_o, num_out_o);
+			strcat(filename_o, ".txt");
+			fichier_o = fopen(filename_o, "a");
+			nbVars = pNtkRes->vPis->nSize;
+			nTbl = 0;
+			for(i = count; i < count + numOuts; i++)
 			{
-				fprintf(fichier_o,"%d\n", nbVars);
-				fprintf(fichier_o,"%d\n", (numOuts-1));
-				fprintf(fichier_o,"\n");	
-			}
-			else 
-			{
-				fprintf(fichier_o,"\n");
-				fprintf(fichier_o, "%d ", nbVars);
-				for(k = 0; k < nbVars; k++)
+				j = (i >= numOuts) ? i - numOuts : i;
+				if(nTbl == 0)
 				{
-					fprintf(fichier_o, "%d ", k);
+					fprintf(fichier_o,"%d\n", nbVars);
+					fprintf(fichier_o,"%d\n", (numOuts-1));
+					fprintf(fichier_o,"\n");	
+				}
+				else 
+				{
+					fprintf(fichier_o,"\n");
+					fprintf(fichier_o, "%d ", nbVars);
+					for(k = 0; k < nbVars; k++)
+					{
+						fprintf(fichier_o, "%d ", k);
+					}
+					fprintf(fichier_o, "\n");
+				}
+
+				sprintf(num_out, "%d", j);
+				strcpy(filename, "table");
+				strcat(filename, num_out);
+				strcat(filename, ".txt");
+				fichier = fopen(filename, "r");
+				while(fgets(myLine, 32, fichier) != NULL)
+				{
+					fprintf(fichier_o, myLine);
 				}
 				fprintf(fichier_o, "\n");
+				fclose(fichier);
+				nTbl++;
 			}
-
-			sprintf(num_out, "%d", j);
-			strcpy(filename, "table");
-			strcat(filename, num_out);
-			strcat(filename, ".txt");
-			fichier = fopen(filename, "r");
-			while(fgets(myLine, 32, fichier) != NULL)
-			{
-				fprintf(fichier_o, myLine);
-			}
-			fprintf(fichier_o, "\n");
-			fclose(fichier);
+			fclose(fichier_o);
+			count++;
 		}
-		fclose(fichier_o);
-		count++;
-	}
 
     // replace the current network
 
@@ -2867,7 +2869,8 @@ int Abc_CommandFD( Abc_Frame_t * pAbc, int argc, char ** argv )
 	FILE *f;
 	char filename[32], num[4];
 	int n = 0, i;
-	bool flag = 0, *results;
+	bool flag = 0;
+	int *fd_result;
 
 	while( flag == 0)
 	{
@@ -2886,16 +2889,31 @@ int Abc_CommandFD( Abc_Frame_t * pAbc, int argc, char ** argv )
 			flag = 1;
 	}
 	printf("Nombre de fichiers: %d\n", n);
-	results = malloc(n * sizeof(bool));
+	fd_result = malloc(n * sizeof(int));
 
 	for(i = 0; i < n; i++)
 	{
-		results[i] = check_FD( i );
+		printf("\n");
+		printf("FD code execution for file %d\n", i);
+		printf("\n");
+		fd_result[i] = check_FD( i );
 	}
-	printf("results :\n");
-	for(i = 0; i < n; i++)
-		printf("%d\t", results[i]);
 	printf("\n");
+	printf("results :\n");
+	printf("\n");
+	for(i = 0; i < n; i++)
+		printf("%d\t", fd_result[i]);
+	printf("\n");
+
+	//delete files
+	for(i = 0; i < n; i++)
+	{
+		sprintf(num, "%d", i);
+		strcpy(filename, "my_in");
+		strcat(filename, num);
+		strcat(filename, ".txt");
+		remove(filename);
+	}
 }
 /**Function*************************************************************
 

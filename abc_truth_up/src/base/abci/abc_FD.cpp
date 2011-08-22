@@ -330,7 +330,7 @@ void split(rectangle_entry *rectangles, brick *b, int vars, int *num_groups)
 //--------------------------------------------------------------------------
 
 //TODO: use minisat for this part
-bool is_functionally_dependent(bool *table, int num_inps, brick **brick_list, 
+int is_functionally_dependent(bool *table, int num_inps, brick **brick_list, 
 		int num_bricks, vector<int> &pos_group, vector<int> &neg_group)
 {
 	int size = bin_pow(num_inps);
@@ -360,7 +360,7 @@ bool is_functionally_dependent(bool *table, int num_inps, brick **brick_list,
 		}
 
 		if (num_groups == 0)
-			return true;
+			return i;
 	}
 
 	for (int i = 0; i < size; i++)
@@ -375,14 +375,14 @@ bool is_functionally_dependent(bool *table, int num_inps, brick **brick_list,
 	}
 
 	delete[] rectangles; 
-	return false;
+	return -1;
 }
 
 //--------------------------------------------------------------------------
 
-bool check_FD( int n)
+int check_FD( int n)
 {
-	bool fd;
+	int fd;
 	ostringstream oss;
 	oss << "my_in" << n << ".txt";
 	const char * input_file_name = oss.str().c_str();
@@ -413,18 +413,16 @@ bool check_FD( int n)
 		vector<int> pos_group;
 		vector<int> neg_group;
 
-		bool res = is_functionally_dependent(table, num_inps, brick_list, num_bricks, 
+		fd = is_functionally_dependent(table, num_inps, brick_list, num_bricks, 
 				pos_group, neg_group);
 
-		if (res)
+		if (fd != -1 )
 		{
 			std::cout << "functional dependency exist" << std::endl;
-			fd = true;
 		}
 		else
 		{
 			std::cout << "functional dependency does not exist" << std::endl;
-			fd = false;
 		}
 		inputFileBuffer.close();
 	}

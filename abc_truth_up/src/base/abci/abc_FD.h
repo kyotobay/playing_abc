@@ -4,7 +4,7 @@
 #ifdef __cplusplus
 extern "C"
 #endif
-bool check_FD(int);
+int check_FD(int);
 
 
 #endif //include ABC_FD_H

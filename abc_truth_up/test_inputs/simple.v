@@ -1,10 +1,17 @@
 // Verilog code for AND-OR-INVERT gate
-module ANDOR (a, b, c, F, E, D);
-	input a, b, c;
-	output F, E, D;
-  assign F = (a & b) | (b & c);
-  assign E = a & b & c;
-  assign D = (a | b) & ( b | c);
+module ANDOR (a, b, c, d, E, F, G, H, I, J, K, L, M, N);
+	input a, b, c, d;
+	output E, F, G, H, I, J, K, L, M, N;
+  assign E = a ^ b;
+  assign F = a & b;
+  assign G = ~ a;
+  assign H = ~ b;
+  assign I = G & H;
+  assign J = c ^ d;
+  assign K = c & d;
+  assign L = ~ c;
+  assign M = ~ d;
+  assign N = L & M; 
 endmodule
 // end of Verilog code
 

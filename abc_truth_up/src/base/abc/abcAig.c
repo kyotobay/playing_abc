@@ -1347,10 +1347,11 @@ bool Abc_AigTruth(Abc_Obj_t *pNode, int c)
         int i;
         if(Abc_ObjIsCi(pNodeR))
         {
-  //              for(i = 0; i < c; i++)
-    //                    printf("  ");
-       //         printf("leaf node %s : value = %d\n", Abc_ObjName(pNode), pNode->value);
-             return pNode->value;
+             /*   for(i = 0; i < c; i++)
+                        printf("  ");
+                printf("leaf node %s : value = %d\n", Abc_ObjName(pNode), pNode->value);
+          */
+				return pNode->value;
         }
         else if(Abc_AigNodeIsConst(pNodeR))
         {
@@ -1364,9 +1365,9 @@ bool Abc_AigTruth(Abc_Obj_t *pNode, int c)
                         v0 = !v0;
                 if(Abc_ObjFaninC1(pNodeR))
                         v1 = !v1;
-      //          for(i = 0; i < c; i++)
-//                        printf("  ");
-               // printf("node %s : %d && %d = %d\n", Abc_ObjName(pNode), v0, v1, v0 && v1);
+               for(i = 0; i < c; i++)
+                        printf("  ");
+                printf("node %s : %d && %d = %d\n", Abc_ObjName(pNode), v0, v1, v0 && v1);
                 return v0 && v1;
         }
 }
@@ -1382,43 +1383,44 @@ bool Abc_AigTruth(Abc_Obj_t *pNode, int c)
   SeeAlso     []
 
 ***********************************************************************/
-bool Abc_VarAttribution(Abc_Obj_t *pNode, int nbVars, Abc_Ntk_t *pNtkRes, int count )
+void Abc_VarAttribution(Abc_Obj_t *pNode, int nbVars, Abc_Ntk_t *pNtkRes, int count )
 {
         int n, y = pow_2(nbVars), x = nbVars + 1, i, j;
         int truth[y][x];
     	Abc_Obj_t * pNodeR = Abc_ObjRegular(pNode);
     	Abc_Obj_t * ourVars[nbVars];
 
-        Abc_NtkForEachPi(pNtkRes, pNodeR, n)
+        Abc_NtkForEachPi(pNtkRes, pNodeR, n) //vazw 0 se oles tis ana8eseis eisodwn gia oles tis exodous kai to apo8hkeuw sto ourVars
         {
                 pNodeR->value = 0;
                 ourVars[n] = pNodeR;
     }
-        for(i = 0; i < y; i++)
-        {
-                for(j = 0; j < nbVars; j++)
+                printf("\n VARIABLES :\n");
+        for(i = 0; i < y; i++)  
+		{
+                for(j = nbVars - 1; j > 0; j--)// kataskeuh twn ana8esewn timwn stis eisodous
                 {
                         if(ourVars[j]->value > 1)
                         {
                                 ourVars[j]->value = 0;
-                                ourVars[j + 1]->value++;
+                                ourVars[j - 1]->value++;
                         }
                 }
-               // printf("\n VARIABLES :\t");
-//                for(j = 0; j < nbVars; j++)
-  //              {
-    //                    printf("%d\t", ourVars[j]->value);
-      //          }
-       //         printf("\n");
-                for(j = 0; j < nbVars; j++)
+                for(j = 0; j < nbVars; j++)//ektupwsh twn ana8esewn twn metavlhtwn 
+                {
+                        printf("%d\t", ourVars[j]->value);
+                }
+                printf("\n");
+				
+                for(j = nbVars - 1; j >= 0; j--)//apo8hkeush sto truth[][], den eimai sigoura an xreiazetai pleon
                 {
                         truth[i][j] = ourVars[j]->value;
                 }
-                truth[i][nbVars] = Abc_AigTruth(pNode, 0);
-    ourVars[0]->value++;
+                truth[i][nbVars] = Abc_AigTruth(pNode, 0);//pNode=current output
+    ourVars[nbVars - 1]->value++;
         }
        
-	CreateFDInputFile(pNtkRes, truth, i, nbVars, count);
+	CreateFDInputFile(pNtkRes, truth, y, x, count);
 
 }
 
