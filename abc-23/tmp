@@ -1,0 +1,221 @@
+UC Berkeley, ABC 1.01 (compiled Aug 20 2011 16:03:48)
+Loading resource file "abc.rc".
+abc 01> read_verilog test_inputs/example_fd.v
+abc 02> strash
+abc 03> check_fd
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+numBis : 4Nombre de fichiers: 4
+
+FD code execution for file 0
+
+Reading done successfully
+------------------------------------------
+Original uncovered rectangle
+*******************************************
+rectangle 0:
+{2, 3, 4, 5} X {0, 1, 6, 7}
+
+Uncovered rectangles after brick 0
+*******************************************
+rectangle 0:
+{4, 5} X {6, 7}
+
+rectangle 1:
+{2, 3} X {0, 1}
+
+Uncovered rectangles after brick 1
+*******************************************
+functional dependency exist
+
+FD code execution for file 1
+
+Reading done successfully
+------------------------------------------
+Original uncovered rectangle
+*******************************************
+rectangle 0:
+{12, 13, 14, 15} X {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11}
+
+Uncovered rectangles after brick 0
+*******************************************
+rectangle 0:
+{12, 13, 14, 15} X {8, 9, 10, 11}
+
+Uncovered rectangles after brick 1
+*******************************************
+functional dependency exist
+
+FD code execution for file 2
+
+Reading done successfully
+------------------------------------------
+Original uncovered rectangle
+*******************************************
+rectangle 0:
+{0, 1, 2, 3} X {4, 5, 6, 7}
+
+Uncovered rectangles after brick 0
+*******************************************
+rectangle 0:
+{2, 3} X {6, 7}
+
+rectangle 1:
+{0, 1} X {4, 5}
+
+Uncovered rectangles after brick 1
+*******************************************
+functional dependency exist
+
+FD code execution for file 3
+
+Reading done successfully
+------------------------------------------
+Original uncovered rectangle
+*******************************************
+rectangle 0:
+{0, 1, 4, 5} X {2, 3, 6, 7}
+
+Uncovered rectangles after brick 0
+*******************************************
+rectangle 0:
+{0, 1} X {6, 7}
+
+rectangle 1:
+{4, 5} X {2, 3}
+
+Uncovered rectangles after brick 1
+*******************************************
+rectangle 0:
+{0, 1} X {6}
+
+rectangle 1:
+{4} X {2, 3}
+
+Uncovered rectangles after brick 2
+*******************************************
+functional dependency exist
+
+results :
+
+1	1	1	2	
+index : 0, value: 1
+numBis : 3Nombre de fichiers: 3
+
+FD code execution for file 1
+
+Reading done successfully
+------------------------------------------
+Original uncovered rectangle
+*******************************************
+rectangle 0:
+{5, 7} X {0, 1, 2, 3, 4, 6}
+
+Uncovered rectangles after brick 0
+*******************************************
+rectangle 0:
+{5, 7} X {4, 6}
+
+Uncovered rectangles after brick 1
+*******************************************
+rectangle 0:
+{7} X {6}
+
+rectangle 1:
+{5} X {4}
+
+functional dependency does not exist
+
+FD code execution for file 2
+
+Reading done successfully
+------------------------------------------
+Original uncovered rectangle
+*******************************************
+rectangle 0:
+{0, 1, 2, 3} X {4, 5, 6, 7}
+
+Uncovered rectangles after brick 0
+*******************************************
+rectangle 0:
+{2, 3} X {6, 7}
+
+rectangle 1:
+{0, 1} X {4, 5}
+
+Uncovered rectangles after brick 1
+*******************************************
+rectangle 0:
+{2, 3} X {6}
+
+rectangle 1:
+{0, 1} X {4}
+
+functional dependency does not exist
+
+FD code execution for file 3
+
+Reading done successfully
+------------------------------------------
+Original uncovered rectangle
+*******************************************
+rectangle 0:
+{0, 1, 4, 5} X {2, 3, 6, 7}
+
+Uncovered rectangles after brick 0
+*******************************************
+rectangle 0:
+{0, 1, 4} X {2, 3, 6}
+
+rectangle 1:
+{5} X {7}
+
+Uncovered rectangles after brick 1
+*******************************************
+rectangle 0:
+{4} X {6}
+
+rectangle 1:
+{0, 1} X {2, 3}
+
+rectangle 2:
+{5} X {7}
+
+functional dependency does not exist
+
+results :
+
+*	-1	-1	-1	
+index : 4, value: 4
+abc 03> 
+abc 03> ***EOF***

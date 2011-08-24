@@ -1,0 +1,14 @@
+ 22.08.2011
+ ------------------------------------------------------------------------
+ This version is the last one, verified to be ok.
+
+The updates are that now in the "strash" command there is nothing done 
+by me. We just know that after "strash" the circuit is already an AIG.
+
+With the "check_fd" command, the truth tables of the outputs are created, 
+the corresponding table.txt files and my_in.txt files are created and they
+are feeded one by one in the c++, FD code.
+
+The FD code returns an array of its results in "fd_result" and afterwads 
+the my_in.txt files are deleted (the table.txt's rest).
+
