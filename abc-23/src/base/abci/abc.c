@@ -2794,6 +2794,51 @@ usage:
 
 /**Function*************************************************************
 
+  Synopsis    [bin_pow]
+
+  Description []
+               
+  SideEffects []/
+
+  SeeAlso     [\n]
+
+***********************************************************************/
+int bin_pow(int n)
+{
+    if(n == 0)
+        return 1;
+    else
+        return 2 * bin_pow(n - 1);
+}
+
+/**Function*************************************************************
+
+  Synopsis    [byte_to_bin]
+
+  Description []
+               
+  SideEffects []/
+
+  SeeAlso     [\n]
+
+***********************************************************************/
+const char *byte_to_binary(int x, int n)
+{
+    static char *b;
+    b = malloc(sizeof(char) * bin_pow(n));
+    b[0] = '\0';
+
+    int z;
+    for (z = bin_pow(n - 1); z > 0; z >>= 1)
+    {
+        strcat(b, ((x & z) == z) ? "1" : "0");
+    }
+
+    return b;
+}
+
+/**Function*************************************************************
+
   Synopsis    [sumList]
 
   Description []
@@ -2814,6 +2859,40 @@ int sumList(int *lst, int l)
 
 /**Function*************************************************************
 
+  Synopsis    [out_dist]
+
+  Description []
+               
+  SideEffects []/
+
+  SeeAlso     [\n]
+
+***********************************************************************/
+bool out_dist(int c, int i, int f, int n)
+{
+    int res;
+    if(c > i)
+    {
+        if(c - i > f)
+            res = 0;
+        else
+            res = 1;
+    }
+    else if(c < i)
+    {
+        if(n + c - i > f)
+            res = 0;
+        else
+            res = 1;
+    }
+    else
+        res = 0;
+    printf("%d\n", res);
+    return res;
+}
+
+/**Function*************************************************************
+
   Synopsis    [FD]
 
   Description []
@@ -2826,21 +2905,24 @@ int sumList(int *lst, int l)
 int Abc_CommandFD( Abc_Frame_t * pAbc, int argc, char ** argv )
 {
     Abc_Ntk_t * pNtkRes;
-    Abc_Obj_t * pObj;
+    Abc_Obj_t * pObj, *pObjIn;
 	FILE *f;
-	int i, c, j ,k;
+    char *tmp;
+	int i, c, j, k, cin;
 	bool flag = 0;
 	int *fd_result;
 	int *to_delete;
-    int count = 0;
+    int count = 0, out_c = 0, line_num = 0;
     int nbVars, nTbl;
-    FILE *fichier, *fichier_o;
+    FILE *fichier, *fichier_o, *blif;
     char filename[32], num_out[8];
     char filename_o[32], num_out_o[8];
-    char myLine[32];
+    char myLine[32], myOLine[32], buf[32], t_buf[32];
     int numOuts, numBis;
 	bool go_on = 1;
 	int min_index, min_value;
+    int *a_s_v;
+    bool l_t_a;
     pNtkRes = Abc_FrameReadNtk(pAbc);
 
 	Abc_NtkForEachPo(pNtkRes, pObj, c)
@@ -2850,6 +2932,7 @@ int Abc_CommandFD( Abc_Frame_t * pAbc, int argc, char ** argv )
 		Abc_VarAttribution(pObj, nbVars, pNtkRes, count);
 		count++;
 	}
+    a_s_v = malloc(sizeof(bin_pow(nbVars)));
 
 	numOuts = Abc_NtkPoNum( pNtkRes ); 
 	fd_result = malloc(numOuts * sizeof(int));
@@ -2955,17 +3038,134 @@ int Abc_CommandFD( Abc_Frame_t * pAbc, int argc, char ** argv )
 		}
 		//delete files
 		for(i = 0; i < numOuts; i++)
-		{
-			if(!to_delete[i])
-			{
-				sprintf(num_out, "%d", i);
-				strcpy(filename, "my_in");
-				strcat(filename, num_out);
-				strcat(filename, ".txt");
-				remove(filename);
-			}
-		} 
+        {
+            sprintf(num_out, "%d", i);
+            strcpy(filename, "my_in");
+            strcat(filename, num_out);
+            strcat(filename, ".txt");
+            remove(filename);
+        }
 	}
+
+// creation of blif file
+    blif = fopen("after_fd.blif", "a+");
+    if(blif == NULL)
+    {
+        printf("Error creating blif file\n");
+        exit (1);
+    }
+    fprintf(blif, ".model after_fd\n");
+    fprintf(blif, ".inputs ");
+    Abc_NtkForEachPi( pNtkRes, pObj, c)
+    {
+        fprintf(blif, "%s ", Abc_ObjName(pObj));
+    }
+    fprintf(blif, "\n");
+    fprintf(blif, ".outputs ");
+    Abc_NtkForEachPo( pNtkRes, pObj, c)
+    {
+        fprintf(blif, "%s ", Abc_ObjName(pObj));
+    }
+    fprintf(blif, "\n");
+
+    Abc_NtkForEachPo(pNtkRes, pObj, c)
+    {
+        if(to_delete[c])
+        {
+            printf("fd_result[%d] = %d\n", c, fd_result[c]);
+            sprintf(num_out, "%d", c);
+            strcpy(filename, "table");
+            strcat(filename, num_out);
+            strcat(filename, ".txt");
+            fichier = fopen(filename, "r");
+            line_num = 0;
+            fprintf(blif, ".names ");
+            Abc_NtkForEachPo(pNtkRes, pObjIn, cin)
+            {
+                if(out_dist(cin, c, fd_result[c], nbVars))
+                {
+                    fprintf(blif, "%s ", Abc_ObjName(pObjIn));
+                }
+            }
+            fprintf(blif, "%s\n", Abc_ObjName(pObj));
+            while(fgets(myLine, 32, fichier) != NULL)
+            {
+                strcpy(buf, "");
+                Abc_NtkForEachPo(pNtkRes, pObjIn, cin)
+                {
+                    if(out_dist(cin, c, fd_result[c], nbVars) && myLine[0] == '1')
+                    {
+                        sprintf(num_out_o, "%d", cin);
+                        strcpy(filename_o, "table");
+                        strcat(filename_o, num_out_o);
+                        strcat(filename_o, ".txt");
+                        fichier_o = fopen(filename_o, "r");
+                        if(fichier_o == NULL)
+                        {
+                            printf("Error opening file %s\n", filename_o);
+                            exit(1);
+                        }
+                        else
+                        {
+                            printf("Opened file %s successfully\n", filename_o);
+                        }
+                        for(i = 0; i < line_num; i++)
+                        {
+                            fgets(myOLine, 32, fichier_o);
+                        }
+                        fgets(myOLine, 2, fichier_o);
+                        //t_buf[0] = myOLine[0];
+                        //t_buf[1] = "\0";
+                        printf("read line %s", myOLine);
+                        strcat(buf, myOLine);
+                        fclose(fichier_o);
+                    }
+                }
+                l_t_a = 1;
+                for(i = 0; i < line_num; i++)
+                {
+                    if(a_s_v[i] == strtol(buf, &tmp, 2))
+                        l_t_a = 0;
+                }
+                if(l_t_a)
+                {
+                    printf("%s\n", buf);
+                    a_s_v[line_num] = strtol(buf, &tmp, 2);
+                    if(myLine[0] == '1')
+                        fprintf(blif, "%s 1\n", buf);
+                }
+                line_num++;
+            }
+            fclose(fichier);
+        }
+        else
+        {
+            fprintf(blif, ".names ");
+            Abc_NtkForEachPi(pNtkRes, pObjIn, cin)
+            {
+                fprintf(blif, "%s ", Abc_ObjName(pObjIn));
+            }
+            fprintf(blif, "%s\n", Abc_ObjName(pObj));
+            sprintf(num_out, "%d", c);
+            strcpy(filename, "table");
+            strcat(filename, num_out);
+            strcat(filename, ".txt");
+            fichier = fopen(filename, "r");
+            out_c = 0;
+            while(fgets(myLine, 32, fichier) != NULL)
+            {
+                if(myLine[0] != '0')
+                {
+                    fprintf(blif, "%s 1\n", byte_to_binary(out_c, nbVars));
+                }
+                out_c++;
+            }
+            fclose(fichier);
+        }
+    }
+    fprintf(blif, ".end");
+    fclose(blif);
+
 }
 /**Function*************************************************************
 
