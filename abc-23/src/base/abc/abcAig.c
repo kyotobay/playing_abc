@@ -1406,9 +1406,9 @@ void Abc_VarAttribution(Abc_Obj_t *pNode, int nbVars, Abc_Ntk_t *pNtkRes, int co
                                 ourVars[j - 1]->value++;
                         }
                 }
-            /*    for(j = 0; j < nbVars; j++)//ektupwsh twn ana8esewn twn metavlhtwn 
+                /*for(j = 0; j < nbVars; j++)//ektupwsh twn ana8esewn twn metavlhtwn 
                 {
-                        printf("%d\t", ourVars[j]->value);
+                        printf("%d", ourVars[j]->value);
                 }*/
                 printf("\n");
 				

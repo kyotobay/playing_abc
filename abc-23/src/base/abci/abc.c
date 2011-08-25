@@ -2850,6 +2850,7 @@ int Abc_CommandFD( Abc_Frame_t * pAbc, int argc, char ** argv )
 		Abc_VarAttribution(pObj, nbVars, pNtkRes, count);
 		count++;
 	}
+
 	numOuts = Abc_NtkPoNum( pNtkRes ); 
 	fd_result = malloc(numOuts * sizeof(int));
 	to_delete = malloc(numOuts * sizeof(int));
