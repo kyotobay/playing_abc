@@ -18,11 +18,16 @@
 
 ***********************************************************************/
 
+<<<<<<< HEAD
 #include "abc.h"  // for Abc_NtkCollectCioNames()
 #include "main.h" // for Abc_FrameReadGlobalFrame()
 
 #include "pdrInt.h"
 #include "extra.h"
+=======
+#include "pdrInt.h"
+#include "extra.h"
+>>>>>>> 315ac30... test_commit
 
 ABC_NAMESPACE_IMPL_START
 
@@ -234,7 +239,10 @@ void Pdr_ManDumpClauses( Pdr_Man_t * p, char * pFileName )
     Vec_Int_t * vFlopCounts;
     Vec_Ptr_t * vCubes;
     Pdr_Set_t * pCube;
+<<<<<<< HEAD
     char ** pNamesCi;
+=======
+>>>>>>> 315ac30... test_commit
     int i, kStart;
     // create file
     pFile = fopen( pFileName, "w" );
@@ -255,6 +263,7 @@ void Pdr_ManDumpClauses( Pdr_Man_t * p, char * pFileName )
     fprintf( pFile, ".i %d\n", fUseSupp ? Pdr_ManCountVariables(p, kStart) : Aig_ManRegNum(p->pAig) );
     fprintf( pFile, ".o 1\n" );
     fprintf( pFile, ".p %d\n", Vec_PtrSize(vCubes) );
+<<<<<<< HEAD
     // output flop names
     pNamesCi = Abc_NtkCollectCioNames( Abc_FrameReadNtk( Abc_FrameReadGlobalFrame() ), 0 );
     if ( pNamesCi )
@@ -267,6 +276,8 @@ void Pdr_ManDumpClauses( Pdr_Man_t * p, char * pFileName )
         ABC_FREE( pNamesCi );
         fprintf( pFile, ".ob inv\n" );
     }
+=======
+>>>>>>> 315ac30... test_commit
     // output cubes
     Vec_PtrForEachEntry( Pdr_Set_t *, vCubes, pCube, i )
     {

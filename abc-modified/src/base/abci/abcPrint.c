@@ -212,8 +212,11 @@ void Abc_NtkPrintStats( Abc_Ntk_t * pNtk, int fFactored, int fSaveBest, int fDum
     fprintf( pFile, " i/o =%5d/%5d", Abc_NtkPiNum(pNtk), Abc_NtkPoNum(pNtk) );
     if ( Abc_NtkConstrNum(pNtk) )
         fprintf( pFile, "(c=%d)", Abc_NtkConstrNum(pNtk) );
+<<<<<<< HEAD
     if ( pNtk->nRealPos )
         fprintf( pFile, "(p=%d)", Abc_NtkPoNum(pNtk) - pNtk->nRealPos );
+=======
+>>>>>>> 315ac30... test_commit
     fprintf( pFile, "  lat =%5d", Abc_NtkLatchNum(pNtk) );
     if ( Abc_NtkIsNetlist(pNtk) )
     {
@@ -260,7 +263,11 @@ void Abc_NtkPrintStats( Abc_Ntk_t * pNtk, int fFactored, int fSaveBest, int fDum
     else if ( Abc_NtkHasMapping(pNtk) )
     {
         fprintf( pFile, "  area =%5.2f", Abc_NtkGetMappedArea(pNtk) );
+<<<<<<< HEAD
         fprintf( pFile, "  delay =%5.2f", Abc_NtkDelayTrace(pNtk) );
+=======
+        fprintf( pFile, "  delay =%5.2f", Abc_NtkGetArea(pNtk) );
+>>>>>>> 315ac30... test_commit
     }
     else if ( !Abc_NtkHasBlackbox(pNtk) )
     {

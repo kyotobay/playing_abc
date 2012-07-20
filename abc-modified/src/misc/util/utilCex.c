@@ -152,6 +152,7 @@ Abc_Cex_t * Abc_CexDup( Abc_Cex_t * p, int nRegsNew )
 
 /**Function*************************************************************
 
+<<<<<<< HEAD
   Synopsis    [Derives CEX from comb model.]
 
   Description []
@@ -176,6 +177,8 @@ Abc_Cex_t * Abc_CexDeriveFromCombModel( int * pModel, int nPis, int nRegs, int i
 
 /**Function*************************************************************
 
+=======
+>>>>>>> 315ac30... test_commit
   Synopsis    [Prints out the counter-example.]
 
   Description []
@@ -220,7 +223,10 @@ void Abc_CexFree( Abc_Cex_t * p )
     ABC_FREE( p );
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 315ac30... test_commit
 ////////////////////////////////////////////////////////////////////////
 ///                       END OF FILE                                ///
 ////////////////////////////////////////////////////////////////////////

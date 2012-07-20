@@ -302,13 +302,17 @@ int Pdr_ManGeneralize( Pdr_Man_t * p, int k, Pdr_Set_t * pCube, Pdr_Set_t ** ppP
         p->tGeneral += clock() - clk;
         return 0;
     }
+<<<<<<< HEAD
 
+=======
+>>>>>>> 315ac30... test_commit
     // reduce clause using assumptions
 //    pCubeMin = Pdr_SetDup( pCube );
     pCubeMin = Pdr_ManReduceClause( p, k, pCube );
     if ( pCubeMin == NULL )
         pCubeMin = Pdr_SetDup( pCube );
 
+<<<<<<< HEAD
     // perform generalization
     if ( !p->pPars->fSkipGeneral )
     {
@@ -389,6 +393,85 @@ int Pdr_ManGeneralize( Pdr_Man_t * p, int k, Pdr_Set_t * pCube, Pdr_Set_t ** ppP
             // get the ordering by decreasing priorit
             pOrder = Pdr_ManSortByPriority( p, pCubeMin );
         }
+=======
+    // sort literals by their occurences
+    pOrder = Pdr_ManSortByPriority( p, pCubeMin );
+
+    // try removing literals
+    for ( j = 0; j < pCubeMin->nLits; j++ )
+    {
+        // use ordering
+//        i = j;
+        i = pOrder[j];
+
+        // check init state
+        assert( pCubeMin->Lits[i] != -1 );
+        if ( Pdr_SetIsInit(pCubeMin, i) )
+            continue;
+        // try removing this literal
+        Lit = pCubeMin->Lits[i]; pCubeMin->Lits[i] = -1; 
+        RetValue = Pdr_ManCheckCube( p, k, pCubeMin, NULL, p->pPars->nConfLimit );
+        if ( RetValue == -1 )
+        {
+            Pdr_SetDeref( pCubeMin );
+            return -1;
+        }
+        pCubeMin->Lits[i] = Lit;
+        if ( RetValue == 0 )
+            continue;
+
+        // remove j-th entry
+        for ( n = j; n < pCubeMin->nLits-1; n++ )
+            pOrder[n] = pOrder[n+1];
+        j--;
+
+        // success - update the cube
+        pCubeMin = Pdr_SetCreateFrom( pCubeTmp = pCubeMin, i );
+        Pdr_SetDeref( pCubeTmp );
+        assert( pCubeMin->nLits > 0 );
+        i--;
+
+        // get the ordering by decreasing priorit
+        pOrder = Pdr_ManSortByPriority( p, pCubeMin );
+    }
+
+    if ( p->pPars->fTwoRounds )
+    for ( j = 0; j < pCubeMin->nLits; j++ )
+    {
+        // use ordering
+//        i = j;
+        i = pOrder[j];
+
+        // check init state
+        assert( pCubeMin->Lits[i] != -1 );
+        if ( Pdr_SetIsInit(pCubeMin, i) )
+            continue;
+        // try removing this literal
+        Lit = pCubeMin->Lits[i]; pCubeMin->Lits[i] = -1; 
+        RetValue = Pdr_ManCheckCube( p, k, pCubeMin, NULL, p->pPars->nConfLimit );
+        if ( RetValue == -1 )
+        {
+            Pdr_SetDeref( pCubeMin );
+            return -1;
+        }
+        pCubeMin->Lits[i] = Lit;
+        if ( RetValue == 0 )
+            continue;
+
+        // remove j-th entry
+        for ( n = j; n < pCubeMin->nLits-1; n++ )
+            pOrder[n] = pOrder[n+1];
+        j--;
+
+        // success - update the cube
+        pCubeMin = Pdr_SetCreateFrom( pCubeTmp = pCubeMin, i );
+        Pdr_SetDeref( pCubeTmp );
+        assert( pCubeMin->nLits > 0 );
+        i--;
+
+        // get the ordering by decreasing priorit
+        pOrder = Pdr_ManSortByPriority( p, pCubeMin );
+>>>>>>> 315ac30... test_commit
     }
 
     assert( ppCubeMin != NULL );
@@ -578,8 +661,11 @@ int Pdr_ManSolveInt( Pdr_Man_t * p )
         }
         else
         {
+<<<<<<< HEAD
             if ( p->pPars->fVerbose ) 
                 Pdr_ManPrintProgress( p, 1, clock() - clkStart );
+=======
+>>>>>>> 315ac30... test_commit
             // open a new timeframe
             assert( pCube == NULL );
             Pdr_ManSetPropertyOutput( p, k );
@@ -589,6 +675,11 @@ int Pdr_ManSolveInt( Pdr_Man_t * p )
                 printf( "*** Clauses after frame %d:\n", k );
                 Pdr_ManPrintClauses( p, 0 );
             }
+<<<<<<< HEAD
+=======
+            if ( p->pPars->fVerbose ) 
+                Pdr_ManPrintProgress( p, 0, clock() - clkStart );
+>>>>>>> 315ac30... test_commit
             // push clauses into this timeframe
             if ( Pdr_ManPushClauses( p ) )
             {
@@ -602,7 +693,11 @@ int Pdr_ManSolveInt( Pdr_Man_t * p )
                 return 1; // UNSAT
             }
             if ( p->pPars->fVerbose ) 
+<<<<<<< HEAD
                 Pdr_ManPrintProgress( p, 0, clock() - clkStart );
+=======
+                Pdr_ManPrintProgress( p, 1, clock() - clkStart );
+>>>>>>> 315ac30... test_commit
             clkStart = clock();
         }
 

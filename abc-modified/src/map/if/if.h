@@ -96,10 +96,14 @@ struct If_Par_t_
     int                fBidec;        // use bi-decomposition
     int                fUseBat;       // use one specialized feature
     int                fUseBuffs;     // use buffers to decouple outputs
+<<<<<<< HEAD
     int                fEnableCheck07;// enable additional checking
     int                fEnableCheck08;// enable additional checking
     int                fEnableCheck10;// enable additional checking
     int                fEnableRealPos;// enable additional feature
+=======
+    int                fEnableCheck;  // enable additional checking
+>>>>>>> 315ac30... test_commit
     int                fVerbose;      // the verbosity flag
     // internal parameters
     int                fDelayOpt;     // special delay optimization
@@ -161,8 +165,12 @@ struct If_Man_t_
     int                SortMode;      // one of the three sorting modes
     int                fNextRound;    // set to 1 after the first round
     int                nChoices;      // the number of choice nodes
+<<<<<<< HEAD
     Vec_Int_t *        vSwitching;    // switching activity of each node
     Vec_Int_t **       pDriverCuts;   // temporary driver cuts
+=======
+    Vec_Int_t *        vSwitching;    // switching activity of each node
+>>>>>>> 315ac30... test_commit
     // sequential mapping
     Vec_Ptr_t *        vLatchOrder;   // topological ordering of latches
     Vec_Int_t *        vLags;         // sequentail lags of all nodes
@@ -230,8 +238,12 @@ struct If_Obj_t_
     unsigned           fMark   :  1;  // multipurpose mark
     unsigned           fVisit  :  1;  // multipurpose mark
     unsigned           fSpec   :  1;  // multipurpose mark
+<<<<<<< HEAD
     unsigned           fDriver :  1;  // multipurpose mark
     unsigned           Level   : 20;  // logic level of the node
+=======
+    unsigned           Level   : 21;  // logic level of the node
+>>>>>>> 315ac30... test_commit
     int                Id;            // integer ID
     int                IdPio;         // integer ID of PIs/POs
     int                nRefs;         // the number of references
@@ -410,9 +422,13 @@ extern float           If_CutPowerRef( If_Man_t * p, If_Cut_t * pCut, If_Obj_t *
 extern float           If_CutPowerDerefed( If_Man_t * p, If_Cut_t * pCut, If_Obj_t * pRoot );
 extern float           If_CutPowerRefed( If_Man_t * p, If_Cut_t * pCut, If_Obj_t * pRoot );
 /*=== ifDec.c =============================================================*/
+<<<<<<< HEAD
 extern int             If_CutPerformCheck07( unsigned * pTruth, int nVars, int nLeaves );
 extern int             If_CutPerformCheck08( unsigned * pTruth, int nVars, int nLeaves );
 extern int             If_CutPerformCheck10( unsigned * pTruth, int nVars, int nLeaves );
+=======
+extern int             If_CutPerformCheck( unsigned * pTruth, int nVars, int nLeaves );
+>>>>>>> 315ac30... test_commit
 /*=== ifLib.c =============================================================*/
 extern If_Lib_t *      If_LutLibRead( char * FileName );
 extern If_Lib_t *      If_LutLibDup( If_Lib_t * p );
@@ -450,8 +466,13 @@ extern int             If_ManPerformMappingSeq( If_Man_t * p );
 /*=== ifTime.c ============================================================*/
 extern int             If_CutDelaySopCost( If_Man_t * p, If_Cut_t * pCut );
 extern Vec_Wrd_t *     If_CutDelaySopArray( If_Man_t * p, If_Cut_t * pCut );
+<<<<<<< HEAD
 extern float           If_CutDelay( If_Man_t * p, If_Obj_t * pObj, If_Cut_t * pCut );
 extern void            If_CutPropagateRequired( If_Man_t * p, If_Obj_t * pObj, If_Cut_t * pCut, float Required );
+=======
+extern float           If_CutDelay( If_Man_t * p, If_Cut_t * pCut );
+extern void            If_CutPropagateRequired( If_Man_t * p, If_Cut_t * pCut, float Required );
+>>>>>>> 315ac30... test_commit
 extern void            If_CutRotatePins( If_Man_t * p, If_Cut_t * pCut );
 /*=== ifTruth.c ===========================================================*/
 extern int             If_CutComputeTruth( If_Man_t * p, If_Cut_t * pCut, If_Cut_t * pCut0, If_Cut_t * pCut1, int fCompl0, int fCompl1 );

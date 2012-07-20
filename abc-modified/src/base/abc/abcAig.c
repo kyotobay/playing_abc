@@ -1305,6 +1305,7 @@ void Abc_AigPrintNode( Abc_Obj_t * pNode )
     printf( "\n" );
 }
 
+<<<<<<< HEAD
 void Abc_AigBrowseNode( Abc_Obj_t * pNode)
 {
 	Abc_Obj_t * pNodeR = Abc_ObjRegular(pNode);
@@ -1322,6 +1323,8 @@ void Abc_AigBrowseNode( Abc_Obj_t * pNode)
 	}
 	
 }
+=======
+>>>>>>> 315ac30... test_commit
 
 /**Function*************************************************************
 

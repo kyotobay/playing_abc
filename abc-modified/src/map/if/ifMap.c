@@ -50,6 +50,7 @@ static inline int If_WordCountOnes( unsigned uWord )
     uWord = (uWord & 0x00FF00FF) + ((uWord>>8) & 0x00FF00FF);
     return  (uWord & 0x0000FFFF) + (uWord>>16);
 }
+<<<<<<< HEAD
 
 /**Function*************************************************************
 
@@ -76,6 +77,8 @@ float If_CutDelaySpecial( If_Man_t * p, If_Cut_t * pCut, int fCarry )
     }
     return Delay;
  }
+=======
+>>>>>>> 315ac30... test_commit
 
 /**Function*************************************************************
 
@@ -95,6 +98,7 @@ void If_ObjPerformMappingAnd( If_Man_t * p, If_Obj_t * pObj, int Mode, int fPrep
     int i, k;
  
     assert( p->pPars->fSeqMap || !If_ObjIsAnd(pObj->pFanin0) || pObj->pFanin0->pCutSet->nCuts > 1 );
+<<<<<<< HEAD
     assert( p->pPars->fSeqMap || !If_ObjIsAnd(pObj->pFanin1) || pObj->pFanin1->pCutSet->nCuts > 1 );
 
     // prepare
@@ -139,6 +143,18 @@ void If_ObjPerformMappingAnd( If_Man_t * p, If_Obj_t * pObj, int Mode, int fPrep
     }
 */
     // deref the selected cut
+=======
+    assert( p->pPars->fSeqMap || !If_ObjIsAnd(pObj->pFanin1) || pObj->pFanin1->pCutSet->nCuts > 1 );
+
+    // prepare
+    if ( !p->pPars->fSeqMap )
+    {
+        if ( Mode == 0 )
+            pObj->EstRefs = (float)pObj->nRefs;
+        else if ( Mode == 1 )
+            pObj->EstRefs = (float)((2.0 * pObj->EstRefs + pObj->nRefs) / 3.0);
+    }
+>>>>>>> 315ac30... test_commit
     if ( Mode && pObj->nRefs > 0 )
         If_CutAreaDeref( p, If_ObjCutBest(pObj) );
 
@@ -153,7 +169,11 @@ void If_ObjPerformMappingAnd( If_Man_t * p, If_Obj_t * pObj, int Mode, int fPrep
         if ( p->pPars->fDelayOpt )
             pCut->Delay = If_CutDelaySopCost( p, pCut );
         else
+<<<<<<< HEAD
             pCut->Delay = If_CutDelay( p, pObj, pCut );
+=======
+            pCut->Delay = If_CutDelay( p, pCut );
+>>>>>>> 315ac30... test_commit
 //        assert( pCut->Delay <= pObj->Required + p->fEpsilon );
         if ( pCut->Delay > pObj->Required + 2*p->fEpsilon )
             Abc_Print( 1, "If_ObjPerformMappingAnd(): Warning! Delay of node %d (%f) exceeds the required times (%f).\n", 
@@ -200,7 +220,11 @@ void If_ObjPerformMappingAnd( If_Man_t * p, If_Obj_t * pObj, int Mode, int fPrep
             pCut->fUseless = 0;
             if ( p->pPars->pFuncCell && RetValue < 2 )
             {
+<<<<<<< HEAD
                 assert( pCut->nLimit >= 4 && pCut->nLimit <= 10 );
+=======
+                assert( pCut->nLimit >= 4 && pCut->nLimit <= 7 );
+>>>>>>> 315ac30... test_commit
                 pCut->fUseless = !p->pPars->pFuncCell( If_CutTruth(pCut), pCut->nLimit, pCut->nLeaves );
                 p->nCutsUseless += pCut->fUseless;
             }
@@ -215,7 +239,11 @@ void If_ObjPerformMappingAnd( If_Man_t * p, If_Obj_t * pObj, int Mode, int fPrep
         if ( p->pPars->fDelayOpt )
             pCut->Delay = If_CutDelaySopCost( p, pCut );
         else
+<<<<<<< HEAD
             pCut->Delay = If_CutDelay( p, pObj, pCut );
+=======
+            pCut->Delay = If_CutDelay( p, pCut );
+>>>>>>> 315ac30... test_commit
 //        Abc_Print( 1, "%.2f ", pCut->Delay );
         if ( Mode && pCut->Delay > pObj->Required + p->fEpsilon )
             continue;
@@ -284,7 +312,11 @@ void If_ObjPerformMappingChoice( If_Man_t * p, If_Obj_t * pObj, int Mode, int fP
 
     // update the cutset of the node
     pCutSet = pObj->pCutSet;
+<<<<<<< HEAD
 
+=======
+
+>>>>>>> 315ac30... test_commit
     // generate cuts
     for ( pTemp = pObj->pEquiv; pTemp; pTemp = pTemp->pEquiv )
     {
@@ -305,7 +337,11 @@ void If_ObjPerformMappingChoice( If_Man_t * p, If_Obj_t * pObj, int Mode, int fP
             if ( If_CutFilter( pCutSet, pCut ) )
                 continue;
             // check if the cut satisfies the required times
+<<<<<<< HEAD
             assert( pCut->Delay == If_CutDelay( p, pTemp, pCut ) );
+=======
+            assert( pCut->Delay == If_CutDelay( p, pCut ) );
+>>>>>>> 315ac30... test_commit
             if ( Mode && pCut->Delay > pObj->Required + p->fEpsilon )
                 continue;
             // set the phase attribute

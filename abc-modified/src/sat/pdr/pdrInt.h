@@ -45,8 +45,13 @@ struct Pdr_Set_t_
 {
     word        Sign;      // signature
     int         nRefs;     // ref counter
+<<<<<<< HEAD
     int         nTotal;    // total literals
     int         nLits;     // num flop literals
+=======
+    short       nTotal;    // total literals
+    short       nLits;     // num flop literals
+>>>>>>> 315ac30... test_commit
     int         Lits[0];
 };
 

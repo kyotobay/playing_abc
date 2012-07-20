@@ -60,7 +60,10 @@ extern Abc_Cex_t *   Abc_CexAlloc( int nRegs, int nTruePis, int nFrames );
 extern Abc_Cex_t *   Abc_CexMakeTriv( int nRegs, int nTruePis, int nTruePos, int iFrameOut );
 extern Abc_Cex_t *   Abc_CexCreate( int nRegs, int nTruePis, int * pArray, int iFrame, int iPo, int fSkipRegs );
 extern Abc_Cex_t *   Abc_CexDup( Abc_Cex_t * p, int nRegsNew );
+<<<<<<< HEAD
 extern Abc_Cex_t *   Abc_CexDeriveFromCombModel( int * pModel, int nPis, int nRegs, int iPo );
+=======
+>>>>>>> 315ac30... test_commit
 extern void          Abc_CexPrint( Abc_Cex_t * p );
 extern void          Abc_CexFree( Abc_Cex_t * p );
 

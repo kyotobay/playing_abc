@@ -28,7 +28,11 @@ ABC_NAMESPACE_IMPL_START
 ////////////////////////////////////////////////////////////////////////
 
 // factoring fails if intermediate memory usage exceed this limit
+<<<<<<< HEAD
 #define KIT_FACTOR_MEM_LIMIT  (1<<20)
+=======
+#define KIT_FACTOR_MEM_LIMIT  (1<<16)
+>>>>>>> 315ac30... test_commit
 
 static Kit_Edge_t  Kit_SopFactor_rec( Kit_Graph_t * pFForm, Kit_Sop_t * cSop, int nLits, Vec_Int_t * vMemory );
 static Kit_Edge_t  Kit_SopFactorLF_rec( Kit_Graph_t * pFForm, Kit_Sop_t * cSop, Kit_Sop_t * cSimple, int nLits, Vec_Int_t * vMemory );

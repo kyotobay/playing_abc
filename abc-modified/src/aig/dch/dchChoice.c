@@ -463,7 +463,10 @@ Aig_Man_t * Dch_DeriveChoiceAigInt( Aig_Man_t * pAig )
     Aig_ManForEachPo( pAig, pObj, i )
         Aig_ObjCreatePo( pChoices, Aig_ObjChild0CopyRepr(pChoices, pObj) );
     Dch_DeriveChoiceCountEquivs( pChoices );
+<<<<<<< HEAD
     Aig_ManSetRegNum( pChoices, Aig_ManRegNum(pAig) );
+=======
+>>>>>>> 315ac30... test_commit
     return pChoices;
 }
 

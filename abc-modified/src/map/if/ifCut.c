@@ -685,7 +685,11 @@ void If_CutSort( If_Man_t * p, If_Set_t * pCutSet, If_Cut_t * pCut )
         return;
     }
 
+<<<<<<< HEAD
     if ( (p->pPars->fUseBat || p->pPars->fEnableCheck07 || p->pPars->fEnableCheck08 || p->pPars->fEnableCheck10) && !pCut->fUseless )
+=======
+    if ( (p->pPars->fUseBat || p->pPars->fEnableCheck) && !pCut->fUseless )
+>>>>>>> 315ac30... test_commit
     {
         If_Cut_t * pFirst = pCutSet->ppCuts[0];
         if ( pFirst->fUseless || If_ManSortCompare(p, pFirst, pCut) == 1 )
@@ -881,7 +885,11 @@ float If_CutAreaFlow( If_Man_t * p, If_Cut_t * pCut )
     Flow = If_CutLutArea(p, pCut);
     If_CutForEachLeaf( p, pCut, pLeaf, i )
     {
+<<<<<<< HEAD
         if ( pLeaf->nRefs == 0 || If_ObjIsConst1(pLeaf) )
+=======
+        if ( pLeaf->nRefs == 0 )
+>>>>>>> 315ac30... test_commit
             Flow += If_ObjCutBest(pLeaf)->Area;
         else if ( p->pPars->fSeqMap ) // seq
             Flow += If_ObjCutBest(pLeaf)->Area / pLeaf->nRefs;
@@ -914,7 +922,11 @@ float If_CutEdgeFlow( If_Man_t * p, If_Cut_t * pCut )
     Flow = pCut->nLeaves;
     If_CutForEachLeaf( p, pCut, pLeaf, i )
     {
+<<<<<<< HEAD
         if ( pLeaf->nRefs == 0 || If_ObjIsConst1(pLeaf) )
+=======
+        if ( pLeaf->nRefs == 0 )
+>>>>>>> 315ac30... test_commit
             Flow += If_ObjCutBest(pLeaf)->Edge;
         else if ( p->pPars->fSeqMap ) // seq
             Flow += If_ObjCutBest(pLeaf)->Edge / pLeaf->nRefs;
@@ -948,7 +960,11 @@ float If_CutPowerFlow( If_Man_t * p, If_Cut_t * pCut, If_Obj_t * pRoot )
     If_CutForEachLeaf( p, pCut, pLeaf, i )
     {
         Power += pSwitching[pLeaf->Id];
+<<<<<<< HEAD
         if ( pLeaf->nRefs == 0 || If_ObjIsConst1(pLeaf) )
+=======
+        if ( pLeaf->nRefs == 0 )
+>>>>>>> 315ac30... test_commit
             Power += If_ObjCutBest(pLeaf)->Power;
         else if ( p->pPars->fSeqMap ) // seq
             Power += If_ObjCutBest(pLeaf)->Power / pLeaf->nRefs;

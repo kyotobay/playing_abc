@@ -1,8 +1,12 @@
 SRC +=  src/map/if/ifCore.c \
 	src/map/if/ifCut.c \
+<<<<<<< HEAD
 	src/map/if/ifDec07.c \
 	src/map/if/ifDec08.c \
 	src/map/if/ifDec10.c \
+=======
+	src/map/if/ifDec.c \
+>>>>>>> 315ac30... test_commit
 	src/map/if/ifLib.c \
 	src/map/if/ifMan.c \
 	src/map/if/ifMap.c \

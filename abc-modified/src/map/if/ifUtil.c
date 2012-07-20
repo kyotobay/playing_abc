@@ -223,12 +223,20 @@ void If_ManComputeRequired( If_Man_t * p )
         }
         // go through the nodes in the reverse topological order
     //    Vec_PtrForEachEntry( If_Obj_t *, p->vMapped, pObj, i )
+<<<<<<< HEAD
     //        If_CutPropagateRequired( p, pObj, If_ObjCutBest(pObj), pObj->Required );
+=======
+    //        If_CutPropagateRequired( p, If_ObjCutBest(pObj), pObj->Required );
+>>>>>>> 315ac30... test_commit
         If_ManForEachObjReverse( p, pObj, i )
         {
             if ( pObj->nRefs == 0 )
                 continue;
+<<<<<<< HEAD
             If_CutPropagateRequired( p, pObj, If_ObjCutBest(pObj), pObj->Required );
+=======
+            If_CutPropagateRequired( p, If_ObjCutBest(pObj), pObj->Required );
+>>>>>>> 315ac30... test_commit
         }
     }
     else
@@ -298,7 +306,11 @@ void If_ManComputeRequired( If_Man_t * p )
             {
                 if ( pObj->nRefs == 0 )
                     continue;
+<<<<<<< HEAD
                 If_CutPropagateRequired( p, pObj, If_ObjCutBest(pObj), pObj->Required );
+=======
+                If_CutPropagateRequired( p, If_ObjCutBest(pObj), pObj->Required );
+>>>>>>> 315ac30... test_commit
             }
             else if ( If_ObjIsCi(pObj) )
             {
@@ -768,7 +780,10 @@ int If_ManCountSpecialPos( If_Man_t * p )
         If_ObjFanin0(pObj)->fMark = 0;
     return Counter;
 }
+<<<<<<< HEAD
 
+=======
+>>>>>>> 315ac30... test_commit
 
 ////////////////////////////////////////////////////////////////////////
 ///                       END OF FILE                                ///

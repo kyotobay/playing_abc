@@ -48,8 +48,12 @@ static inline void   veci_resize (veci* v, int k)   { v->size = k;    } // only 
 static inline void   veci_push   (veci* v, int e)
 {
     if (v->size == v->cap) {
+<<<<<<< HEAD
 //        int newsize = v->cap * 2;//+1;
         int newsize = (v->cap < 4) ? v->cap * 2 : (v->cap / 2) * 3;
+=======
+        int newsize = v->cap * 2;//+1;
+>>>>>>> 315ac30... test_commit
         v->ptr = ABC_REALLOC( int, v->ptr, newsize );
         v->cap = newsize; }
     v->ptr[v->size++] = e;
@@ -77,8 +81,12 @@ static inline void   vecp_resize (vecp* v, int   k) { v->size = k;    } // only 
 static inline void   vecp_push   (vecp* v, void* e)
 {
     if (v->size == v->cap) {
+<<<<<<< HEAD
 //        int newsize = v->cap * 2;//+1;
         int newsize = (v->cap < 4) ? v->cap * 2 : (v->cap / 2) * 3;
+=======
+        int newsize = v->cap * 2;//+1;
+>>>>>>> 315ac30... test_commit
         v->ptr = ABC_REALLOC( void*, v->ptr, newsize );
         v->cap = newsize; }
     v->ptr[v->size++] = e;

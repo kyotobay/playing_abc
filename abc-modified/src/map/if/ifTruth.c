@@ -342,9 +342,13 @@ static inline unsigned If_CutTruthPhase( If_Cut_t * pCut, If_Cut_t * pCut1 )
         k++;
     }
     return uPhase;
+<<<<<<< HEAD
 }
 
 //static FILE * pTruths;
+=======
+}
+>>>>>>> 315ac30... test_commit
 
 /**Function*************************************************************
 
@@ -379,6 +383,7 @@ int If_CutComputeTruth( If_Man_t * p, If_Cut_t * pCut, If_Cut_t * pCut0, If_Cut_
         If_TruthNand( If_CutTruth(pCut), p->puTemp[2], p->puTemp[3], pCut->nLimit );
     else
         If_TruthAnd( If_CutTruth(pCut), p->puTemp[2], p->puTemp[3], pCut->nLimit );
+<<<<<<< HEAD
 /*
     if ( pCut->nLeaves == 5 )
     {
@@ -388,6 +393,9 @@ int If_CutComputeTruth( If_Man_t * p, If_Cut_t * pCut, If_Cut_t * pCut0, If_Cut_
         fprintf( pTruths, "\n" );
     }
 */
+=======
+
+>>>>>>> 315ac30... test_commit
     // minimize the support of the cut
     if ( p->pPars->fCutMin )
         return If_CutTruthMinimize( p, pCut );

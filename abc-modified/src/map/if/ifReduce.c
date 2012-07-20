@@ -153,7 +153,11 @@ void If_ManImproveNodeExpand( If_Man_t * p, If_Obj_t * pObj, int nLimit, Vec_Ptr
     int CostBef, CostAft, i;
     float DelayOld, AreaBef, AreaAft;
     pCut = If_ObjCutBest(pObj);
+<<<<<<< HEAD
     pCut->Delay = If_CutDelay( p, pObj, pCut );
+=======
+    pCut->Delay = If_CutDelay( p, pCut );
+>>>>>>> 315ac30... test_commit
     assert( pCut->Delay <= pObj->Required + p->fEpsilon );
     if ( pObj->nRefs == 0 )
         return;
@@ -177,7 +181,11 @@ void If_ManImproveNodeExpand( If_Man_t * p, If_Obj_t * pObj, int nLimit, Vec_Ptr
         pFanin->fMark = 0;
     // update the node
     If_ManImproveNodeUpdate( p, pObj, vFront );
+<<<<<<< HEAD
     pCut->Delay = If_CutDelay( p, pObj, pCut );
+=======
+    pCut->Delay = If_CutDelay( p, pCut );
+>>>>>>> 315ac30... test_commit
     // get the new area
     AreaAft = If_CutAreaRefed( p, pCut );
     if ( AreaAft > AreaBef || pCut->Delay > pObj->Required + p->fEpsilon )
@@ -539,14 +547,22 @@ void If_ManImproveNodeReduce( If_Man_t * p, If_Obj_t * pObj, int nLimit )
     }
     if ( RetValue )
     {
+<<<<<<< HEAD
         pCutR->Delay = If_CutDelay( p, pObj, pCutR );
+=======
+        pCutR->Delay = If_CutDelay( p, pCutR );
+>>>>>>> 315ac30... test_commit
         AreaAft = If_CutAreaDerefed( p, pCutR );
         // update the best cut
         if ( AreaAft < AreaBef - p->fEpsilon && pCutR->Delay < pObj->Required + p->fEpsilon )
             If_CutCopy( p, pCut, pCutR );
     }
     // recompute the delay of the best cut
+<<<<<<< HEAD
     pCut->Delay = If_CutDelay( p, pObj, pCut );
+=======
+    pCut->Delay = If_CutDelay( p, pCut );
+>>>>>>> 315ac30... test_commit
     // ref the cut if the node is refed
     if ( pObj->nRefs > 0 )
         If_CutRef( p, pCut );

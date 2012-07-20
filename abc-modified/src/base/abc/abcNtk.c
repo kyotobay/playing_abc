@@ -110,7 +110,10 @@ Abc_Ntk_t * Abc_NtkStartFrom( Abc_Ntk_t * pNtk, Abc_NtkType_t Type, Abc_NtkFunc_
     // start the network
     pNtkNew = Abc_NtkAlloc( Type, Func, 1 );
     pNtkNew->nConstrs = pNtk->nConstrs;
+<<<<<<< HEAD
     pNtkNew->nRealPos = pNtk->nRealPos;
+=======
+>>>>>>> 315ac30... test_commit
     // duplicate the name and the spec
     pNtkNew->pName = Extra_UtilStrsav(pNtk->pName);
     pNtkNew->pSpec = Extra_UtilStrsav(pNtk->pSpec);
@@ -133,8 +136,11 @@ Abc_Ntk_t * Abc_NtkStartFrom( Abc_Ntk_t * pNtk, Abc_NtkType_t Type, Abc_NtkFunc_
         pNtkNew->vOnehots = (Vec_Ptr_t *)Vec_VecDupInt( (Vec_Vec_t *)pNtk->vOnehots );
     if ( pNtk->pSeqModel )
         pNtkNew->pSeqModel = Abc_CexDup( pNtk->pSeqModel, Abc_NtkLatchNum(pNtk) );
+<<<<<<< HEAD
     if ( pNtk->vObjPerm )
         pNtkNew->vObjPerm = Vec_IntDup( pNtk->vObjPerm );
+=======
+>>>>>>> 315ac30... test_commit
     // check that the CI/CO/latches are copied correctly
     assert( Abc_NtkCiNum(pNtk)    == Abc_NtkCiNum(pNtkNew) );
     assert( Abc_NtkCoNum(pNtk)    == Abc_NtkCoNum(pNtkNew) );
@@ -164,7 +170,10 @@ Abc_Ntk_t * Abc_NtkStartFromNoLatches( Abc_Ntk_t * pNtk, Abc_NtkType_t Type, Abc
     // start the network
     pNtkNew = Abc_NtkAlloc( Type, Func, 1 );
     pNtkNew->nConstrs = pNtk->nConstrs;
+<<<<<<< HEAD
     pNtkNew->nRealPos = pNtk->nRealPos;
+=======
+>>>>>>> 315ac30... test_commit
     // duplicate the name and the spec
     pNtkNew->pName = Extra_UtilStrsav(pNtk->pName);
     pNtkNew->pSpec = Extra_UtilStrsav(pNtk->pSpec);
@@ -184,8 +193,11 @@ Abc_Ntk_t * Abc_NtkStartFromNoLatches( Abc_Ntk_t * pNtk, Abc_NtkType_t Type, Abc
             continue;
         Abc_NtkDupBox(pNtkNew, pObj, 1);
     }
+<<<<<<< HEAD
     if ( pNtk->vObjPerm )
         pNtkNew->vObjPerm = Vec_IntDup( pNtk->vObjPerm );
+=======
+>>>>>>> 315ac30... test_commit
     // transfer the names
 //    Abc_NtkTrasferNamesNoLatches( pNtk, pNtkNew );
     Abc_ManTimeDup( pNtk, pNtkNew );
@@ -1043,8 +1055,12 @@ void Abc_NtkDelete( Abc_Ntk_t * pNtk )
     ABC_FREE( pNtk->pLutTimes );
     if ( pNtk->vOnehots )
         Vec_VecFree( (Vec_Vec_t *)pNtk->vOnehots );
+<<<<<<< HEAD
     Vec_PtrFreeP( &pNtk->vLtlProperties );
     Vec_IntFreeP( &pNtk->vObjPerm );
+=======
+    Vec_PtrFreeP( &pNtk->vLtlProperties );
+>>>>>>> 315ac30... test_commit
     ABC_FREE( pNtk );
 }
 
@@ -1502,6 +1518,7 @@ void Abc_NtkSwapOneOutput( Abc_Ntk_t * pNtk, int iOutput )
         return;
     pObj1      = Abc_NtkPo( pNtk, 0 );
     pObj2      = Abc_NtkPo( pNtk, iOutput );
+<<<<<<< HEAD
     if ( Abc_ObjFanin0(pObj1) == Abc_ObjFanin0(pObj2) )
     {
         if ( Abc_ObjFaninC0(pObj1) ^ Abc_ObjFaninC0(pObj2) )
@@ -1511,6 +1528,8 @@ void Abc_NtkSwapOneOutput( Abc_Ntk_t * pNtk, int iOutput )
         }
         return;
     }
+=======
+>>>>>>> 315ac30... test_commit
     pChild1Old = Abc_ObjChild0( pObj1 );
     pChild2Old = Abc_ObjChild0( pObj2 );
     pChild1    = Abc_ObjNotCond( pChild1Old, Abc_ObjFaninC0(pObj2) );
@@ -1521,6 +1540,7 @@ void Abc_NtkSwapOneOutput( Abc_Ntk_t * pNtk, int iOutput )
     assert( Abc_ObjChild0(pObj2) == pChild1Old );
 }
 
+<<<<<<< HEAD
 /**Function*************************************************************
 
   Synopsis    []
@@ -1702,6 +1722,8 @@ void Abc_NtkUnpermute( Abc_Ntk_t * pNtk )
     Vec_IntFreeP( &pNtk->vObjPerm );
 }
 
+=======
+>>>>>>> 315ac30... test_commit
 
 ////////////////////////////////////////////////////////////////////////
 ///                       END OF FILE                                ///

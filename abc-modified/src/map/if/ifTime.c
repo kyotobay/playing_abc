@@ -28,9 +28,13 @@ ABC_NAMESPACE_IMPL_START
 ///                        DECLARATIONS                              ///
 ////////////////////////////////////////////////////////////////////////
 
+<<<<<<< HEAD
 #define IF_BIG_CHAR 120
 
 static float s_ExtraDel[2][3] = { {1.0, 1.0, (float)0.1}, {1.0, 1.0, (float)0.1} };
+=======
+#define IF_BIG_CHAR 120
+>>>>>>> 315ac30... test_commit
 
 static void If_CutSortInputPins( If_Man_t * p, If_Cut_t * pCut, int * pPinPerm, float * pPinDelays );
 
@@ -388,7 +392,11 @@ int If_CutDelaySopCost( If_Man_t * p, If_Cut_t * pCut )
     }
 //    Vec_WrdFree( vAnds );
     // verify the delay
+<<<<<<< HEAD
 //    Delay = If_CutDelay( p, pObj, pCut );
+=======
+//    Delay = If_CutDelay( p, pCut );
+>>>>>>> 315ac30... test_commit
 //    assert( (int)Leaf.Delay == Delay );
     return Leaf.Delay;
 }
@@ -409,14 +417,22 @@ int If_CutDelaySopCost( If_Man_t * p, If_Cut_t * pCut )
   SeeAlso     []
 
 ***********************************************************************/
+<<<<<<< HEAD
 float If_CutDelay( If_Man_t * p, If_Obj_t * pObj, If_Cut_t * pCut )
+=======
+float If_CutDelay( If_Man_t * p, If_Cut_t * pCut )
+>>>>>>> 315ac30... test_commit
 {
     static int pPinPerm[IF_MAX_LUTSIZE];
     static float pPinDelays[IF_MAX_LUTSIZE];
     If_Obj_t * pLeaf;
     float Delay, DelayCur;
     float * pLutDelays;
+<<<<<<< HEAD
     int i, Shift, Pin2PinDelay, iLeaf;
+=======
+    int i, Shift, Pin2PinDelay;
+>>>>>>> 315ac30... test_commit
     assert( p->pPars->fSeqMap || pCut->nLeaves > 1 );
     Delay = -IF_FLOAT_LARGE;
     if ( p->pPars->pLutLib )
@@ -434,6 +450,7 @@ float If_CutDelay( If_Man_t * p, If_Obj_t * pObj, If_Cut_t * pCut )
             }
         }
         else
+<<<<<<< HEAD
         {
             If_CutForEachLeaf( p, pCut, pLeaf, i )
             {
@@ -443,6 +460,14 @@ float If_CutDelay( If_Man_t * p, If_Obj_t * pObj, If_Cut_t * pCut )
                     DelayCur = If_ObjCutBest(pLeaf)->Delay + pLutDelays[0];
                 Delay = IF_MAX( Delay, DelayCur );
             }
+=======
+        {
+            If_CutForEachLeaf( p, pCut, pLeaf, i )
+            {
+                DelayCur = If_ObjCutBest(pLeaf)->Delay + pLutDelays[0];
+                Delay = IF_MAX( Delay, DelayCur );
+            }
+>>>>>>> 315ac30... test_commit
         }
     }
     else
@@ -464,6 +489,7 @@ float If_CutDelay( If_Man_t * p, If_Obj_t * pObj, If_Cut_t * pCut )
                 If_CutForEachLeafSeq( p, pCut, pLeaf, Shift, i )
                 {
                     DelayCur = If_ObjCutBest(pLeaf)->Delay - Shift * p->Period;
+<<<<<<< HEAD
                     Delay = IF_MAX( Delay, DelayCur + 1.0 );
                 }
             }
@@ -478,6 +504,20 @@ float If_CutDelay( If_Man_t * p, If_Obj_t * pObj, If_Cut_t * pCut )
                     Delay = IF_MAX( Delay, DelayCur );
                 }
             }
+=======
+                    Delay = IF_MAX( Delay, DelayCur );
+                }
+            }
+            else
+            {
+                If_CutForEachLeaf( p, pCut, pLeaf, i )
+                {
+                    DelayCur = If_ObjCutBest(pLeaf)->Delay;
+                    Delay = IF_MAX( Delay, DelayCur );
+                }
+            }
+            Delay += 1.0;
+>>>>>>> 315ac30... test_commit
         }
     }
     return Delay;
@@ -494,14 +534,22 @@ float If_CutDelay( If_Man_t * p, If_Obj_t * pObj, If_Cut_t * pCut )
   SeeAlso     []
 
 ***********************************************************************/
+<<<<<<< HEAD
 void If_CutPropagateRequired( If_Man_t * p, If_Obj_t * pObj, If_Cut_t * pCut, float ObjRequired )
+=======
+void If_CutPropagateRequired( If_Man_t * p, If_Cut_t * pCut, float ObjRequired )
+>>>>>>> 315ac30... test_commit
 {
     static int pPinPerm[IF_MAX_LUTSIZE];
     static float pPinDelays[IF_MAX_LUTSIZE];
     If_Obj_t * pLeaf;
     float * pLutDelays;
     float Required;
+<<<<<<< HEAD
     int i, Pin2PinDelay, iLeaf;
+=======
+    int i, Pin2PinDelay;
+>>>>>>> 315ac30... test_commit
     assert( !p->pPars->fLiftLeaves );
     // compute the pins
     if ( p->pPars->pLutLib )
@@ -519,6 +567,7 @@ void If_CutPropagateRequired( If_Man_t * p, If_Obj_t * pObj, If_Cut_t * pCut, fl
             }
         }
         else
+<<<<<<< HEAD
         {
             Required = ObjRequired;
             If_CutForEachLeaf( p, pCut, pLeaf, i )
@@ -528,6 +577,12 @@ void If_CutPropagateRequired( If_Man_t * p, If_Obj_t * pObj, If_Cut_t * pCut, fl
                 else
                     pLeaf->Required = IF_MIN( pLeaf->Required, Required - pLutDelays[0] );
             }
+=======
+        {
+            Required = ObjRequired - pLutDelays[0];
+            If_CutForEachLeaf( p, pCut, pLeaf, i )
+                pLeaf->Required = IF_MIN( pLeaf->Required, Required );
+>>>>>>> 315ac30... test_commit
         }
     }
     else
@@ -542,6 +597,7 @@ void If_CutPropagateRequired( If_Man_t * p, If_Obj_t * pObj, If_Cut_t * pCut, fl
             }
         }
         else
+<<<<<<< HEAD
         {
             Required = ObjRequired;
             If_CutForEachLeaf( p, pCut, pLeaf, i )
@@ -551,6 +607,12 @@ void If_CutPropagateRequired( If_Man_t * p, If_Obj_t * pObj, If_Cut_t * pCut, fl
                 else
                     pLeaf->Required = IF_MIN( pLeaf->Required, Required - (float)1.0 );
             }
+=======
+        {
+            Required = ObjRequired - (float)1.0;
+            If_CutForEachLeaf( p, pCut, pLeaf, i )
+                pLeaf->Required = IF_MIN( pLeaf->Required, Required );
+>>>>>>> 315ac30... test_commit
         }
     }
 }

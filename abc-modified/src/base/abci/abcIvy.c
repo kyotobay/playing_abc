@@ -520,7 +520,12 @@ int Abc_NtkIvyProve( Abc_Ntk_t ** ppNtk, void * pPars )
     pFanin = Abc_ObjFanin0(pObj);
     if ( Abc_ObjFanin0(pObj)->fPhase != (unsigned)Abc_ObjFaninC0(pObj) )
     {
+<<<<<<< HEAD
         pNtk->pModel = ABC_CALLOC( int, Abc_NtkCiNum(pNtk) );
+=======
+        pNtk->pModel = ABC_ALLOC( int, Abc_NtkPiNum(pNtk) );
+        memset( pNtk->pModel, 0, sizeof(int) * Abc_NtkPiNum(pNtk) );
+>>>>>>> 315ac30... test_commit
         return 0;
     }
 

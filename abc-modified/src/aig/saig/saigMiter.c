@@ -696,6 +696,7 @@ int Saig_ManDemiterSimpleDiff( Aig_Man_t * p, Aig_Man_t ** ppAig0, Aig_Man_t ** 
 
 /**Function*************************************************************
 
+<<<<<<< HEAD
   Synopsis    [Returns 1 if AIG can be demitered.]
 
   Description []
@@ -753,6 +754,8 @@ int Saig_ManDemiterDual( Aig_Man_t * p, Aig_Man_t ** ppAig0, Aig_Man_t ** ppAig1
 
 /**Function*************************************************************
 
+=======
+>>>>>>> 315ac30... test_commit
   Synopsis    [Duplicates the AIG to have constant-0 initial state.]
 
   Description []

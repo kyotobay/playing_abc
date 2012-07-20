@@ -163,10 +163,14 @@ Vec_Ptr_t * Aig_ManDfs( Aig_Man_t * p, int fNodesOnly )
     if ( fNodesOnly )
         assert( Vec_PtrSize(vNodes) == Aig_ManNodeNum(p) );
     else
+<<<<<<< HEAD
 	{
 		printf("%d\t%d\n", Vec_PtrSize(vNodes), Aig_ManObjNum(p));
         assert( Vec_PtrSize(vNodes) == Aig_ManObjNum(p) );
 	}
+=======
+        assert( Vec_PtrSize(vNodes) == Aig_ManObjNum(p) );
+>>>>>>> 315ac30... test_commit
     return vNodes;
 }
 

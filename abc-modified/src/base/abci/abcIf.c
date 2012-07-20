@@ -37,11 +37,15 @@ static Hop_Obj_t * Abc_NodeIfToHop( Hop_Man_t * pHopMan, If_Man_t * pIfMan, If_O
 static Vec_Ptr_t * Abc_NtkFindGoodOrder( Abc_Ntk_t * pNtk );
 
 extern void Abc_NtkBddReorder( Abc_Ntk_t * pNtk, int fVerbose );
+<<<<<<< HEAD
 extern void Abc_NtkBidecResyn( Abc_Ntk_t * pNtk, int fVerbose );
 
 extern void Abc_NtkCollectPoDrivers( If_Man_t * p, Abc_Ntk_t * pNtk );
 extern void Abc_NtkCreateChoiceDrivers( If_Man_t * p );
 extern void Abc_NtkFreePoDrivers( If_Man_t * p, Abc_Ntk_t * pNtk );
+=======
+extern void Abc_NtkBidecResyn( Abc_Ntk_t * pNtk, int fVerbose );
+>>>>>>> 315ac30... test_commit
  
 ////////////////////////////////////////////////////////////////////////
 ///                     FUNCTION DEFINITIONS                         ///
@@ -130,11 +134,16 @@ Abc_Ntk_t * Abc_NtkIf( Abc_Ntk_t * pNtk, If_Par_t * pPars )
             pPars->pTimesArr[c] = -ABC_INFINITY;
     }
 
+<<<<<<< HEAD
     // create FPGA mapper
+=======
+    // perform FPGA mapping
+>>>>>>> 315ac30... test_commit
     pIfMan = Abc_NtkToIf( pNtk, pPars );    
     if ( pIfMan == NULL )
         return NULL;
     if ( pPars->fPower )
+<<<<<<< HEAD
         Abc_NtkIfComputeSwitching( pNtk, pIfMan );
 
     // perform FPGA mapping
@@ -148,6 +157,14 @@ Abc_Ntk_t * Abc_NtkIf( Abc_Ntk_t * pNtk, If_Par_t * pPars )
         return NULL;
     }
     Abc_NtkFreePoDrivers( pIfMan, pNtk );
+=======
+        Abc_NtkIfComputeSwitching( pNtk, pIfMan );
+    if ( !If_ManPerformMapping( pIfMan ) )
+    {
+        If_ManStop( pIfMan );
+        return NULL;
+    }
+>>>>>>> 315ac30... test_commit
 
     // transform the result of mapping into the new network
     pNtkNew = Abc_NtkFromIf( pIfMan, pNtk );
@@ -254,7 +271,11 @@ Abc_Ntk_t * Abc_NtkFromIf( If_Man_t * pIfMan, Abc_Ntk_t * pNtk )
 {
     ProgressBar * pProgress;
     Abc_Ntk_t * pNtkNew;
+<<<<<<< HEAD
     Abc_Obj_t * pNode, * pNodeNew, * pExor;
+=======
+    Abc_Obj_t * pNode, * pNodeNew;
+>>>>>>> 315ac30... test_commit
     Vec_Int_t * vCover;
     int i, nDupGates;
     // create the new network
@@ -271,6 +292,7 @@ Abc_Ntk_t * Abc_NtkFromIf( If_Man_t * pIfMan, Abc_Ntk_t * pNtk )
     If_ObjSetCopy( If_ManConst1(pIfMan), Abc_NtkCreateNodeConst1(pNtkNew) );
     Abc_NtkForEachCi( pNtk, pNode, i )
         If_ObjSetCopy( If_ManCi(pIfMan, i), pNode->pCopy );
+<<<<<<< HEAD
     // process the nodes in topological order
     vCover = Vec_IntAlloc( 1 << 16 );
     pProgress = Extra_ProgressBarStart( stdout, Abc_NtkCoNum(pNtk) );
@@ -349,6 +371,20 @@ Abc_Ntk_t * Abc_NtkFromIf( If_Man_t * pIfMan, Abc_Ntk_t * pNtk )
     }
     Extra_ProgressBarStop( pProgress );
     Vec_IntFree( vCover );
+=======
+    // process the nodes in topological order
+    vCover = Vec_IntAlloc( 1 << 16 );
+    pProgress = Extra_ProgressBarStart( stdout, Abc_NtkCoNum(pNtk) );
+    Abc_NtkForEachCo( pNtk, pNode, i )
+    {
+        Extra_ProgressBarUpdate( pProgress, i, "Final" );
+        pNodeNew = Abc_NodeFromIf_rec( pNtkNew, pIfMan, If_ObjFanin0(If_ManCo(pIfMan, i)), vCover );
+        pNodeNew = Abc_ObjNotCond( pNodeNew, If_ObjFaninC0(If_ManCo(pIfMan, i)) );
+        Abc_ObjAddFanin( pNode->pCopy, pNodeNew );
+    }
+    Extra_ProgressBarStop( pProgress );
+    Vec_IntFree( vCover );
+>>>>>>> 315ac30... test_commit
     // remove the constant node if not used
     pNodeNew = (Abc_Obj_t *)If_ObjCopy( If_ManConst1(pIfMan) );
     if ( Abc_ObjFanoutNum(pNodeNew) == 0 )
@@ -767,6 +803,7 @@ Vec_Ptr_t * Abc_NtkFindGoodOrder( Abc_Ntk_t * pNtk )
     return vNodes;
 }
 
+<<<<<<< HEAD
 
 /**Function*************************************************************
 
@@ -912,6 +949,10 @@ void Abc_NtkFreePoDrivers( If_Man_t * p, Abc_Ntk_t * pNtk )
     ABC_FREE( p->pDriverCuts );
 }
 
+=======
+
+
+>>>>>>> 315ac30... test_commit
 ////////////////////////////////////////////////////////////////////////
 ///                       END OF FILE                                ///
 ////////////////////////////////////////////////////////////////////////

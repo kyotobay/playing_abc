@@ -348,7 +348,11 @@ void Gia_ManEquivPrintClasses( Gia_Man_t * p, int fVerbose, float Mem )
     if ( fVerbose )
     {
         int Ent;
+<<<<<<< HEAD
 
+=======
+/*
+>>>>>>> 315ac30... test_commit
         printf( "Const0 = " );
         Gia_ManForEachConst( p, i )
             printf( "%d ", i );
@@ -356,7 +360,11 @@ void Gia_ManEquivPrintClasses( Gia_Man_t * p, int fVerbose, float Mem )
         Counter = 0;
         Gia_ManForEachClass( p, i )
             Gia_ManEquivPrintOne( p, i, ++Counter );
+<<<<<<< HEAD
 
+=======
+*/
+>>>>>>> 315ac30... test_commit
         Gia_ManLevelNum( p );
         Gia_ManForEachClass( p, i )
             if ( i % 100 == 0 )
@@ -1757,6 +1765,7 @@ int Gia_CommandSpecI( Gia_Man_t * pGia, int nFramesInit, int nBTLimitInit, int f
     }
     return 1;
 }
+<<<<<<< HEAD
 
 
 
@@ -2145,6 +2154,8 @@ void Gia_ManFilterEquivsUsingLatches( Gia_Man_t * pGia, int fFlopsOnly, int fFlo
     Vec_IntFree( vNodes );
     printf( "The number of literals: Before = %d. After = %d.\n", iLitsOld, iLitsNew );
 }
+=======
+>>>>>>> 315ac30... test_commit
 
 ////////////////////////////////////////////////////////////////////////
 ///                       END OF FILE                                ///

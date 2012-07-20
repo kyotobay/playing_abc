@@ -55,7 +55,11 @@ Aig_Man_t * Aig_ManDupSimple( Aig_Man_t * p )
     pNew->pName = Aig_UtilStrsav( p->pName );
     pNew->pSpec = Aig_UtilStrsav( p->pSpec );
     pNew->nAsserts = p->nAsserts;
+<<<<<<< HEAD
     pNew->nConstrs = p->nConstrs;
+=======
+    pNew->nConstrs = p->nConstrs;
+>>>>>>> 315ac30... test_commit
     if ( p->vFlopNums )
         pNew->vFlopNums = Vec_IntDup( p->vFlopNums );
     // create the PIs

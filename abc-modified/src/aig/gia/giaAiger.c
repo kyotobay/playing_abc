@@ -843,7 +843,10 @@ Gia_Man_t * Gia_ReadAiger( char * pFileName, int fCheck )
     ABC_FREE( pContents );
     if ( pNew )
     {
+<<<<<<< HEAD
         ABC_FREE( pNew->pName );
+=======
+>>>>>>> 315ac30... test_commit
         pName = Gia_FileNameGeneric( pFileName );
         pNew->pName = Gia_UtilStrsav( pName );
 //        pNew->pSpec = Ioa_UtilStrsav( pFileName );

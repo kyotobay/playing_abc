@@ -557,7 +557,10 @@ extern void            Aig_ObjConnect( Aig_Man_t * p, Aig_Obj_t * pObj, Aig_Obj_
 extern void            Aig_ObjDisconnect( Aig_Man_t * p, Aig_Obj_t * pObj );
 extern void            Aig_ObjDelete( Aig_Man_t * p, Aig_Obj_t * pObj );
 extern void            Aig_ObjDelete_rec( Aig_Man_t * p, Aig_Obj_t * pObj, int fFreeTop );
+<<<<<<< HEAD
 extern void            Aig_ObjDeletePo( Aig_Man_t * p, Aig_Obj_t * pObj );
+=======
+>>>>>>> 315ac30... test_commit
 extern void            Aig_ObjPrint( Aig_Man_t * p, Aig_Obj_t * pObj );
 extern void            Aig_ObjPatchFanin0( Aig_Man_t * p, Aig_Obj_t * pObj, Aig_Obj_t * pFaninNew );
 extern void            Aig_ObjReplace( Aig_Man_t * p, Aig_Obj_t * pObjOld, Aig_Obj_t * pObjNew, int fUpdateLevel );

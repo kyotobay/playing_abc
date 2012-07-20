@@ -1345,9 +1345,12 @@ Gia_Man_t * Gia_ManMiter( Gia_Man_t * p0, Gia_Man_t * p1, int fDualOut, int fSeq
     Gia_ManHashStop( pNew );
     pNew = Gia_ManCleanup( pTemp = pNew );
     Gia_ManStop( pTemp );
+<<<<<<< HEAD
 
     pNew = Gia_ManDupNormalized( pTemp = pNew );
     Gia_ManStop( pTemp );
+=======
+>>>>>>> 315ac30... test_commit
     return pNew;
 }
 

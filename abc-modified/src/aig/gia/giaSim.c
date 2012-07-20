@@ -34,7 +34,10 @@ struct Gia_ManSim_t_
     Gia_ParSim_t * pPars; 
     int            nWords;
     Vec_Int_t *    vCis2Ids;
+<<<<<<< HEAD
     Vec_Int_t *    vConsts;
+=======
+>>>>>>> 315ac30... test_commit
     // simulation information
     unsigned *     pDataSim;     // simulation data
     unsigned *     pDataSimCis;  // simulation data for CIs
@@ -49,6 +52,7 @@ static inline unsigned * Gia_SimDataCo( Gia_ManSim_t * p, int i )  { return p->p
 ///                     FUNCTION DEFINITIONS                         ///
 ////////////////////////////////////////////////////////////////////////
 
+<<<<<<< HEAD
 
 /**Function*************************************************************
 
@@ -160,6 +164,8 @@ Vec_Int_t * Gia_ManSimDeriveResets( Gia_Man_t * pGia )
 }
 
 
+=======
+>>>>>>> 315ac30... test_commit
 /**Function*************************************************************
 
   Synopsis    [This procedure sets default parameters.]
@@ -197,7 +203,10 @@ void Gia_ManSimSetDefaultParams( Gia_ParSim_t * p )
 ***********************************************************************/
 void Gia_ManSimDelete( Gia_ManSim_t * p )
 {
+<<<<<<< HEAD
     Vec_IntFreeP( &p->vConsts );
+=======
+>>>>>>> 315ac30... test_commit
     Vec_IntFreeP( &p->vCis2Ids );
     Gia_ManStopP( &p->pAig );
     ABC_FREE( p->pDataSim );
@@ -223,10 +232,13 @@ Gia_ManSim_t * Gia_ManSimCreate( Gia_Man_t * pAig, Gia_ParSim_t * pPars )
     int Entry, i;
     p = ABC_ALLOC( Gia_ManSim_t, 1 );
     memset( p, 0, sizeof(Gia_ManSim_t) );
+<<<<<<< HEAD
     // look for reset signals
     if ( pPars->fVerbose )
         p->vConsts = Gia_ManSimDeriveResets( pAig );
     // derive the frontier
+=======
+>>>>>>> 315ac30... test_commit
     p->pAig   = Gia_ManFront( pAig );
     p->pPars  = pPars;
     p->nWords = pPars->nWords;
@@ -248,7 +260,10 @@ Gia_ManSim_t * Gia_ManSimCreate( Gia_Man_t * pAig, Gia_ParSim_t * pPars )
         12.0*Gia_ManObjNum(p->pAig)/(1<<20), 
         4.0*p->nWords*p->pAig->nFront/(1<<20), 
         4.0*p->nWords*(Gia_ManCiNum(p->pAig) + Gia_ManCoNum(p->pAig))/(1<<20) );
+<<<<<<< HEAD
 
+=======
+>>>>>>> 315ac30... test_commit
     return p;
 }
 

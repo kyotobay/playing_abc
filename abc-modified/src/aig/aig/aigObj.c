@@ -213,6 +213,7 @@ void Aig_ObjDisconnect( Aig_Man_t * p, Aig_Obj_t * pObj )
 //    if ( p->pOrderData && Aig_ObjIsNode(pObj) )
 //        Aig_ObjOrderRemove( p, pObj->Id );
 }
+<<<<<<< HEAD
 
 /**Function*************************************************************
 
@@ -236,6 +237,31 @@ void Aig_ObjDelete( Aig_Man_t * p, Aig_Obj_t * pObj )
     Vec_PtrWriteEntry( p->vObjs, pObj->Id, NULL );
     Aig_ManRecycleMemory( p, pObj );
 }
+=======
+
+/**Function*************************************************************
+
+  Synopsis    [Deletes the node.]
+
+  Description []
+               
+  SideEffects []
+
+  SeeAlso     []
+
+***********************************************************************/
+void Aig_ObjDelete( Aig_Man_t * p, Aig_Obj_t * pObj )
+{
+    assert( !Aig_IsComplement(pObj) );
+    assert( !Aig_ObjIsTerm(pObj) );
+    assert( Aig_ObjRefs(pObj) == 0 );
+    if ( p->pFanData && Aig_ObjIsBuf(pObj) )
+        Vec_PtrRemove( p->vBufs, pObj );
+    p->nObjs[pObj->Type]--;
+    Vec_PtrWriteEntry( p->vObjs, pObj->Id, NULL );
+    Aig_ManRecycleMemory( p, pObj );
+}
+>>>>>>> 315ac30... test_commit
 
 /**Function*************************************************************
 
@@ -265,6 +291,7 @@ void Aig_ObjDelete_rec( Aig_Man_t * p, Aig_Obj_t * pObj, int fFreeTop )
     if ( pFanin1 && !Aig_ObjIsNone(pFanin1) && Aig_ObjRefs(pFanin1) == 0 )
         Aig_ObjDelete_rec( p, pFanin1, 1 );
 }
+<<<<<<< HEAD
 
 /**Function*************************************************************
 
@@ -286,6 +313,8 @@ void Aig_ObjDeletePo( Aig_Man_t * p, Aig_Obj_t * pObj )
     Vec_PtrWriteEntry( p->vObjs, pObj->Id, NULL );
     Aig_ManRecycleMemory( p, pObj );
 }
+=======
+>>>>>>> 315ac30... test_commit
 
 /**Function*************************************************************
 

@@ -48,7 +48,10 @@ static int IoCommandReadStatus  ( Abc_Frame_t * pAbc, int argc, char **argv );
 static int IoCommandWrite       ( Abc_Frame_t * pAbc, int argc, char **argv );
 static int IoCommandWriteHie    ( Abc_Frame_t * pAbc, int argc, char **argv );
 static int IoCommandWriteAiger  ( Abc_Frame_t * pAbc, int argc, char **argv );
+<<<<<<< HEAD
 static int IoCommandWriteAigerCex( Abc_Frame_t * pAbc, int argc, char **argv );
+=======
+>>>>>>> 315ac30... test_commit
 static int IoCommandWriteBaf    ( Abc_Frame_t * pAbc, int argc, char **argv );
 static int IoCommandWriteBblif  ( Abc_Frame_t * pAbc, int argc, char **argv );
 static int IoCommandWriteBlif   ( Abc_Frame_t * pAbc, int argc, char **argv );
@@ -112,7 +115,10 @@ void Io_Init( Abc_Frame_t * pAbc )
     Cmd_CommandAdd( pAbc, "I/O", "write",         IoCommandWrite,        0 );
     Cmd_CommandAdd( pAbc, "I/O", "write_hie",     IoCommandWriteHie,     0 );
     Cmd_CommandAdd( pAbc, "I/O", "write_aiger",   IoCommandWriteAiger,   0 );
+<<<<<<< HEAD
     Cmd_CommandAdd( pAbc, "I/O", "write_aiger_cex",   IoCommandWriteAigerCex,   0 );
+=======
+>>>>>>> 315ac30... test_commit
     Cmd_CommandAdd( pAbc, "I/O", "write_baf",     IoCommandWriteBaf,     0 );
     Cmd_CommandAdd( pAbc, "I/O", "write_bblif",   IoCommandWriteBblif,   0 );
     Cmd_CommandAdd( pAbc, "I/O", "write_blif",    IoCommandWriteBlif,    0 );
@@ -1436,6 +1442,7 @@ usage:
   SeeAlso     []
 
 ***********************************************************************/
+<<<<<<< HEAD
 int IoCommandWriteAigerCex( Abc_Frame_t * pAbc, int argc, char **argv )
 {
     char * pFileName;
@@ -1482,6 +1489,8 @@ usage:
   SeeAlso     []
 
 ***********************************************************************/
+=======
+>>>>>>> 315ac30... test_commit
 int IoCommandWriteBaf( Abc_Frame_t * pAbc, int argc, char **argv )
 {
     char * pFileName;

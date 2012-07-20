@@ -2004,6 +2004,7 @@ int Abc_NtkDarBmcInter( Abc_Ntk_t * pNtk, Inter_ManParams_t * pPars, Abc_Ntk_t *
     return RetValue;
 }
 
+<<<<<<< HEAD
 /**Function*************************************************************
 
   Synopsis    [Gives the current ABC network to AIG manager for processing.]
@@ -2091,11 +2092,42 @@ int Abc_NtkDarDemiterDual( Abc_Ntk_t * pNtk, int fVerbose )
     // create new AIGs
     ABC_FREE( pPart1->pName );
     pPart1->pName = Aig_UtilStrsav( "part1" );
+=======
+/**Function*************************************************************
+
+  Synopsis    [Gives the current ABC network to AIG manager for processing.]
+
+  Description []
+               
+  SideEffects []
+
+  SeeAlso     []
+
+***********************************************************************/
+int Abc_NtkDarDemiter( Abc_Ntk_t * pNtk )
+{ 
+    char * pFileNameGeneric, pFileName0[1000], pFileName1[1000];
+    Aig_Man_t * pMan, * pPart0, * pPart1;//, * pMiter;
+    // derive the AIG manager
+    pMan = Abc_NtkToDar( pNtk, 0, 1 );
+    if ( pMan == NULL )
+    {
+        printf( "Converting network into AIG has failed.\n" );
+        return 0;
+    }
+//    if ( !Saig_ManDemiterSimple( pMan, &pPart0, &pPart1 ) )
+    if ( !Saig_ManDemiterSimpleDiff( pMan, &pPart0, &pPart1 ) )
+    {
+        printf( "Demitering has failed.\n" );
+        return 0;
+    }
+>>>>>>> 315ac30... test_commit
     // create file names
     pFileNameGeneric = Extra_FileNameGeneric( pNtk->pSpec );
     sprintf( pFileName0,  "%s%s",  pFileNameGeneric, "_part0.aig" ); 
     sprintf( pFileName1,  "%s%s",  pFileNameGeneric, "_part1.aig" ); 
     ABC_FREE( pFileNameGeneric );
+<<<<<<< HEAD
     Ioa_WriteAiger( pPart0, pFileName0, 0, 0 );
     Ioa_WriteAiger( pPart1, pFileName1, 0, 0 );
     printf( "Demitering produced two files \"%s\" and \"%s\".\n", pFileName0, pFileName1 );
@@ -2119,6 +2151,22 @@ int Abc_NtkDarDemiterDual( Abc_Ntk_t * pNtk, int fVerbose )
     Aig_ManStop( pMan );
     return 1;
 } 
+=======
+    // dump files
+    Ioa_WriteAiger( pPart0, pFileName0, 0, 0 );
+    Ioa_WriteAiger( pPart1, pFileName1, 0, 0 );
+    printf( "Demitering produced two files \"%s\" and \"%s\".\n", pFileName0, pFileName1 );
+    // create two-level miter
+//    pMiter = Saig_ManCreateMiterTwo( pPart0, pPart1, 2 );
+//    Aig_ManDumpBlif( pMiter, "miter01.blif", NULL, NULL );
+//    Aig_ManStop( pMiter );
+//    printf( "The new miter is written into file \"%s\".\n", "miter01.blif" );
+    Aig_ManStop( pPart0 );
+    Aig_ManStop( pPart1 );
+    Aig_ManStop( pMan );
+    return 1;
+} 
+>>>>>>> 315ac30... test_commit
  
 /**Function*************************************************************
 

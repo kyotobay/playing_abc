@@ -46,7 +46,11 @@ ABC_NAMESPACE_IMPL_START
 Pdr_Set_t * Pdr_SetAlloc( int nSize )
 {
     Pdr_Set_t * p;
+<<<<<<< HEAD
     assert( nSize >= 0 && nSize < (1<<30) );
+=======
+    assert( nSize < (1<<15) );
+>>>>>>> 315ac30... test_commit
     p = (Pdr_Set_t *)ABC_CALLOC( char, sizeof(Pdr_Set_t) + nSize * sizeof(int) );
     return p;
 }
@@ -66,7 +70,11 @@ Pdr_Set_t * Pdr_SetCreate( Vec_Int_t * vLits, Vec_Int_t * vPiLits )
 {
     Pdr_Set_t * p;
     int i;
+<<<<<<< HEAD
     assert( Vec_IntSize(vLits) + Vec_IntSize(vPiLits) < (1<<30) );
+=======
+    assert( Vec_IntSize(vLits) + Vec_IntSize(vPiLits) < (1<<15) );
+>>>>>>> 315ac30... test_commit
     p = (Pdr_Set_t *)ABC_ALLOC( char, sizeof(Pdr_Set_t) + (Vec_IntSize(vLits) + Vec_IntSize(vPiLits)) * sizeof(int) );
     p->nLits  = Vec_IntSize(vLits);
     p->nTotal = Vec_IntSize(vLits) + Vec_IntSize(vPiLits);
